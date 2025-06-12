@@ -1,0 +1,4139 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "geometry": {
+        "coordinates": [
+          -104.6772661,
+          39.8630863
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-05-10T22:53:39.019952Z",
+        "five_star_rating_published": 2,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xedc4d01d992c4d77",
+        "location": {
+          "address": "8500 Peña Blvd, Denver, CO 80249, United States",
+          "country_code": "US",
+          "name": "Little Man Ice Cream"
+        },
+        "review_text_published": "Closed on a Saturday despite online showing open hours all afternoon."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6869413,
+          35.6235396
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-05-02T23:26:27.601509Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xfee0b19d62fd3bdd",
+        "location": {
+          "address": "825 Riverside Ave #5, Paso Robles, CA 93446, United States",
+          "country_code": "US",
+          "name": "Cheese and Charcuterie Vending Machine - Cured and Cultivated"
+        },
+        "review_text_published": "This thing is amazing.  It has cheeses you will love and cheeses that will make you question your existence.  The variety is impressive and it is all very convenient to the 101.  Have fun."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1033161,
+          37.9948328
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-29T01:56:22.103415Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9c26ae5808e6334c",
+        "location": {
+          "address": "1135 Arnold Dr Suite A, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Taqueria Extra"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$1–10"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Chips",
+              "Street Tacos"
+            ]
+          }
+        ],
+        "review_text_published": "Our neighborhood's best Mexican restaurant.  The tacos are generous with meat.  I'm a fan of their quesadillas.   There are so many choices that it might take you a while to read the menu across 3 monitors in tiny print."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.9860644,
+          37.9620925
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-27T03:53:44.601213Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2ca34f41c70d38b1",
+        "location": {
+          "address": "4600A Clayton Rd, Concord, CA 94521, United States",
+          "country_code": "US",
+          "name": "Nation's Giant Hamburgers & Great Pies"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Breakfast"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Pancakes and Scrambled Eggs"
+            ]
+          }
+        ],
+        "review_text_published": "Tastefully remodeled after the fire.  The service is friendly and fluently bilingual at all Nation's locations I've been to.  This location is very clean and well cared for.  Portions are generous.  You shouldn't go away hungry."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.2159910,
+          36.8849921
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-25T18:02:39.474769Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1d6036d2169082f",
+        "location": {
+          "address": "2750 N Military Hwy, Norfolk, VA 23518, United States",
+          "country_code": "US",
+          "name": "Shell"
+        },
+        "review_text_published": "I was so glad that their pump printed a receipt. So many pumps fail to do so these days.   Convenient for airport car rental drop offs."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5196762,
+          37.1364734
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-25T16:33:19.295132Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5521e2e739d725df",
+        "location": {
+          "address": "12747 Jefferson Ave, Newport News, VA 23602, United States",
+          "country_code": "US",
+          "name": "2nd & Charles"
+        },
+        "review_text_published": "Easy to work with for turning your old books and collectibles into cash or store credit.  I turned two boxes of books until $15 in store credit which we used to get a couple of 3d puzzles.  I'm happy to have things gone that are ready and replacing them with something interesting is even better"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -75.6695272,
+          35.9095763
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-25T16:28:08.010985Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xac4b3bf6f6ec4d62",
+        "location": {
+          "address": "208 Queen Elizabeth Ave, Manteo, NC 27954, United States",
+          "country_code": "US",
+          "name": "Lost Colony Tavern"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$20–30"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Shepherd's Pie"
+            ]
+          }
+        ],
+        "review_text_published": "Great food and I never thought I'd hear myself saying that about English food.  The pretzel is delightful.  My whole party of intolerant foodies was impressed with their meals.  My bangers and mash were incredible.  The bangers were some of the best sausages I've ever had."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.1993707,
+          36.8935106
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-25T15:58:19.090838Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa8b44fabd4c05de6",
+        "location": {
+          "address": "2200 Norview Ave, Norfolk, VA 23518, United States",
+          "country_code": "US",
+          "name": "Norfolk International Airport"
+        },
+        "review_text_published": "The best airport for Newport News and Williamsburg.  Richmond is the only other viable option since PHF can't keep an airline.  Norfolk is so much nicer to go through than Richmond.  The brutalist architecture provides a delightful backdrop for the amazing glass art displays. The parking and pickup zones are well designed in Norfolk also."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4809515,
+          37.1055394
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-22T17:44:15.670010Z",
+        "five_star_rating_published": 1,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x7c99eeb7462f8499",
+        "location": {
+          "address": "739 Academy Ln, Newport News, VA 23602, United States",
+          "country_code": "US",
+          "name": "Hampton Roads Academy"
+        },
+        "review_text_published": "Having elitists does not make you elite. I passed the admissions tests but my parents didn't act rich enough for the administrators.  So this is the place for you if your whole family is good at acting posh."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.1933844,
+          36.5496513
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-21T03:14:09.801827Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe41de6ec5f2ac27d",
+        "location": {
+          "address": "106 Caratoke Hwy, Moyock, NC 27958, United States",
+          "country_code": "US",
+          "name": "The Northern Outer Banks Welcome Center"
+        },
+        "review_text_published": "Great selection of maps from nearby states.   Friendly staff.   Clean bathrooms.  Free coffee.  What more could you ask for?  Well, you also get the chance to admire how they converted a car dealership into a visitor center."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -75.7113955,
+          35.9368310
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-21T03:07:18.717702Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x4dcdb5726a1d0c6b",
+        "location": {
+          "address": "1411 National Park Dr, Manteo, NC 27954, United States",
+          "country_code": "US",
+          "name": "Elizabethan Gardens"
+        },
+        "questions": [
+          {
+            "question": "Visited on",
+            "selected_option": "Weekday"
+          },
+          {
+            "question": "Wait time",
+            "selected_option": "No wait"
+          },
+          {
+            "question": "Reservation recommended",
+            "selected_option": "Not sure"
+          }
+        ],
+        "review_text_published": "Such a lovely place.  The paths are level and well maintained. We got to see a wide variety of flowers and trees blooming in mid-April.  It was a nice surprise to find interesting art and a long history."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4937390,
+          37.0752415
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-12T14:06:18.890055Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x629931832590f4f0",
+        "location": {
+          "address": "12490 Warwick Blvd, Newport News, VA 23606, United States",
+          "country_code": "US",
+          "name": "Ace Peninsula Hardware"
+        },
+        "review_text_published": "Excellent customer service."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5755984,
+          37.1997518
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-08T00:29:53.585924Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe969811db231aa85",
+        "location": {
+          "address": "163 Yorktown Rd, Newport News, VA 23603, United States",
+          "country_code": "US",
+          "name": "Lee Hall Mansion"
+        },
+        "questions": [
+          {
+            "question": "Visited on",
+            "selected_option": "Weekend"
+          },
+          {
+            "question": "Wait time",
+            "selected_option": "No wait"
+          },
+          {
+            "question": "Reservation recommended",
+            "selected_option": "No"
+          }
+        ],
+        "review_text_published": "The story of this house and it's series of residents makes clear that a lot of racial assumptions about the Civil War are wrong.  Neither the freededmen nor the restored land owner could sustain the farm after the war despite fertile land and roads and rail connections.\n\nThe docents are knowledgeable and enthusiastic.  The grounds are lovely.   The house is incredible for when it was built.  It would make a great mansion in the 1930s but it was built fifty years earlier."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5743086,
+          37.1920906
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-04-05T14:11:01.508298Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x41d0d4bc79960041",
+        "location": {
+          "address": "8 Elmhurst St, Newport News, VA 23603, United States",
+          "country_code": "US",
+          "name": "Hong Kong Chinese Restaurant"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "I love how Hong Kong has been keeping Lee Hall happy and well fed for decades.  Their service is cheerful and prompt.   This is what east coast Chinese food tastes like to me.\n\nThe parking lot feels empty without the grocery store, but there's plenty of places to park.  Park on the curb if you want to save a few steps."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0566692,
+          37.9718140
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-29T06:14:03.987431Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa4c7337f625afcdd",
+        "location": {
+          "address": "2005 Diamond Blvd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Yard House"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          }
+        ],
+        "review_text_published": "The pretzel is amazing.  The space is lovely but I wish it were not so noisy."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1812102,
+          37.8781669
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-27T03:38:26.452443Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xc20b4ec9e45f1dff",
+        "location": {
+          "address": "64 Moraga Way, Orinda, CA 94563, United States",
+          "country_code": "US",
+          "name": "Europa Hofbrau"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Turkey Dinner"
+            ]
+          }
+        ],
+        "review_text_published": "Excellent turkey and mashed potatoes.  I wish I lived next door."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2875521,
+          38.2965348
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-21T16:42:13.145953Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xf812fd5967663648",
+        "location": {
+          "address": "1350 3rd St, Napa, CA 94559, United States",
+          "country_code": "US",
+          "name": "Uptown Theatre"
+        },
+        "review_text_published": "Lovely restored theater.  Great accessibility.  Helpful staff."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0881006,
+          37.9818958
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-20T00:09:06.137728Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x78ff163a6507038d",
+        "location": {
+          "address": "Hidden Valley Hawks Garden, 500 Glacier Dr, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Glacier Park Entry Trail"
+        },
+        "questions": [
+          {
+            "question": "Difficulty",
+            "selected_option": "Moderate"
+          },
+          {
+            "question": "Route type",
+            "selected_option": "Not sure"
+          },
+          {
+            "question": "Time spent",
+            "selected_option": "Less than 1 hr"
+          },
+          {
+            "question": "Recommended activities",
+            "selected_options": [
+              "Hiking",
+              "Running",
+              "Biking",
+              "Dog Walking",
+              "Birdwatching",
+              "Walking"
+            ]
+          }
+        ],
+        "review_text_published": "It's my favorite place to come out of the park.  There is a nice sidewalk after you get past the community garden.  It is sometimes impacted by construction, but in between there are years of quiet hiking."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2593291,
+          37.8398457
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-20T00:03:52.372622Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xade8bc65ae9c358a",
+        "location": {
+          "address": "5300 Claremont Ave, Oakland, CA 94618, United States",
+          "country_code": "US",
+          "name": "Temescal Farmer's Market"
+        },
+        "review_text_published": "Our favorite farmers market despite needing to drive past closer markets. This is our favorite place to get Alexandre milk, Golden State Pickle Works products, blinis, and vegetables.  Parking can take time to find, but we're OK with a bit of extra walking."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0398559,
+          37.9746640
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-18T14:16:12.561571Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x4a82e1e714447741",
+        "location": {
+          "address": "Park & Shop, 1795 Willow Pass Rd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "99 Ranch Market"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2518462,
+          37.8438203
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-15T19:48:24.216033Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x713c68716da58d72",
+        "location": {
+          "address": "5655 College Ave, Oakland, CA 94618, United States",
+          "country_code": "US",
+          "name": "Market Hall Bakery"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Other"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$20–30"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Chocolate Pot De Creme",
+              "Eclair Chocolate Layer Cake Tiramisu"
+            ]
+          }
+        ],
+        "review_text_published": "The best bakery in the Bay Area.  The only place to find the prefect Princess Cake.  Great cupcakes and croissants."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.3833806,
+          37.2533694
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-15T19:44:52.751320Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xb85933436bdec289",
+        "location": {
+          "address": "287 Stage Rd, Pescadero, CA 94060, United States",
+          "country_code": "US",
+          "name": "Arcangeli Grocery Co."
+        },
+        "review_text_published": "Great selection.  Loved the deli.  Friendly folks."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0560946,
+          37.9708264
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-15T19:42:47.333594Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xc0585ef898578814",
+        "location": {
+          "address": "1981 Diamond Blvd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Chick-fil-A"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 4
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Chick-Fil-A Waffle Potato Fries",
+              "Chick-Fil-A Chicken Sandwich"
+            ]
+          }
+        ],
+        "review_text_published": "Incredibly relieved that their drive through design does not back traffic into Diamond Blvd like the one in Walnut Creek does.  The food is great and the staff are friendly.  This is a great addition to the area."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0738464,
+          37.9488017
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-15T03:10:19.057163Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x7f971933aa8eb645",
+        "location": {
+          "address": "401 Gregory Ln Suite 130, Pleasant Hill, CA 94523, United States",
+          "country_code": "US",
+          "name": "East Bay Teeth"
+        },
+        "review_text_published": "Dr. Tran Hoang is the best dentist I have ever met.  She is incredibly knowledgeable and adept. Her staff are the most gentle folks also.  Their x-rays were the first time I've not had my gums repeatedly jabbed in the process."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.3712628,
+          37.2565756
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-09T20:19:22.001571Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1e0629efd0d86b7b",
+        "location": {
+          "address": "205 North St, Pescadero, CA 94060, United States",
+          "name": "Harley Farms Goat Dairy"
+        },
+        "review_text_published": "So many cute goats!  They've also got an alpaca.  Their cheese is unique and tasty.  We learned a lot about Pescadero on the tour.  Love the thriving farm."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0641315,
+          37.9205221
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-07T17:02:04.368992Z",
+        "five_star_rating_published": 1,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x4d8c2a6709d170e3",
+        "location": {
+          "address": "2646 N Main St suite #100, Walnut Creek, CA 94597, United States",
+          "name": "Diablo Subaru of Walnut Creek Service Center"
+        },
+        "review_text_published": "Waiting for over two years for parts to come in for a warranty repair.  We've gone in person, emailed, and called persistently.  They don't follow up or get it done.  Calling corporate hardly makes any difference.\n\nBut the automated sales emails and calls and mailers keep coming.  They even want to buy back our car that they can't find the parts for.\n\nI keep hoping this will improve, but I'm not holding my breath."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5180160,
+          37.1105410
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-05T02:06:34.608432Z",
+        "five_star_rating_published": 2,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa33c3837d42512c8",
+        "location": {
+          "address": "13179 Warwick Blvd, Newport News, VA 23602, United States",
+          "name": "Danny's Auto Glass & Mirror"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0585663,
+          37.9350326
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-03-02T17:03:11.266811Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe87c1011afd6398e",
+        "location": {
+          "address": "3250 Buskirk Ave, Pleasant Hill, CA 94523, United States",
+          "country_code": "US",
+          "name": "Rasputin Music / Anastasia's Vintage"
+        },
+        "review_text_published": "We got a good price for our used CDs and DVDs.  The staff were great to work with.  The new location is spacious and there's plenty of parking."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.3952680,
+          37.7663067
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-28T00:20:26.820332Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa4fe07d6eb7b5697",
+        "location": {
+          "address": "16th & Mississippi, 901 16th Street, 80 Mississippi St Parking Entrance, San Francisco, CA 94107, United States",
+          "name": "San Francisco Flower Market"
+        },
+        "review_text_published": "The new location is excellent.  The concrete is very smooth and a joy to push carts across.  The parking is ample and well connected to the various vendors.  The entrance for parking is at 80 Mississippi Street.  The cold rooms are huge.  The flower and pot selection is unbeatable."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.7617590,
+          38.0046807
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-25T19:55:42.662770Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa79a6b9514f3a5f",
+        "location": {
+          "address": "3100 E 18th St, Antioch, CA 94509, United States",
+          "country_code": "US",
+          "name": "Mac's Old House"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 4
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          }
+        ],
+        "review_text_published": "There are a few options for those of us who don't eat beef, but the soup does not work if you have a beef allergy.  The whole experience is a unique local gem.  You need to go in and get your name on the list, but then you wait outside or at the bar.  The staff are efficient and no nonsense."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0618866,
+          37.9113788
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-19T03:11:01.881835Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x924df9b57a107a57",
+        "location": {
+          "address": "1291 Parkside Dr, Walnut Creek, CA 94596, United States",
+          "country_code": "US",
+          "name": "Creek House Dim Sum Restaurant"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$20–30"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "Our favorite dim sum place in the area.  They don't have any cart service, but the ordered food comes out fast.  We usually dine in, but their to-go is good and popular."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1021323,
+          37.9934638
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-17T21:27:21.999422Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2fd52e821378ea10",
+        "location": {
+          "address": "1160 Arnold Dr C, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Sunrise Donuts"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$1–10"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Doughnut"
+            ]
+          }
+        ],
+        "review_text_published": "Great hole in the wall donut shop.  There's not much space for dining in, but you won't have to park very far away.  We enjoy their donut dough flavor, and their chocolate glazing is great.  Get there early to have a fuller selection"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0568797,
+          37.9448371
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-17T03:08:37.172659Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5ad9f66480e33175",
+        "location": {
+          "address": "2380 Monument Blvd, Pleasant Hill, CA 94523, United States",
+          "country_code": "US",
+          "name": "See's Candies"
+        },
+        "review_text_published": "This is the best location for See's that I know of.  They are rarely that busy.  The folks are friendly and unhurried.  I'd be surprised if they are out of stock for anything.\n\nIt is hilarious that they're right next to the dentist's office.  It is nice for neighbors to help each other's businesses."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6589698,
+          35.6453186
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-14T15:47:49.143794Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x4c50c8821f9d8297",
+        "location": {
+          "address": "2421-2445 Golden Hill Rd, Paso Robles, CA 93446, United States",
+          "country_code": "US",
+          "name": "Golden Hills Plaza"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5723669,
+          37.1856345
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-14T15:39:16.605271Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x30eb78a15e370fe",
+        "location": {
+          "address": "17303 Warwick Blvd, Newport News, VA 23603, United States",
+          "country_code": "US",
+          "name": "Dough Haus"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Doughnut"
+            ]
+          }
+        ],
+        "review_text_published": "We have gone in several times for pizza or donuts and we've been pleased every time with the tastes and the kind service.  We've always done take out since they are within waking distance of our condo.  It is awesome to see anyone making a success of this challenging location.  The variety of donuts is great and I'm looking forward to trying more flavors."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -80.3217697,
+          35.9769445
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-09T21:54:54.147928Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x82a2ff8499964911",
+        "location": {
+          "address": "4643 Friedberg Church Rd, Clemmons, NC 27012, United States",
+          "country_code": "US",
+          "name": "Mrs Hanes' Moravian Cookies"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Delivery"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "These are the best Moravian cookies I've ever had.  Completely legit flavor and amazingly thin.  They remind me of the cookies my grandmother always got from our family in Salem NC.  I'm so impressed with keeping the cookies great and scaling up to ship worldwide. Bravo."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6423377,
+          35.1416473
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-07T22:23:12.518966Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe052076818af2f7b",
+        "location": {
+          "address": "861 Dolliver St, Pismo Beach, CA 93449, United States",
+          "country_code": "US",
+          "name": "Old West Cinnamon Rolls"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Brunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$1–10"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Cinnamon Roll"
+            ]
+          }
+        ],
+        "review_text_published": "If you are in Pismo, go here in the morning and enjoy incredible cinnamon rolls.  Yes, you might be in line for a while, but the line isn't just dumb tourists.  They have quite a few flavors and options to choose from.  Then go take a nap on the beach so you can recover before lunchtime."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.1364745,
+          36.2036331
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-07T22:17:12.916329Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xf1cd28e8144de1a9",
+        "location": {
+          "address": "1301 Broadway St, King City, CA 93930, United States",
+          "country_code": "US",
+          "name": "Starbucks"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Brunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 4
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "One of our favorite places to stop on the 101.  The staff are friendly and efficient.  Entrance is a bit hard to find, but I promise that you can go inside.  Sad that they chose to limit bathrooms to customers only, but that is corporate policy.  King City also has a nice selection of gas stations ."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1082020,
+          37.9967931
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-07T22:11:52.281846Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xafd53e4cc47a6fb5",
+        "location": {
+          "address": "1029 Arnold Dr, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Kyoto Ramen Hawaiian BBQ & Boba"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          }
+        ],
+        "review_text_published": "Great variety of cuisines so that your whole family can find something they want to eat.   The staff are friendly and helpful.  They are conveniently next to the pool hall and have a few tables inside to eat at."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1127366,
+          37.9971807
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-06T20:44:59.535073Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x18c82e8df753368b",
+        "location": {
+          "address": "901 Arnold Dr, Martinez, CA 94553, United States",
+          "name": "Public Storage"
+        },
+        "review_text_published": "* Easy to get to.\n* Climate controlled.\n* Well-maintained.\n* Thoughtful and energetic staff.\n* Effective security.\n\nGreat to work with Tammi in 2025.  Apparently seeing things in person is going out of style but Tammi took great care of us and showed us around.  Thanks for taking the time."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6071551,
+          35.1293797
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-01T20:07:07.780609Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe2eccc880ac9e2d0",
+        "location": {
+          "address": "1760 El Camino Real, Grover Beach, CA 93433, United States",
+          "country_code": "US",
+          "name": "AJ Spurs Saloon & Dining Hall"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$20–30"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "Our favorite restaurant near Pismo. We try to visit every time we're in the area.  It is great to know that you can walk in, get seated and have food in front of you in under 10 minutes.  The selection of meats is good even for folks that don't eat beef.  The servers are friendly folks and they're very helpful."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.1641270,
+          35.0221790
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-02-01T19:41:58.786689Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9040ae17b8d47c21",
+        "location": {
+          "country_code": "US",
+          "name": "On Rotation Events"
+        },
+        "review_text_published": "Great personality, great energy, and all of the gear in a sharp professional package.   Steven mc'd and dj'd our daughters wedding at a vineyard near Paso Robles.  We enjoyed working with him throughout the process.  Steven handled the extensive playlist of requests and all of the necessary announcements without skipping a beat.  The sound and lights rocked the house."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6477361,
+          35.2615226
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-01-23T17:07:55.791115Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbaff647fff73e46e",
+        "location": {
+          "address": "810 Orcutt Rd, San Luis Obispo, CA 93401, United States",
+          "country_code": "US",
+          "name": "The Bunker SLO"
+        },
+        "review_text_published": "Loved the collection in January 2025."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6026396,
+          35.7301481
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-01-20T06:50:22.740179Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xff1e43a67b983597",
+        "location": {
+          "address": "2850 Ranchita Canyon Rd, San Miguel, CA 93451, United States",
+          "country_code": "US",
+          "name": "Bella Terra Vineyard Estates"
+        },
+        "review_text_published": "Beautiful location.  Excellent buildings.  Great folks to work with.\n\nOur daughter's wedding was held at Bella Terra and everyone involved was very impressed with the whole experience.  Getting there may feel like you're driving off into the wilderness, but it is totally worth it.  The vineyards are lovely.\n\nThere are so many birds: hawks, finches, bluebirds, robins, wrens, and starlings.  You will hear them and see them: so great.\n\nThe manor house is extremely nice.  It reminds me of the nicest beds and breakfasts I've ever visited.  They've done a great job of designing the space and decorating it.  There are a variety of nice bedrooms and and a great kitchen/dining area.\n\nThe barn and event space are spacious.  The kids had a great time running around the expansive lawn.  The food service folks have a great place to setup and cater the event.  The bathrooms are convenient and plentiful.\n\nWe are looking forward to finding another reason to do an event at Bella Terra."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.3952680,
+          37.7663067
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-01-08T17:28:33.656099Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa4fe07d6eb7b5697",
+        "location": {
+          "address": "16th & Mississippi, 901 16th Street, 80 Mississippi St Parking Entrance, San Francisco, CA 94107, United States",
+          "name": "San Francisco Flower Market"
+        },
+        "review_text_published": "First visit to the new location.  The whole place feels like a major upgrade.  They are still getting settled into it."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2532004,
+          34.0373031
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2025-01-04T07:06:36.617016Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x3d34c27ec192ef5b",
+        "location": {
+          "address": "1002 Wall St, Los Angeles, CA 90015, United States",
+          "country_code": "US",
+          "name": "Al Weiss Suits & Tuxedos"
+        },
+        "review_text_published": "Great selection.  Great folks to work with.  This is the largest menswear store in the LA Fashion District.  Most of the other stores are about a quarter of the size.  The selection leans toward the conservative, but they have a nice variety of colors for the folks that can handle it.  They also have quite a few toddler suits.  Al Weiss is definitely where I'll head for my next suit."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2535303,
+          34.0383162
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-17T20:37:30.610520Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x93099af99dc84c03",
+        "location": {
+          "address": "936 Maple Ave, Los Angeles, CA 90015, United States",
+          "country_code": "US",
+          "name": "La Fresa Loca"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "Our favorite place to eat in the LA Fashion District.  Excellent papusas, quesadillas, and fajitas.  They are always busy.  It is fun to watch shoppers in the nearby shops.  If you watch closely you'll also see folks passing through from the parking garage on the elevator.  There is also a bathroom for $1."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2565439,
+          34.0470524
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-17T18:53:16.998507Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x189e483154a17e53",
+        "location": {
+          "address": "700 S Grand Ave, Los Angeles, CA 90017, United States",
+          "country_code": "US",
+          "name": "Bottega Louie"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Other"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$1–10"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Bakery"
+            ]
+          }
+        ],
+        "review_text_published": "Gorgeous pastries are also tasty and reasonably priced.  The architecture and presentation of the entire space is spacious and classy.  The staff are friendly, knowledgeable, and professional.  You can also see into the kitchen area to watch their creations come to life."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.7325344,
+          37.2538981
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-10T16:20:30.096864Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe55c50f7470999f2",
+        "location": {
+          "address": "1211 Jamestown Rd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Old Chickahominy House"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Breakfast"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Fruit Salad",
+              "Sausage",
+              "Coconut Pie",
+              "Pecan Pancakes"
+            ]
+          }
+        ],
+        "review_text_published": "A local Williamsburg treasure.   The country ham is tasty and pleasantly salty.  Their pies are made by hand with the freshest ingredients.  Call ahead to get squeezed in for lunch but the breakfast you just show up for."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4600488,
+          37.0640238
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-08T22:24:52.496433Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x96942239cdcaa80b",
+        "location": {
+          "address": "503 Harpersville Rd, Newport News, VA 23601, United States",
+          "country_code": "US",
+          "name": "Game's Farmers Market"
+        },
+        "review_text_published": "A unique farmer's market.  Open year around.  They have flowers outside in the the warm months.  They offer an incredible selection of candies, spices, dry goods, and meats.  Most of our country hams for the last ten years have come from Game's.  They also offer a complete set of groceries including milk, beer, cereal, and ice cream."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.8564088,
+          35.3802764
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-06T04:01:36.304089Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x88faebcc2941eee5",
+        "location": {
+          "address": "295 Atascadero Rd, Morro Bay, CA 93442, United States",
+          "country_code": "US",
+          "name": "Hampton Inn Morro Bay"
+        },
+        "questions": [
+          {
+            "question": "Rooms",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "There are sidewalks most of the way to the Morro Bay restaurants and beaches.  The hotel is an elegant modern design.  We liked the variety of breakfast nooks in this layout."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2605551,
+          34.0497230
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-11-01T05:54:49.076092Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa46bf36caf536fed",
+        "location": {
+          "address": "900 Wilshire Blvd, Los Angeles, CA 90017, United States",
+          "country_code": "US",
+          "name": "InterContinental Los Angeles Downtown by IHG"
+        },
+        "questions": [
+          {
+            "question": "Trip type",
+            "selected_option": "Vacation"
+          },
+          {
+            "question": "Travel group",
+            "selected_option": "Couple"
+          },
+          {
+            "question": "Rooms",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 5
+          },
+          {
+            "question": "Hotel highlights",
+            "selected_options": [
+              "Luxury",
+              "Great view"
+            ]
+          }
+        ],
+        "review_text_published": "The views while checking in on the 70th floor are incredible.  Breakfast is on the 69th floor, and there was an awesome fog layer covering most of the city when we stayed.   It is very convenient to downtown museums, restaurants, and the fashion district.   The staff were absolutely amazing to interact with and we can't wait to visit again."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2515674,
+          34.0406702
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-30T16:28:50.564908Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x93b2b06aa2466291",
+        "location": {
+          "address": "809 Maple Ave, Los Angeles, CA 90014, United States",
+          "country_code": "US",
+          "name": "Termah Textiles"
+        },
+        "review_text_published": "Incredible and unique selection of fabrics.  I wish I could share some photos, but they've asked for no photos to be taken and I am happy to respect that.  So you will have to go in person to see what I'm trying to describe, but if you do you will be glad you made some time.  The owners are great to work from being so nice and knowledgable.  Their amazing taste in fabrics shines through in the unique selection of fabrics.  If you're burned out from finding the same stuff over and over again in every store, head over to Termah Textiles.  We did and we found just what we needed before we had to wrap up our visit to the fashion district."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.4103924,
+          37.7915528
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-30T04:11:10.333165Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xcff515fee06c6dd1",
+        "location": {
+          "address": "999 California St, San Francisco, CA 94108, United States",
+          "country_code": "US",
+          "name": "InterContinental Mark Hopkins San Francisco by IHG"
+        },
+        "questions": [
+          {
+            "question": "Trip type",
+            "selected_option": "Business"
+          },
+          {
+            "question": "Travel group",
+            "selected_option": "Couple"
+          },
+          {
+            "question": "Rooms",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 5
+          },
+          {
+            "question": "Hotel highlights",
+            "selected_options": [
+              "Luxury",
+              "Great view",
+              "Romantic"
+            ]
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.5762297,
+          35.1250222
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-30T02:54:11.068763Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe24106d754bd103f",
+        "location": {
+          "address": "325 E Branch St, Arroyo Grande, CA 93420, United States",
+          "country_code": "US",
+          "name": "The Agrarian Hotel, BW Signature Collection"
+        },
+        "questions": [
+          {
+            "question": "Trip type",
+            "selected_option": "Vacation"
+          },
+          {
+            "question": "Travel group",
+            "selected_option": "Family"
+          },
+          {
+            "question": "Rooms",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 5
+          },
+          {
+            "question": "Hotel highlights",
+            "selected_options": [
+              "Great view",
+              "Romantic",
+              "Kid-friendly"
+            ]
+          }
+        ],
+        "review_text_published": "Our favorite hotel in the Pismo area.  Easy to find off of the 101 and convenient to downtown Arroyo Grande, which has a variety of nice restaurants and stores.  There is also a handy convenience store and deli right across the street."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.2530734,
+          34.0387503
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-30T00:03:13.954196Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x795256d10165407e",
+        "location": {
+          "address": "920 Maple Ave, Los Angeles, CA 90015, United States",
+          "country_code": "US",
+          "name": "Michael Levine, Inc."
+        },
+        "review_text_published": "Levine's is one of the pillars of the LA Fashion District.  They have an impressive variety of fabrics for all different budgets.  Their is a massive offering of buttons, threads and other items needed for completing your sewing project.  Levine's also has a nice space for their huge product offering, so you never feel like you're going to get buried under the fabric."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.7124740,
+          35.1859538
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-29T04:27:44.529191Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5908d620473ce12a",
+        "location": {
+          "address": "1215 Avila Beach Dr, San Luis Obispo, CA 93405, United States",
+          "country_code": "US",
+          "name": "Sycamore Mineral Springs Resort & Spa"
+        },
+        "questions": [
+          {
+            "question": "Travel group",
+            "selected_option": "Couple"
+          },
+          {
+            "question": "Rooms",
+            "rating": 4
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 4
+          },
+          {
+            "question": "Nearby activities",
+            "text_answer": "Very close to Avila Valley Barn and Avila Beach."
+          },
+          {
+            "question": "Walkability",
+            "text_answer": "Pretty hilly."
+          },
+          {
+            "question": "Hotel highlights",
+            "selected_options": [
+              "Romantic"
+            ]
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Nearby activities",
+              "Walkability"
+            ]
+          }
+        ],
+        "review_text_published": "Fabulous place for mineral springs hot tubs for an hour and in every room.  The restaurant and room service serve really good food.  While they do have accessible options, getting to rooms or your got tub might involve a big hill.  Very close to Avila Valley Barn and Avila Beach."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.4330028,
+          37.7836806
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-25T15:39:42.850584Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x696de890da9ee029",
+        "location": {
+          "address": "1529 Fillmore St, San Francisco, CA 94115, United States",
+          "country_code": "US",
+          "name": "State Bird Provisions"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$50–100"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.8569796,
+          35.3705752
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-19T19:02:15.948513Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x3f44c8ab9b57cbae",
+        "location": {
+          "address": "1215 Embarcadero, Morro Bay, CA 93442, United States",
+          "country_code": "US",
+          "name": "Morro Grill"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0940407,
+          37.9583784
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-02T02:35:33.150452Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x6e4ac12b2faea471",
+        "location": {
+          "address": "6682 Alhambra Ave, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Lucia's Craft Sandwich"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Plenty of parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Free parking lot"
+            ]
+          },
+          {
+            "question": "Parking",
+            "text_answer": "Normal for a shopping center."
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking"
+            ]
+          }
+        ],
+        "review_text_published": "The best sandwiches I've had in East Bay.  I'm delighted by their choices of flavors. The portions are sized such that we always get two meals out of a sandwich.  They consistently maintain great quality, so it is one of our regular places."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2517849,
+          37.8470637
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-10-02T02:25:55.014110Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xd9ff632fbddb081a",
+        "location": {
+          "address": "5854 College Ave, Oakland, CA 94618, United States",
+          "country_code": "US",
+          "name": "Xocolate & Confections"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Other"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "This is the best chocolate shop I've ever been in.  Their selection is incredible.  Delightful treats from every corner are organized in good categories.  I'm also impressed with the prices.  The production values of the shop and their own chocolates are top notch.  The staff were very pleasant and knowledgeable."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0324147,
+          37.9941273
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-09-22T03:08:47.305580Z",
+        "five_star_rating_published": 3,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1a7eb15ca3c9a57b",
+        "location": {
+          "address": "3375 Port Chicago Hwy, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Los Pinos Mexican Foods"
+        },
+        "questions": [
+          {
+            "question": "Food",
+            "rating": 3
+          },
+          {
+            "question": "Service",
+            "rating": 2
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.2355200,
+          36.3220600
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2024-09-13T22:53:17.919665Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x871f849899a3c346",
+        "location": {
+          "address": "48 4th St, Greenfield, CA 93927, United States",
+          "country_code": "US",
+          "name": "Higher Level Greenfield"
+        },
+        "review_text_published": "Nice folks. Good prices. Right off the freeway."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.4732299,
+          37.7562439
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-12-08T06:14:47.694046Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x3d5b0419554cd6ed",
+        "location": {
+          "address": "16th Ave, San Francisco, CA 94122, United States",
+          "country_code": "US",
+          "name": "16th Avenue Tiled Steps"
+        },
+        "questions": [
+          {
+            "question": "Visited on",
+            "selected_option": "Weekend"
+          },
+          {
+            "question": "Wait time",
+            "selected_option": "No wait"
+          },
+          {
+            "question": "Reservation recommended",
+            "selected_option": "No"
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0612880,
+          37.9617610
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-12-07T20:18:58.296065Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xce09080ca3264252",
+        "location": {
+          "address": "1050 Contra Costa Blvd, Concord, CA 94523, United States",
+          "country_code": "US",
+          "name": "Aung MayLiKa"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Tea Leaf Salad",
+              "Palatha with Side Dipping Curry",
+              "Mango",
+              "Palatha",
+              "Mango Chicken"
+            ]
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Plenty of parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Free parking lot"
+            ]
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking"
+            ]
+          }
+        ],
+        "review_text_published": "We love this Burmese restaurant.  The tea leaf salad is tasty and can give you a caffeine boost.  We try to eat there at lunch time so we can get to sleep that evening.  The staff are friendly and attentive.  The mango chicken is another favorite dish."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0817530,
+          38.0005229
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-11-04T05:11:29.455296Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x34c82e47355f9a70",
+        "location": {
+          "address": "4808 Sunrise Dr Suite A, Martinez, CA 94553, United States",
+          "country_code": "US",
+          "name": "Velvet Cannabis Weed Dispensary Martinez"
+        },
+        "review_text_published": "Great vibe. The staff are friendly and knowledgeable.  The decor is modern.  It is awesome that they play good tunes and don't need to make it so loud.  There's usually a few deals going to save money.  The variety of qualities and price points for concentrates is excellent."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1009741,
+          37.9942160
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-11-04T05:05:27.253387Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xc3883e9001c8b458",
+        "location": {
+          "address": "1185 Arnold Dr, Martinez, CA 94553, United States",
+          "name": "Village Oaks Shopping Center"
+        },
+        "review_text_published": "Usually easy to find parking.  The entrances are pretty steep.   The restaurants are good.  It is too bad the building with the ice cream shop had a fire and doesn't look like it will be back soon."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0404418,
+          37.9274217
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-11-04T05:01:11.530084Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xfe746b097e1d8c86",
+        "location": {
+          "address": "700 Bancroft Rd, Walnut Creek, CA 94598, United States",
+          "country_code": "US",
+          "name": "Black Bear Diner"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Breakfast"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 3
+          },
+          {
+            "question": "Service",
+            "rating": 4
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ]
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.9894783,
+          37.9645732
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-10-20T23:15:41.969787Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2da84d6430ea9040",
+        "location": {
+          "address": "4375 Clayton Rd G, Concord, CA 94521, United States",
+          "country_code": "US",
+          "name": "Momo N Curry"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Fried Momo"
+            ]
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Plenty of parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Free parking lot"
+            ]
+          },
+          {
+            "question": "Parking",
+            "text_answer": "Nothing in this strip mall is terribly busy so we've never had trouble parking right in front of the place."
+          },
+          {
+            "question": "Kid-friendliness",
+            "text_answer": "Their own kids are in there sometimes."
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking",
+              "Kid-friendliness"
+            ]
+          }
+        ],
+        "review_text_published": "Momo N Curry is one of our favorite restaurants in the area.  They were on our regular rotation throughout COVID.  We have been impressed with their consistent high quality.  Now that we can visit in person again it is great to see the family that runs the place.  If you haven't had a sizzling momo yet, you're really missing out.  They are a treat."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0684799,
+          37.9276745
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-13T03:12:58.956280Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5fc317753bbd9503",
+        "location": {
+          "name": "High Performance Heating & Air"
+        },
+        "questions": [
+          {
+            "question": "Positive",
+            "selected_options": [
+              "Responsiveness",
+              "Punctuality",
+              "Quality",
+              "Professionalism",
+              "Value"
+            ]
+          },
+          {
+            "question": "Services",
+            "selected_options": [
+              "A/C system repair"
+            ]
+          },
+          {
+            "question": "Did you use this business?",
+            "selected_option": "Yes"
+          }
+        ],
+        "review_text_published": "John has come out to our place several times.  Each time our experience has been great and we have felt extremely confidant that the advice we were getting was sound.  He doesn't over promise so you're not worried about being disappointed in the end."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5286914,
+          37.1488379
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-06T03:36:02.679760Z",
+        "five_star_rating_published": 1,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x6175857e4819dc11",
+        "location": {
+          "address": "12911 Jefferson Ave, Newport News, VA 23608, United States",
+          "country_code": "US",
+          "name": "Land & Coates"
+        },
+        "review_text_published": "I hope that management considers that diversity training would help to create an atmosphere that is welcoming to folks regardless of their skin color or other factors.  My friends found this location to be extremely unwelcoming.  We won't be going back."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.7065056,
+          35.1827722
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-05T03:00:57.135584Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1fa4cd56158c74e3",
+        "location": {
+          "address": "560 Avila Beach Dr, San Luis Obispo, CA 93405, United States",
+          "name": "Avila Valley Barn"
+        },
+        "review_text_published": "Goats!  Goats!  Goats!  So many goats!  :). If you're under 10 or otherwise obsessed with goats, that's all you need.  Go see and feed the goats.  But there's so much more.  The pies are great.  Try to get their early because the pies do sell out.  There's also local honey and produce and funny home decorations.  On the weekends there are hay rides through the farm.  Such nice folks."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6737041,
+          35.1581691
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-05T02:57:03.467884Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x8fa06080ae9a482",
+        "location": {
+          "address": "1651 Shell Beach Rd, Pismo Beach, CA 93449, United States",
+          "country_code": "US",
+          "name": "Steaming Bean"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Breakfast"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Plenty of parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Free street parking"
+            ]
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking"
+            ]
+          }
+        ],
+        "review_text_published": "Excellent pastries and tasty beverages.  The staff are very friendly and relaxed.  The decor is fun beach kitsch.  It is located on the main drag through town.  The view of the ocean from the back patio is hard to beat.  It is tempting to turn this place into my office."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1971524,
+          37.7865514
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-05T02:52:04.213095Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9d573ceafd9c2403",
+        "location": {
+          "address": "3417 High St, Oakland, CA 94619, United States",
+          "country_code": "US",
+          "name": "Dick's Donuts"
+        },
+        "review_text_published": "This hole in the wall donut shop has the best apple fritters in the world according to my lady.  I think their other donuts are great too.  Make sure to bring cash and to lock your car.  It is right off of the freeway.  Getting back on the freeway can be confusing, but it isn't far."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6233033,
+          35.1221585
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-05T02:48:23.480361Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2c0bf46848f1e5ab",
+        "location": {
+          "address": "151 N 7th St, Grover Beach, CA 93433, United States",
+          "country_code": "US",
+          "name": "Lil' Bits Café"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Brunch"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "We've been to Lil Bits a few times.  The staff are absolutely amazing.  Their vibe is very relaxed.  Sometimes they're singing along with the tunes.  And the food is delightful.  Even with the waitress bursting into song, our food arrives hot and promptly.  The country potatoes are great and unlimited."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1196420,
+          38.0125033
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-09-05T02:37:31.365960Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x56a8b174f9e403eb",
+        "location": {
+          "address": "2368 Pacheco Blvd, Martinez, CA 94553, United States",
+          "name": "Rooter Hero Plumbing & Air of Martinez"
+        },
+        "questions": [
+          {
+            "question": "Positive",
+            "selected_options": [
+              "Quality",
+              "Professionalism",
+              "Value"
+            ]
+          },
+          {
+            "question": "Services",
+            "selected_options": [
+              "Drain cleaning"
+            ]
+          },
+          {
+            "question": "Did you use this business?",
+            "selected_option": "Yes"
+          }
+        ],
+        "review_text_published": "We are very appreciative that Jayro Olivares from Rooter Hero came and took care of our clogged kitchen drain.  We had exhausted all of our home remedies and a holiday weekend was coming up.  Jayro went the extra mile to get a stubborn clog unblocked and our holiday was saved."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0596508,
+          37.9718602
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-08-05T01:31:55.693667Z",
+        "five_star_rating_published": 3,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x87e45d94373541e8",
+        "location": {
+          "address": "2001-2003 Diamond Blvd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "The Veranda"
+        },
+        "review_text_published": "We regularly visit the Super Duper Burger and the Whole Foods at The Veranda.  We would visit more places at The Veranda if only there was adequate parking.  Parking near Whole Foods and walking across the busy parking lot has been our best strategy.  But on the weekend, you're probably still waiting for a space to open up."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -120.6881272,
+          35.1636754
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-02T18:07:33.281251Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe0013cd5ba4060ec",
+        "location": {
+          "address": "2705 Spyglass Dr, Pismo Beach, CA 93449, United States",
+          "country_code": "US",
+          "name": "Spyglass Inn"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5171516,
+          37.1334135
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T03:16:17.973957Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x574226f6fec18412",
+        "location": {
+          "address": "12627 Jefferson Ave, Newport News, VA 23602, United States",
+          "name": "Southern Chrysler Dodge Jeep Ram Body Shop - Newport News"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0782650,
+          37.6953897
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T03:14:44.017458Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x27b5b3957619b291",
+        "location": {
+          "address": "3323 Castro Valley Blvd, Castro Valley, CA 94546, United States",
+          "country_code": "US",
+          "name": "Knudsen's Restaurant-Ice Creamery"
+        },
+        "review_text_published": "Truly old school ice cream shop with diner food.   It feels like I'm stepping back to the 50s. The star of the show is their great ice cream.  I loved the seasonal peach flavor with real peach chunks.  In recent years, a neighboring building has become a shopping and eating experience.  So, there are dining choices within a few steps.  Don't be afraid to start with the ice cream.  It might fill you up."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.9209735,
+          36.6223375
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T03:05:39.577049Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x4303513f106fb5e3",
+        "location": {
+          "address": "701 Lighthouse Ave, Pacific Grove, CA 93950, United States",
+          "country_code": "US",
+          "name": "Passionfish"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$50–100"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Chocolate Mud Pie"
+            ]
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Somewhat difficult to find parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Paid street parking"
+            ]
+          },
+          {
+            "question": "Parking",
+            "text_answer": "We didn't have any trouble but the spots didn't stay open for long on a Friday night."
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking"
+            ]
+          }
+        ],
+        "review_text_published": "The staff was top notch throughout our visit.  The plate choices all sounded amazing and we were very pleased with our appetizers and entrées.  The desserts led to more difficult choices, but we were happy to get an extra dessert because of the great prices.  They all tasted incredible.  Kudos to the whole crew."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6439896,
+          37.2337159
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T02:57:28.070778Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbcc368944bb80c82",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Busch Gardens Williamsburg"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6439896,
+          37.2337159
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T02:56:14.079292Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbcc368944bb80c82",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Busch Gardens Williamsburg"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0867089,
+          37.9812727
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-07-01T02:55:45.621174Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x7cff12932e900204",
+        "location": {
+          "address": "1998 Eagle Lake Ct, Martinez, CA 94553, United States",
+          "name": "Memorial Bench"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0158505,
+          37.9280920
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-06-19T18:44:56.028293Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5e1635177f103a86",
+        "location": {
+          "address": "2353 Oak Grove Rd, Walnut Creek, CA 94598, United States",
+          "country_code": "US",
+          "name": "MOD Pizza"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Lunch"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 5
+          },
+          {
+            "question": "Vegetarian options",
+            "text_answer": "Every pizza is personalized so you can avoid any meats if you wish."
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Vegetarian options"
+            ]
+          }
+        ],
+        "review_text_published": "I love this type of pizza place.  Everybody gets their own pizza so there's no debate over what goes on.  It is just what I want no matter how weird it seems to my mate.  The ingredients are fresh and plentiful.  Eating it fresh and hot is delightful then there's enough leftover for another meal.\n\nThis location took good care of us.  The designer did a great job with the lighting."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6105165,
+          37.2078166
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-06-16T03:05:39.374472Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9e1024347e78e69c",
+        "location": {
+          "address": "8934 Pocahontas Trail, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Mi Casa Latin Restaurant"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Dine in"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          }
+        ],
+        "review_text_published": "Wide selection of dishes in a diverse set of cuisines: Mexican, Guatemalan, Salvadorian, and American.  The staff are attentive and friendly.  Our food was tasty and hot.  The papusas are excellent.  There is plenty of parking."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.7174213,
+          37.3390103
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-06-16T03:03:28.881293Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x6e874613c055a2b1",
+        "location": {
+          "address": "447 E Rochambeau Dr, Williamsburg, VA 23188, United States",
+          "country_code": "US",
+          "name": "Pierce's Pitt Bar-B-Que"
+        },
+        "questions": [
+          {
+            "question": "Service",
+            "selected_option": "Take out"
+          },
+          {
+            "question": "Meal type",
+            "selected_option": "Dinner"
+          },
+          {
+            "question": "Price per person",
+            "selected_option": "$10–20"
+          },
+          {
+            "question": "Food",
+            "rating": 4
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Atmosphere",
+            "rating": 4
+          },
+          {
+            "question": "Recommended dishes",
+            "selected_options": [
+              "Pulled Pork Sandwich",
+              "Cole Slaw"
+            ]
+          },
+          {
+            "question": "Parking space",
+            "selected_option": "Plenty of parking"
+          },
+          {
+            "question": "Parking options",
+            "selected_options": [
+              "Free parking lot",
+              "Free street parking"
+            ]
+          },
+          {
+            "question": "Parking",
+            "text_answer": "Usually plenty of spaces"
+          },
+          {
+            "question": "Can you share more about these topics?",
+            "selected_options": [
+              "Parking"
+            ]
+          }
+        ],
+        "review_text_published": "A local favorite bbq restaurant that has been growing for generations that keeps the flavors we have enjoyed for so long.  Truly a gem and worth driving out of your way.  Parking can be challenging during dinner time."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5498523,
+          37.2315136
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-06-05T22:13:58.126954Z",
+        "five_star_rating_published": 3,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5727add7f90d40dd",
+        "location": {
+          "address": "2028 Old Williamsburg Rd, Lackey, VA 23694, United States",
+          "country_code": "US",
+          "name": "United States Postal Service"
+        },
+        "review_text_published": "It looks like it is going to be closed for construction for a few months."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.7189880,
+          37.2452702
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-27T03:52:02.866653Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9019fe990d2eb468",
+        "location": {
+          "address": "5700 Williamsburg Landing Dr, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Williamsburg Landing"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0557309,
+          37.9672836
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:07:31.944812Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x56ac50699f1b21a7",
+        "location": {
+          "address": "1961 Diamond Blvd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Lazy Dog Restaurant & Bar"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4588050,
+          37.1025370
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:05:54.199949Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xb1dc88cdf4529060",
+        "location": {
+          "address": "1215 George Washington Memorial Hwy A, Yorktown, VA 23693, United States",
+          "country_code": "US",
+          "name": "County Grill & Smokehouse"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6464327,
+          37.2335523
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:05:08.218931Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe5cd6a6872046b21",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "name": "Land of the Dragons"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6439896,
+          37.2337159
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:04:40.145334Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbcc368944bb80c82",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Busch Gardens Williamsburg"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6439896,
+          37.2337159
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:04:16.765121Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbcc368944bb80c82",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Busch Gardens Williamsburg"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6439896,
+          37.2337159
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:03:52.487169Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xbcc368944bb80c82",
+        "location": {
+          "address": "1 Busch Gardens Blvd, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Busch Gardens Williamsburg"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4600488,
+          37.0640238
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:02:57.382518Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x96942239cdcaa80b",
+        "location": {
+          "address": "503 Harpersville Rd, Newport News, VA 23601, United States",
+          "country_code": "US",
+          "name": "Game's Farmers Market"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.6870557,
+          37.2747207
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:02:51.089430Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xdff77812bb128724",
+        "location": {
+          "address": "140 2nd St, Williamsburg, VA 23185, United States",
+          "country_code": "US",
+          "name": "Second Street American Bistro"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4908180,
+          37.1010240
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2023-05-11T03:02:46.567042Z",
+        "five_star_rating_published": 0,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x3fdce6466399ea7d",
+        "location": {
+          "address": "12070 Jefferson Ave #1820, Newport News, VA 23606, United States",
+          "country_code": "US",
+          "name": "First Watch"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          0,
+          0
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-08-05T15:26:34.326105Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x5b3f318ec2604610",
+        "review_text_published": "Drew and James are smart and effective attorneys.  The support staff is superb and work well together.  They respond quickly with relevant information.  The whole team is top notch and care deeply about getting good results.",
+        "Comment": "No location information is available for this review"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1223962,
+          37.8890603
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-05-27T00:56:02.789591Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xf2be2036e210edb5",
+        "location": {
+          "address": "936 Dewing Ave Ste N, Lafayette, CA 94549, United States",
+          "name": "Clocks Etc"
+        },
+        "review_text_published": "Super nice folks.  They've got a huge variety of clocks as well as greeting card, lawn ornaments, and household decorations.  The staff has exceptional experience with clock repair and will do house calls for grand father clocks and other large clocks that are difficult to transport."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.5725583,
+          37.1942280
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-05-23T02:22:05.557182Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9cc23fcab54a7c72",
+        "location": {
+          "address": "9 Elmhurst St, Newport News, VA 23603, United States",
+          "country_code": "US",
+          "name": "Lee Hall Depot"
+        },
+        "review_text_published": "Great space and exhibits.  We had a great chat with our tour guide and learned so much.  The stories and pictures on signs were interesting and very readable."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.7713946,
+          37.3767026
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-05-23T02:18:07.855662Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xdfa33c765fe979",
+        "location": {
+          "address": "7772 Croaker Rd, Williamsburg, VA 23188, United States",
+          "country_code": "US",
+          "name": "C&O RY Norge Depot"
+        },
+        "questions": [
+          {
+            "question": "Visited on",
+            "selected_option": "Weekend"
+          },
+          {
+            "question": "Wait time",
+            "selected_option": "No wait"
+          },
+          {
+            "question": "Reservation recommended",
+            "selected_option": "No"
+          },
+          {
+            "question": "Price for adult entry",
+            "selected_option": "Free"
+          }
+        ],
+        "review_text_published": "Friendly docent. Nice exhibits.  Lots of parking."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.7471337,
+          37.2770204
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-05-23T02:15:48.774498Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2204b84959381a1",
+        "location": {
+          "address": "5230 Monticello Ave Suite 100, Williamsburg, VA 23188, United States",
+          "country_code": "US",
+          "name": "Mattress Firm Settlers Market"
+        },
+        "review_text_published": "Michael was great to work with even though they didn't have the pillow we needed.  He told us where we could find it and we will definitely go back when it is time for a matress."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -129.9427086,
+          46.4236690
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2022-02-28T03:30:29.476450Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe23851f12be93855",
+        "location": {
+          "country_code": "US",
+          "name": "East Bay Artisan Italian Pantry & Bake Shop"
+        },
+        "review_text_published": "Wow, amazing baking talent here!  This is the best bread I have had in ages.  I'm not talking about just one loaf that they specialize in.  Everything I've eaten from there is the best tasting version I've had in years.  These folks are better than bakers in Oakland.  They're better than San Francisco.  We tried their focaccia, cheddar and scallion American muffins, and Brioche col Tuppo.  All of it was super awesome."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0658850,
+          37.9793570
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-12-20T01:47:48.624798Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x36395f13396dba57",
+        "location": {
+          "address": "565 Contra Costa Blvd C, Pleasant Hill, CA 94523, United States",
+          "country_code": "US",
+          "name": "Legends Smoke Shop"
+        },
+        "review_text_published": "Great folks to work with.  They have an excellent selection.  There are hundreds of glass bongs and thousands of glass pipes.  It is really handy to have a local supplier for e-rig parts from Puffco, Carta, and other leading brands."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0673559,
+          37.9850178
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-12-20T01:43:17.249975Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xb2ba3f77ab2d2369",
+        "location": {
+          "address": "5753 Pacheco Blvd, Pacheco, CA 94553, United States",
+          "country_code": "US",
+          "name": "STIIIZY Pacheco"
+        },
+        "review_text_published": "It has been easy for us to get parking.  All of the staff have been super friendly.  The interior is spacious with lots of TVs playing videos of attractive stoners.  The music playing is the background is fun without being too loud.  Hearing the budtender is not a problem.\n\nThe product selection is excellent.  Of course they carry a full line of Stiiizy products, minus the pods that Martinez objects to.  But I was pleasantly surprised that they also carry a bunch of products from Raw Garden and other brands we would like to try.\n\nThere are deals every day and it sounds like there are more deals Monday through Friday than on the weekends."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2041684,
+          47.6177384
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-11-23T06:07:03.519251Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xdffe80012b42ca7a",
+        "location": {
+          "address": "10212 NE 8th St, Bellevue, WA 98004, United States",
+          "country_code": "US",
+          "name": "See's Candies"
+        },
+        "review_text_published": "The ladies in See's are always the nicest.  It feels like you're stepping back in time."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.9206579,
+          42.3763738
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-11-23T06:04:46.915298Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1dfd2add3ca55b55",
+        "location": {
+          "address": "311 N Front St, Central Point, OR 97502, United States",
+          "country_code": "US",
+          "name": "Rogue Creamery"
+        },
+        "review_text_published": "The best grilled cheese sandwich.  And they also sell cheese that my wife tries to resist."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1958524,
+          47.6127538
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-11-23T01:47:17.195445Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x86f7b546101c8d8c",
+        "location": {
+          "address": "302 108th Ave NE, Bellevue, WA 98004, United States",
+          "country_code": "US",
+          "name": "Melting Pot"
+        },
+        "review_text_published": "The owners and staff at this Melting Pot are passionate people who take great care of their clientele.  Their location is swanky in the heart of downtown Bellevue.  We had a lovely tasty meal here while learning about the birth of our first grandson."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -123.3293035,
+          42.4390189
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-11-21T17:53:29.461533Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x493dcd9a74e00161",
+        "location": {
+          "address": "220 SW H St, Grants Pass, OR 97526, United States",
+          "country_code": "US",
+          "name": "Carson's Bistro"
+        },
+        "review_text_published": "The first thing that will strike you when going into Carson's is the lovely decor.  The decorations are fun.  The lighting is subdued and fun.  And the tables are all lovely wooden tops.  Then you will undoubtedly be captivated by the amazing staff at Carson's  They are a delight to be around and take great care of their customers.  If all of that doesn't have you overwhelmed with joy, then wait for the food.  It is amazing.  Your gourmet friend will nod approvingly as they stuff their face with maybe some happy grunts when they catch their breath.  And your heathen friend will find food that is tasty without being too scary.  Then after you're stuffed with all of this food and love you will have to pick from an awesome assortment of dessert options.  Give them a call - to see if they can squeeze you in."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1799421,
+          47.7129763
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-10-25T05:18:53.528754Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x8074d1e0670c11ee",
+        "location": {
+          "address": "12620 120th Ave NE, Kirkland, WA 98034, United States",
+          "country_code": "US",
+          "name": "Salt & Straw"
+        },
+        "review_text_published": "Fabulous ice cream flavors.  Very creative and fresh.  It is amazing to see them whipping out waffles with their waffle maker and turning them into cones."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1284492,
+          47.6175172
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-10-25T05:06:14.201931Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x60a0e306ef13f3dc",
+        "location": {
+          "address": "15600 NE 8th St #B - 6, Bellevue, WA 98008, United States",
+          "country_code": "US",
+          "name": "Delhi Bombay Pizza"
+        },
+        "review_text_published": "Very tasty butter chicken pizza.  Pesto bread with marinara sauce was great.  Food was ready on-time."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1846999,
+          47.6120452
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-10-19T00:41:30.150896Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xee7c822ef785885f",
+        "location": {
+          "address": "272 116th Ave NE, Bellevue, WA 98004, United States",
+          "country_code": "US",
+          "name": "Target"
+        },
+        "review_text_published": "Staff are wearing masks.  Target is on the third floor and parking is one level below.  There are steps and escalators.  The selection is what you'd expect from a City Target.  I wish Target carried distilled water since so many people need it for their medical devices, but the PCC downstairs has it."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.1865502,
+          47.6117881
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-10-19T00:37:41.357634Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x487ad10c02e8c5b6",
+        "location": {
+          "address": "11405 NE 2nd Pl, Bellevue, WA 98004, United States",
+          "country_code": "US",
+          "name": "Hampton Inn & Suites Bellevue Downtown-Seattle"
+        },
+        "questions": [
+          {
+            "question": "Travel group",
+            "selected_option": "Family"
+          },
+          {
+            "question": "Rooms",
+            "rating": 5
+          },
+          {
+            "question": "Service",
+            "rating": 5
+          },
+          {
+            "question": "Location",
+            "rating": 5
+          }
+        ],
+        "review_text_published": "The staff are friendly and helpful.  The breakfast is reliably good.  This location is very convenient to stores helpful to travelers including Target, Trader Joe's, FedEx, REI, and Wells Fargo Bank.  Despite having so much handy stuff right across the street and very walkable the hotel itself is pretty quiet because one side is a wooded lot and another side is an electrical substation."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.5014647,
+          37.7508930
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2021-02-07T20:58:39.373018Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xaa8167cec54366b7",
+        "location": {
+          "country_code": "US",
+          "name": "FLYT Cannabis Delivery"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -121.9986970,
+          37.9733000
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2020-05-13T19:46:10.409277Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xcd24188eaf962e2b",
+        "location": {
+          "name": "United Carpet Care"
+        },
+        "review_text_published": "Great to work with.  Very knowledgeable and thorough."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0420258,
+          37.9725027
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-24T02:18:35.860269Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x19677d2c4a6c5c55",
+        "location": {
+          "address": "1680 Willow Pass Rd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Imperial Seafood Restaurant"
+        },
+        "review_text_published": "Very good dim sum.  The only regret it's no doughnuts."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -76.4598655,
+          37.0975654
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-24T02:15:25.073476Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xab292dcc85cdec75",
+        "location": {
+          "address": "806 Old Oyster Point Rd, Newport News, VA 23602, United States",
+          "country_code": "US",
+          "name": "Hoss's Deli - Seafood & Oyster Bar"
+        },
+        "review_text_published": "Don't be afraid of the bikers.  The food is amazingly good.  My gourmet wife can't find better seafood in the area.  I love the sandwiches and being able to play pool.  The staff is very friendly."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.4070585,
+          37.7775834
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-24T02:12:17.778736Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x7f293054a3647a6",
+        "location": {
+          "address": "1058 Folsom St, San Francisco, CA 94103, United States",
+          "country_code": "US",
+          "name": "Deli Board"
+        },
+        "review_text_published": "Incredible sandwiches packed with meat and fresh ingredients.  This is one of my all time favorite places in San Francisco to eat.  It is a lovely walk from the financial district or soma."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2576174,
+          37.8420415
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-23T18:30:16.777994Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x294e4ca1fba87e5a",
+        "location": {
+          "address": "5500 Claremont Ave, Oakland, CA 94618, United States",
+          "country_code": "US",
+          "name": "Rockridge-Temescal Greenbelt"
+        },
+        "review_text_published": "A nice place to stretch your legs.  There are a lot of folks walking there dogs, but it is still nice to see some trees."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.4054455,
+          37.7968450
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-02T00:27:34.975629Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa429c518d43fdec2",
+        "location": {
+          "address": "145 Columbus Ave, San Francisco, CA 94133, United States",
+          "country_code": "US",
+          "name": "My Happy Donut"
+        },
+        "review_text_published": "This is my favorite donut shop in San Francisco.  I've eaten hundreds of glazed donuts from here.  I've also taken a few dozen donuts to the office.  Every one of those donuts was excellent and very satisfying.  Day or night there is an international crowd of locals or construction workers grabbing a bite or playing lotto.   The staff are very nice and accommodating.  Even if you have to walk past another donut shop or two the trip to the edge of the FiDi, North Beach, and China Town is well worth the trip."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0587431,
+          37.9706793
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-10-02T00:11:47.467883Z",
+        "five_star_rating_published": 1,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x27afa6a262f98b16",
+        "location": {
+          "address": "2035 Diamond Blvd, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "Veranda LUXE Cinema & IMAX"
+        },
+        "review_text_published": "Beware of the strong sewer smell in one of the big IMAX theaters right behind the ticket taker.\n\nManagement seems to believe this is due to drain water backing up, but I can't believe anything as pungent as this wasn't from trash or sewer.  It doesn't take much googling to discover that sewer gas is toxic and could explode.  We got a refund, but the manager's lack of concern for a toxic situation doesn't leave me wanting to ever give them money again.  Closing the theaters that have this odor until this problem is resolved would seem to be the responsible thing.  I wasn't the only one that smelled it.  Two other people were expressing similar concerns, but the manager didn't care."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          0,
+          0
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2019-05-15T17:25:06.552347Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe971a857840f7309",
+        "review_text_published": "Great customer service",
+        "Comment": "No location information is available for this review"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0610291,
+          37.9278535
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2018-01-20T16:20:14.778Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x1140d377e3788623",
+        "location": {
+          "address": "2940 N Main St, Walnut Creek, CA 94597, United States",
+          "country_code": "US",
+          "name": "BevMo!"
+        },
+        "review_text_published": "They always have Henry Weinhardt's root beer."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0384142,
+          37.9737933
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2017-10-25T20:28:32.285Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x29d6c037b3bc0bc0",
+        "location": {
+          "address": "1825 Sutter St #C, Concord, CA 94520, United States",
+          "country_code": "US",
+          "name": "DJ's Bistro"
+        },
+        "review_text_published": "Excellent German food."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0157530,
+          36.9768865
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2017-09-17T20:57:39.508Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x34de4a1bcf464a05",
+        "location": {
+          "address": "702 Soquel Ave, Santa Cruz, CA 95062, United States",
+          "country_code": "US",
+          "name": "The Buttery"
+        },
+        "review_text_published": "The carrot cake lives up to its awesome reputation."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0157869,
+          37.9827955
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2016-11-01T15:12:19.960Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x2eb2ad4501aab128",
+        "location": {
+          "address": "1895 Farm Bureau Rd B, Concord, CA 94519, United States",
+          "country_code": "US",
+          "name": "Digger's Diner Concord"
+        },
+        "review_text_published": "Great prices on great brunch"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.2449511,
+          37.7620354
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2016-11-01T15:07:22.764Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x9d6b9562360dd1e2",
+        "location": {
+          "address": "1241 Park St, Alameda, CA 94501, United States",
+          "country_code": "US",
+          "name": "Mama Papa Lithuania Restaurant"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0731027,
+          37.9912955
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2015-08-07T03:36:09.345Z",
+        "five_star_rating_published": 2,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa817d5f00d18f3c0",
+        "location": {
+          "address": "5224 Pacheco Blvd, Pacheco, CA 94553, United States",
+          "country_code": "US",
+          "name": "Taqueria El Grullense"
+        },
+        "review_text_published": "Ok sometimes but not great other times"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -122.0685654,
+          37.3797073
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2013-05-03T04:02:12.236317Z",
+        "five_star_rating_published": 4,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa3224c2b66467caa",
+        "location": {
+          "address": "200 E El Camino Real, Mountain View, CA 94040, United States",
+          "country_code": "US",
+          "name": "Hotel Zico, BW Signature Collection"
+        },
+        "review_text_published": "Neat decor for reasonable rates.  They are right next to the awesome Stevens Creek Trail which lets you hike all the way to the Bay without crossing any traffic."
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.1531023,
+          34.1459480
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2013-05-03T03:57:35.425966Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xe6d940387bb5b43",
+        "location": {
+          "address": "121 W Colorado Blvd, Pasadena, CA 91105, United States",
+          "country_code": "US",
+          "name": "1810 Argentinean Restaurant"
+        },
+        "review_text_published": "The best mashed potatoes in Old Town Pasadena!"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -87.6283507,
+          41.8899229
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2012-08-06T06:07:26.820520Z",
+        "five_star_rating_published": 3,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa87bd9c6d06071d4",
+        "location": {
+          "address": "5 W Hubbard St, Chicago, IL 60654, United States",
+          "country_code": "US",
+          "name": "Mother Hubbard's Sports Pub"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -118.1318194,
+          34.1417658
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2012-04-15T15:50:50.167165Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0xa46e653177d21516",
+        "location": {
+          "address": "238 S Lake Ave, Pasadena, CA 91101, United States",
+          "country_code": "US",
+          "name": "Abricott"
+        }
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -77.3971565,
+          38.9637234
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2012-01-17T06:41:57.596109Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x271fbd94712cda5b",
+        "location": {
+          "address": "1151 Elden St, Herndon, VA 20170, United States",
+          "country_code": "US",
+          "name": "Amphora's Diner Deluxe"
+        },
+        "review_text_published": "Fabulous late night eats"
+      },
+      "type": "Feature"
+    },
+    {
+      "geometry": {
+        "coordinates": [
+          -97.4935822,
+          35.5364923
+        ],
+        "type": "Point"
+      },
+      "properties": {
+        "date": "2011-07-09T19:07:18.681917Z",
+        "five_star_rating_published": 5,
+        "google_maps_url": "https://www.google.com/maps/place//data=!4m2!3m1!1s0x0:0x954523457cf57fe",
+        "location": {
+          "address": "1001 NE 63rd St, Oklahoma City, OK 73111, United States",
+          "country_code": "US",
+          "name": "44 Diner"
+        }
+      },
+      "type": "Feature"
+    }
+  ]
+}
