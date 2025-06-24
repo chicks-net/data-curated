@@ -4,7 +4,7 @@ Some links to places that I think could be handy.
 
 ## Lists
 
-* [Top GitHub repositories everyone should look at](https://github.com/sachin-source/top-github-repositories-which-everyone-should-look) has a lot of good stuff in it.
+- [Top GitHub repositories everyone should look at](https://github.com/sachin-source/top-github-repositories-which-everyone-should-look) has a lot of good stuff in it.
 
 ## Creative
 
@@ -12,12 +12,15 @@ Some links to places that I think could be handy.
 
 ### Music
 
-* [mobygratis](https://mobygratis.com/) has some unique limitations, but could be really handy
+- [mobygratis](https://mobygratis.com/) has some unique limitations, but could be really handy
 
+### Books and Periodicals
+
+- [The Online Books Page](https://onlinebooks.library.upenn.edu/) lists free books and periodicals available online.
 
 ## Travel
 
 ### Weather
 
-* [MerrySky](https://merrysky.net/) is the best visualization of the weather.
-* [ansiweather](https://github.com/fcambus/ansiweather) is the best command line weather.
+- [MerrySky](https://merrysky.net/) is the best visualization of the weather.
+- [ansiweather](https://github.com/fcambus/ansiweather) is the best command line weather.
