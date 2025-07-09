@@ -1,44 +1,44 @@
 ## Bea
 
-![Bea]("images/bea.png")
+![Bea](images/bea.png)
 
 ## Duo
 
-![Duo]("images/duo.png")
+![Duo](images/duo.png)
 
 ## Eddy
 
-![Eddy]("images/eddy.png")
+![Eddy](images/eddy.png)
 
 ## Falstaff
 
-![Falstaff]("images/falstaff.png")
+![Falstaff](images/falstaff.png)
 
 ## Junior
 
-![Junior]("images/junior.png")
+![Junior](images/junior.png)
 
 ## Lily
 
-![Lily]("images/lily.png")
+![Lily](images/lily.png)
 
 ## Lin
 
-![Lin]("images/lin.png")
+![Lin](images/lin.png)
 
 ## Lucy
 
-![Lucy]("images/lucy.png")
+![Lucy](images/lucy.png)
 
 ## Oscar
 
-![Oscar]("images/oscar.png")
+![Oscar](images/oscar.png)
 
 ## Vikram
 
-![Vikram]("images/vikram.png")
+![Vikram](images/vikram.png)
 
 ## Zari
 
-![Zari]("images/zari.png")
+![Zari](images/zari.png)
 
