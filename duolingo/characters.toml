@@ -1,0 +1,58 @@
+[Bea]
+image_file = "images/bea.png"
+ethnicity = "Ghanaian"
+show_es = "Ideas con Bea"
+#show_es = "Aventuras con Bea"
+
+[Duo]
+image_file = "images/duo.png"
+ethnicity = "Green owl"
+role = "Deity"
+
+[Eddy]
+image_file = "images/eddy.png"
+ethnicity = "Anglo-Saxon"
+role = "Junior's Dad"
+
+[Falstaff]
+image_file = "images/falstaff.png"
+ethnicity = "Grizzly Bear"
+show_en = "Falstaff's Guide to Humans"
+
+[Junior]
+image_file = "images/junior.png"
+ethnicity = "Anglo-Saxon"
+role = "Chaos monkey"
+show_es = "Junior Pregunta Todo"
+
+[Lily]
+image_file = "images/lily.png"
+ethnicity = "Spanish American"
+role = "Despondent teen"
+show_en = "Lily and Strangers"
+
+[Lin]
+image_file = "images/lin.png"
+ethnicity = "Chinese American"
+
+[Lucy]
+image_file = "images/lucy.png"
+ethnicity = "Chinese American"
+role = "Lin's grandmother"
+show_en = "Lucy is Listening"
+show_es = "Preguntale a Lucy is Listening"
+
+[Oscar]
+image_file = "images/oscar.png"
+ethnicity = "Mexican American"
+role = "Art teacher"
+
+[Vikram]
+image_file = "images/vikram.png"
+ethnicity = "Indian"
+show_es = "La Casa de Vikram"
+
+[Zari]
+image_file = "images/zari.png"
+ethnicity = "Iranian"
+show_es = "Hablando con Zari"
