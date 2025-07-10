@@ -1,8 +1,7 @@
 [Bea]
 image_file = "images/bea.png"
 ethnicity = "Ghanaian"
-show_es = "Ideas con Bea"
-#show_es = "Aventuras con Bea"
+show_es = [ "Ideas con Bea", "Aventuras con Bea" ]
 
 [Duo]
 image_file = "images/duo.png"
