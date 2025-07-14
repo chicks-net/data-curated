@@ -2,12 +2,12 @@
 
 My google maps reviews from Google Takeout.
 
-## Expert Reviewer - Helpfulness
+## Master Reviewer - Helpfulness
 
-It seems like the helpfulness counter for me has been stuck at
+It seems like the Helpfulness counter for me has been stuck at
 46/50 so I wanted to confirm that I had actually reached this goal.
 
-```bash
+```ShellSession
 % ./process-reviews.sh
 many len sum note
    1 242 51 enough?
