@@ -34,7 +34,10 @@ The columns are:
 - `sum` - the cumulitive sum of the `many` column
 - `note` - a flag of `enough?` if it seems like we've achieved it.
 
-So it seems like I shoudl be at 67/50, not 46/50.
+So it seems like I should be at 67/50, not 46/50.  I've submitted long reviews
+since downloading this Google Takeout, so 67 is just the minimum for what this
+total should be.  Yet I've been at 46/50 Helpfulness for months, while my Impact
+has gone from 45/50 to 51/50 over the same time period.
 
 ## Files
 
