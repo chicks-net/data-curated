@@ -16,7 +16,12 @@ Some links to places that I think could be handy.
 
 ### Books and Periodicals
 
-- [The Online Books Page](https://onlinebooks.library.upenn.edu/) lists free books and periodicals available online.
+- [The Online Books Page](https://onlinebooks.library.upenn.edu/) lists free
+  books and periodicals available online.  So far they've already had every
+  collective that I've come across.
+- [HathiTrust](https://www.hathitrust.org/) has books online from a variety of
+  government agencies and academic institutions such as the University of
+  Michigan, Cornell, and UCSF.
 
 ## Travel
 
