@@ -1,0 +1,20 @@
+---
+name: MarkdownLint
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+# global permissions
+permissions: read-all
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - uses: DavidAnson/markdownlint-cli2-action@v19
+      with:
+        globs: |
+          **/*.md
