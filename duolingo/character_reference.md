@@ -41,4 +41,3 @@
 ## Zari
 
 ![Zari](images/zari.png)
-
