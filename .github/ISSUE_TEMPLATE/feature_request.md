@@ -18,7 +18,8 @@ Do not violate the projects official Code of Conduct in the process.
 
 ## Describe the problem that led to you needing this feature
 
-> A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+> A clear and concise description of what the problem is. Ex. I'm always
+> frustrated when [...]
 
 ## Describe the solution you'd like
 
@@ -26,8 +27,9 @@ Do not violate the projects official Code of Conduct in the process.
 
 ## Describe alternatives you've considered
 
-> A clear and concise description of any alternative solutions or features you've considered.
-> Why is this feature a better idea than any of the other options you've considered?
+> A clear and concise description of any alternative solutions or features
+> you've considered. Why is this feature a better idea than any of the other
+> options you've considered?
 
 ## Additional context
 
