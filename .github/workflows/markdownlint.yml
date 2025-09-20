@@ -21,3 +21,4 @@ jobs:
         globs: |
           **/*.md
           !.github/pull_request_template.md
+          !duolingo/character_reference.md
