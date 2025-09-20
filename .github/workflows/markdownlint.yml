@@ -20,3 +20,4 @@ jobs:
       with:
         globs: |
           **/*.md
+          !.github/pull_request_template.md
