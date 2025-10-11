@@ -25,6 +25,12 @@ Some links to places that I think could be handy.
   government agencies and academic institutions such as the University of
   Michigan, Cornell, and UCSF.
 
+### Fonts
+
+- [Google Fonts](https://fonts.google.com/) is an amazing collection of
+  fonts.  The information, presentation, and sheer volume of what is
+  there truly impresses me.  Thank you, Google.
+
 ## Travel
 
 ### Weather
