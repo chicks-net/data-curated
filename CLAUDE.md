@@ -19,36 +19,46 @@ Datasette and SQLite.
 - `individuals/` - Personal data collections and projects
 - `us-presidents/` - US president data (appears to be recent addition)
 
-## Development Process
+## Development Workflow
 
-The project uses GitHub for development workflow:
+The repository uses `just` for development workflow automation. The justfile
+imports two modules from `.just/gh-process.just` for git/GitHub operations.
 
-1. Development happens in feature branches
-2. Pull requests are created for changes
-3. GitHub Actions run automated checks (markdownlint)
-4. Changes are merged to `main` branch
+### Branch workflow
 
-Note: The CONTRIBUTING.md references a `justfile` for development commands,
-but this file doesn't exist in the repository root. The development process
-is primarily git-based.
+1. `just branch <name>` - Create new branch with timestamp: `$USER/YYYY-MM-DD-name`
+2. Make changes and commit
+3. `just pr` - Create PR using last commit message as title, watches checks
+4. `just merge` - Squash-merge PR, delete branch, return to main with pull
+5. `just sync` - Escape from branch back to main without merging
 
-## Common Commands
+### Other commands
 
-### Linting
+- `just prweb` - Open current branch's PR in browser
+- `just release <version>` - Create GitHub release with generated notes
+- `just` or `just list` - Show all available commands
 
-- `markdownlint` runs automatically via GitHub Actions on all `*.md` files
+## Linting
 
-### Data Viewing
+Markdown linting runs automatically via GitHub Actions on pushes/PRs:
 
-- Use `datasette <database>.db -o` to view SQLite databases
+- Uses `markdownlint-cli2-action` on all `*.md` files
+- Excludes: `.github/pull_request_template.md`, `duolingo/character_reference.md`
+- Local check: `npx markdownlint-cli2 "**/*.md"`
+
+## Data Operations
+
+### Viewing data
+
+- `datasette <database>.db -o` - Open SQLite database in browser
 - Example: `datasette us-states/states.db -o`
 
-### Data Conversion
+### Conversion scripts
 
-Individual directories may contain conversion scripts:
+Individual directories contain build/import scripts:
 
-- `duolingo/build-character.sh` - Converts TOML to markdown character reference
-- `us-states/import.sh` - Converts CSV to SQLite database
+- `duolingo/build-character.sh` - TOML → markdown character reference
+- `us-states/import.sh` - CSV → SQLite database
 
 ## Data Formats
 
