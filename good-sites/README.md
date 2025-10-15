@@ -6,6 +6,7 @@ Some links to places that I think could be handy.
 
 - [Top GitHub repositories everyone should look at](https://github.com/sachin-source/top-github-repositories-which-everyone-should-look)
   has a lot of good stuff in it.
+- [Owlcat Games list of learning resources for game development](https://owlcat.games/learning)
 
 ## Creative
 
