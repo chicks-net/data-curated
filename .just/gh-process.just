@@ -14,9 +14,9 @@ sync:
     git pull
     git stp
 
-# PR create 3.2
+# PR create 3.4
 [group('Process')]
-pr: _has_commits
+pr: _has_commits && pr_checks
     #!/usr/bin/env bash
     set -euxo pipefail # strict mode
 
@@ -27,12 +27,14 @@ pr: _has_commits
 
     bodyfile=$(mktemp /tmp/justfile.XXXXXX)
 
-    echo "## Done:" >> $bodyfile
+    echo "## Done" >> $bodyfile
     echo "" >> $bodyfile
     echo "- {{ last_commit_message }}" >> $bodyfile
     echo "" >> $bodyfile
     echo "" >> $bodyfile
-    echo "(Automated in \`justfile\`.)" >> $bodyfile
+    echo "## Meta" >> $bodyfile
+    echo "" >> $bodyfile
+    echo "(Automated in \`.just/gh-process.just\`.)" >> $bodyfile
 
     echo ''
     cat "$bodyfile"
@@ -48,7 +50,6 @@ pr: _has_commits
 
     echo "{{BLUE}}sleeping for 10s because github is lazy with their API{{NORMAL}}"
     sleep 10
-    gh pr checks --watch -i 5
 
 # merge PR and return to starting point
 [group('Process')]
@@ -119,4 +120,48 @@ _main_branch:
 # make a release
 [group('Process')]
 release rel_version:
-   gh release create {{rel_version}} --generate-notes
+    gh release create {{rel_version}} --generate-notes
+
+# watch GHAs then check for Copilot suggestions
+[group('Process')]
+pr_checks:
+    #!/usr/bin/env bash
+
+    gh pr checks --watch -i 5
+
+    echo checking copilot...
+    PR_META=$(gh pr view --json number,headRepository,headRepositoryOwner)
+    PR_REPO_NAME=$(echo $PR_META | jq -r '.headRepository.name')
+    PR_REPO_OWNER=$(echo $PR_META | jq -r '.headRepositoryOwner.login')
+    PR_NUMBER=$(echo $PR_META | jq '.number')
+    #echo "$PR_NUMBER $PR_REPO_OWNER/$PR_REPO_NAME"
+    gh api graphql \
+      -F owner=$PR_REPO_OWNER -F name=$PR_REPO_NAME -F pr=$PR_NUMBER \
+      --jq '[ .data.repository.pullRequest.reviews.nodes.[] | select(.author.login=="copilot-pull-request-reviewer") | .comments.nodes.[] ]' \
+      -f query='
+      query($name: String!, $owner: String!, $pr: Int!) {
+        repository(owner: $owner, name: $name) {
+          pullRequest(number: $pr) {
+            reviews(last: 20) {
+              nodes {
+                author {
+                  resourcePath
+                  login
+                }
+                comments(first: 100) {
+                  nodes {
+                    body
+                    path
+                    originalLine
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      '
+
+      # did Claude comment?
+      echo -e "\n\n🟧🟠🔶🔸 Claude:"
+      gh pr view --json comments --jq '[.comments[] | select(.author.login == "claude")] | last | .body'
