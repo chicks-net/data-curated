@@ -12,11 +12,11 @@ practice with tools like [Datasette](https://datasette.io/) and [SQLite](https:/
 
 Each directory could be something interesting....
 
-## Contibuting
+## Contributing
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Contributing Guide](.github/CONTRIBUTING.md) includes a step-by-step guide to
-  our [development processs](.github/CONTRIBUTING.md#development-process).
+  our [development process](.github/CONTRIBUTING.md#development-process).
 
 ## Support & Security
 
