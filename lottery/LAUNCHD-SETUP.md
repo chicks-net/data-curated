@@ -176,6 +176,15 @@ provides better integration with macOS including:
 - The job runs with `Nice` priority 1, meaning it yields to other processes
 - `RunAtLoad` is set to true, so it runs immediately when loaded
 - The job doesn't keep alive - it runs, completes, and waits for the next interval
+- Logs may appear empty due to `go run` output buffering - check the database
+  to verify runs:
+
+  ```bash
+  sqlite3 lottery/jackpots.db \
+    "SELECT datetime(checked_at), game FROM jackpots \
+     ORDER BY checked_at DESC LIMIT 5;"
+  ```
+
 - Logs are appended, not rotated - you may want to clean them periodically
 
 ## Viewing Historical Data
