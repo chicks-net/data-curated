@@ -1,7 +1,21 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx markdownlint-cli2:*)"
+      "WebFetch(domain:www.chicks.net)",
+      "WebFetch(domain:developers.facebook.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:en.wikipedia.org)",
+      "WebFetch(domain:www.calottery.com)",
+      "WebFetch(domain:gist.github.com)",
+      "WebSearch",
+      "Bash(markdownlint-cli2:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(git log:*)",
+      "Bash(go get:*)",
+      "Bash(identify:*)",
+      "Bash(just shellcheck:*)"
     ],
     "deny": [],
     "ask": []
