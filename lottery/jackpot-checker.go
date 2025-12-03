@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"math"
 	"net/http"
 	"time"
 
@@ -26,6 +27,12 @@ type CustomTime struct {
 // UnmarshalJSON handles the custom date format from the API
 func (ct *CustomTime) UnmarshalJSON(b []byte) error {
 	s := string(b)
+
+	// Validate string length before slicing to prevent panic
+	if len(s) < 2 {
+		return fmt.Errorf("invalid date string: too short")
+	}
+
 	// Remove quotes
 	s = s[1 : len(s)-1]
 
@@ -144,8 +151,11 @@ func fetchJackpot(gameID int, gameName string) (*JackpotRecord, error) {
 	// Construct API URL - fetch just 1 result from page 1
 	url := fmt.Sprintf("%s/%d/1/1", APIBaseURL, gameID)
 
+	// Create HTTP client with timeout to prevent indefinite blocking
+	client := &http.Client{Timeout: 30 * time.Second}
+
 	// Make HTTP request
-	resp, err := http.Get(url)
+	resp, err := client.Get(url)
 	if err != nil {
 		return nil, fmt.Errorf("HTTP request failed: %w", err)
 	}
@@ -167,13 +177,13 @@ func fetchJackpot(gameID int, gameName string) (*JackpotRecord, error) {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// Create record
+	// Create record with proper rounding to avoid lossy float-to-int conversion
 	record := &JackpotRecord{
 		Game:          gameName,
 		DrawNumber:    lotteryData.NextDraw.DrawNumber,
 		DrawDate:      lotteryData.NextDraw.DrawDate.Time,
-		Jackpot:       int64(lotteryData.NextDraw.Jackpot),
-		EstimatedCash: int64(lotteryData.NextDraw.EstimatedCash),
+		Jackpot:       int64(math.Round(lotteryData.NextDraw.Jackpot)),
+		EstimatedCash: int64(math.Round(lotteryData.NextDraw.EstimatedCash)),
 		CheckedAt:     time.Now(),
 	}
 

@@ -5,6 +5,12 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Check for required dependencies
+if ! command -v sqlite3 &> /dev/null; then
+    echo "Error: sqlite3 command not found. Please install SQLite."
+    exit 1
+fi
+
 echo "Checking California Lottery jackpots..."
 echo ""
 
