@@ -99,6 +99,20 @@ Amounts are stored as integers (actual dollar amounts, not millions).
 
 ## Scheduling
 
+### macOS (launchd)
+
+For automatic execution every 4 hours on macOS, use the included launchd plist:
+
+```bash
+cp net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
+```
+
+See [LAUNCHD-SETUP.md](LAUNCHD-SETUP.md) for detailed setup instructions and
+customization options.
+
+### Linux/Unix (cron)
+
 Throw it in a cron job to track jackpots over time:
 
 ```cron
@@ -106,7 +120,10 @@ Throw it in a cron job to track jackpots over time:
 0 8 * * 2,5 cd /path/to/lottery && /usr/local/bin/go run jackpot-checker.go
 ```
 
-Or use it in a systemd timer, GitHub Action, whatever floats your boat.
+### Other Options
+
+You can also use systemd timers, GitHub Actions, or whatever scheduling tool
+works for your setup.
 
 ## Dependencies
 
