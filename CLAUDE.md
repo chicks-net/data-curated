@@ -13,16 +13,21 @@ Datasette and SQLite.
 ## Repository Structure
 
 - `duolingo/` - Spanish learning character data in TOML format with build scripts
-- `lottery/` - New York state lottery winning numbers (CSV format)
+- `lottery/` - NY lottery winning numbers (CSV) + CA lottery jackpot tracker (Go/SQLite)
 - `us-states/` - US state data with CSV, TSV, and SQLite versions
 - `good-sites/` - Curated list of useful websites
 - `individuals/` - Personal data collections and projects
-- `us-presidents/` - US president data (appears to be recent addition)
+- `us-presidents/` - US president data
+- `.just/` - Shared justfile modules for workflow automation (from template-repo)
 
 ## Development Workflow
 
 The repository uses `just` for development workflow automation. The justfile
-imports two modules from `.just/gh-process.just` for git/GitHub operations.
+imports modules from `.just/` directory:
+
+- `gh-process.just` - Git/GitHub PR workflow automation
+- `compliance.just` - Repository health checks for community standards
+- `shellcheck.just` - Bash script linting for just recipes
 
 ### Branch workflow
 
@@ -38,13 +43,20 @@ imports two modules from `.just/gh-process.just` for git/GitHub operations.
 - `just release <version>` - Create GitHub release with generated notes
 - `just` or `just list` - Show all available commands
 
-## Linting
+## Linting and CI/CD
 
 Markdown linting runs automatically via GitHub Actions on pushes/PRs:
 
 - Uses `markdownlint-cli2-action` on all `*.md` files
 - Excludes: `.github/pull_request_template.md`, `duolingo/character_reference.md`
 - Local check: `npx markdownlint-cli2 "**/*.md"`
+
+Other automated workflows:
+
+- `claude.yml` - Claude Code responds to @claude mentions in issues/PRs/comments
+- `claude-code-review.yml` - Automated code reviews via Claude
+- `actionlint.yml` - Lints GitHub Actions workflow files
+- `checkov.yml` - Security and compliance scanning
 
 ## Data Operations
 
@@ -53,12 +65,24 @@ Markdown linting runs automatically via GitHub Actions on pushes/PRs:
 - `datasette <database>.db -o` - Open SQLite database in browser
 - Example: `datasette us-states/states.db -o`
 
-### Conversion scripts
+### Conversion and build scripts
 
 Individual directories contain build/import scripts:
 
 - `duolingo/build-character.sh` - TOML → markdown character reference
 - `us-states/import.sh` - CSV → SQLite database
+- `lottery/download.sh` - Download New York lottery winning numbers
+- `lottery/check-jackpots.sh` - Run Go program to fetch California lottery jackpots
+- `individuals/chicks/google-maps/process-reviews.sh` - Process Google Maps review data
+
+### Go programs
+
+The `lottery/` directory contains a Go program for fetching California lottery data:
+
+- `jackpot-checker.go` - Fetches Mega Millions and Powerball jackpots from California Lottery API
+- Run with: `cd lottery && go run jackpot-checker.go`
+- Stores data in `lottery/jackpots.db` SQLite database
+- See lottery/JACKPOT-README.md for full documentation
 
 ## Data Formats
 
