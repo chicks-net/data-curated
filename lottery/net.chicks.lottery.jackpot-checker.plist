@@ -9,7 +9,7 @@
     <!-- Program to run -->
     <key>ProgramArguments</key>
     <array>
-        <string>/usr/local/bin/go</string>
+        <string>/opt/homebrew/bin/go</string>
         <string>run</string>
         <string>/Users/chicks/Documents/git/data-curated/lottery/jackpot-checker.go</string>
     </array>
