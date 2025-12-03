@@ -114,7 +114,7 @@ func main() {
 		}
 	}
 
-	fmt.Println("\nData saved to lottery/jackpots.db")
+	fmt.Printf("\nData saved to lottery/jackpots.db at %s\n", time.Now().UTC().Format(time.RFC3339))
 }
 
 func initDatabase() (*sql.DB, error) {
