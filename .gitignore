@@ -3,3 +3,7 @@
 
 # vim swap files
 *.sw[a-p]
+
+# jackpot-checker log files
+lottery/jackpot-checker.err
+lottery/jackpot-checker.log

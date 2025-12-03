@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Label uniquely identifies this job -->
+    <key>Label</key>
+    <string>net.chicks.lottery.jackpot-checker</string>
+
+    <!-- Program to run -->
+    <key>ProgramArguments</key>
+    <array>
+        <string>/opt/homebrew/bin/go</string>
+        <string>run</string>
+        <string>/Users/chicks/Documents/git/data-curated/lottery/jackpot-checker.go</string>
+    </array>
+
+    <!-- Working directory for the script -->
+    <key>WorkingDirectory</key>
+    <string>/Users/chicks/Documents/git/data-curated/lottery</string>
+
+    <!-- Run every 4 hours (14400 seconds) -->
+    <key>StartInterval</key>
+    <integer>14400</integer>
+
+    <!-- Run at load (immediately when loaded) -->
+    <key>RunAtLoad</key>
+    <true/>
+
+    <!-- Standard output log file -->
+    <key>StandardOutPath</key>
+    <string>/Users/chicks/Documents/git/data-curated/lottery/jackpot-checker.log</string>
+
+    <!-- Standard error log file -->
+    <key>StandardErrorPath</key>
+    <string>/Users/chicks/Documents/git/data-curated/lottery/jackpot-checker.err</string>
+
+    <!-- Environment variables -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
+
+    <!-- Keep the job alive (restart if it exits) -->
+    <key>KeepAlive</key>
+    <false/>
+
+    <!-- Low priority process -->
+    <key>Nice</key>
+    <integer>1</integer>
+</dict>
+</plist>
