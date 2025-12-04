@@ -38,12 +38,12 @@ func (ct *CustomTime) UnmarshalJSON(b []byte) error {
 	// Remove quotes
 	s = s[1 : len(s)-1]
 
-	// Parse the date in the format: 2025-12-03T08:00:00
+	// Parse the date in the format: 2025-12-03T08:00:00 and interpret as UTC
 	t, err := time.Parse("2006-01-02T15:04:05", s)
 	if err != nil {
 		return err
 	}
-	ct.Time = t
+	ct.Time = t.UTC()
 	return nil
 }
 
@@ -76,13 +76,32 @@ type JackpotRecord struct {
 
 func main() {
 	// Configure logging - JSON format if JSON_LOGS env var is set
+	// All times use UTC consistently
+	zerolog.TimestampFunc = func() time.Time {
+		return time.Now().UTC()
+	}
+
 	if os.Getenv("JSON_LOGS") == "true" {
 		// JSON logging for production/automated environments
 		zerolog.TimeFieldFormat = time.RFC3339
 		log.Logger = zerolog.New(os.Stdout).With().Timestamp().Caller().Logger()
 	} else {
 		// Human-readable console logging for interactive use
-		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339})
+		output := zerolog.ConsoleWriter{
+			Out:        os.Stdout,
+			TimeFormat: time.RFC3339,
+			FormatTimestamp: func(i interface{}) string {
+				// Ensure timestamps are always displayed in UTC
+				if t, ok := i.(string); ok {
+					if parsed, err := time.Parse(time.RFC3339, t); err == nil {
+						return parsed.UTC().Format(time.RFC3339)
+					}
+					return t
+				}
+				return ""
+			},
+		}
+		log.Logger = log.Output(output)
 	}
 
 	log.Info().Msg("Starting jackpot checker")
@@ -202,7 +221,7 @@ func fetchJackpot(gameID int, gameName string) (*JackpotRecord, error) {
 		DrawDate:      lotteryData.NextDraw.DrawDate.Time,
 		Jackpot:       int64(math.Round(lotteryData.NextDraw.Jackpot)),
 		EstimatedCash: int64(math.Round(lotteryData.NextDraw.EstimatedCash)),
-		CheckedAt:     time.Now(),
+		CheckedAt:     time.Now().UTC(),
 	}
 
 	return record, nil
