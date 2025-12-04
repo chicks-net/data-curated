@@ -169,12 +169,12 @@ func initDatabase() (*sql.DB, error) {
 		draw_date TEXT NOT NULL,
 		jackpot INTEGER NOT NULL,
 		estimated_cash INTEGER NOT NULL,
-		checked_at TEXT NOT NULL,
-		UNIQUE(game, draw_number, draw_date)
+		checked_at TEXT NOT NULL
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_game_date ON jackpots(game, draw_date);
 	CREATE INDEX IF NOT EXISTS idx_checked_at ON jackpots(checked_at);
+	CREATE INDEX IF NOT EXISTS idx_game_draw ON jackpots(game, draw_number, draw_date);
 	`
 
 	if _, err := db.Exec(createTableSQL); err != nil {
@@ -231,10 +231,6 @@ func saveJackpot(db *sql.DB, record *JackpotRecord) error {
 	insertSQL := `
 	INSERT INTO jackpots (game, draw_number, draw_date, jackpot, estimated_cash, checked_at)
 	VALUES (?, ?, ?, ?, ?, ?)
-	ON CONFLICT(game, draw_number, draw_date) DO UPDATE SET
-		jackpot = excluded.jackpot,
-		estimated_cash = excluded.estimated_cash,
-		checked_at = excluded.checked_at
 	`
 
 	_, err := db.Exec(
