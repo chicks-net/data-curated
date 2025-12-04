@@ -5,12 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"math"
 	"net/http"
+	"os"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -36,12 +38,12 @@ func (ct *CustomTime) UnmarshalJSON(b []byte) error {
 	// Remove quotes
 	s = s[1 : len(s)-1]
 
-	// Parse the date in the format: 2025-12-03T08:00:00
+	// Parse the date in the format: 2025-12-03T08:00:00 and interpret as UTC
 	t, err := time.Parse("2006-01-02T15:04:05", s)
 	if err != nil {
 		return err
 	}
-	ct.Time = t
+	ct.Time = t.UTC()
 	return nil
 }
 
@@ -73,48 +75,83 @@ type JackpotRecord struct {
 }
 
 func main() {
+	// Configure logging - JSON format if JSON_LOGS env var is set
+	// All times use UTC consistently
+	zerolog.TimestampFunc = func() time.Time {
+		return time.Now().UTC()
+	}
+
+	if os.Getenv("JSON_LOGS") == "true" {
+		// JSON logging for production/automated environments
+		zerolog.TimeFieldFormat = time.RFC3339
+		log.Logger = zerolog.New(os.Stdout).With().Timestamp().Caller().Logger()
+	} else {
+		// Human-readable console logging for interactive use
+		output := zerolog.ConsoleWriter{
+			Out:        os.Stdout,
+			TimeFormat: time.RFC3339,
+			FormatTimestamp: func(i interface{}) string {
+				// Ensure timestamps are always displayed in UTC
+				if t, ok := i.(string); ok {
+					if parsed, err := time.Parse(time.RFC3339, t); err == nil {
+						return parsed.UTC().Format(time.RFC3339)
+					}
+					return t
+				}
+				return ""
+			},
+		}
+		log.Logger = log.Output(output)
+	}
+
+	log.Info().Msg("Starting jackpot checker")
+
 	// Initialize database
 	db, err := initDatabase()
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		log.Fatal().Err(err).Msg("Failed to initialize database")
 	}
 	defer db.Close()
 
 	// Fetch Powerball jackpot
-	fmt.Println("Fetching Powerball jackpot...")
+	log.Info().Str("game", "Powerball").Msg("Fetching jackpot data")
 	pbRecord, err := fetchJackpot(PowerballGameID, "Powerball")
 	if err != nil {
-		log.Printf("Error fetching Powerball: %v", err)
+		log.Error().Err(err).Str("game", "Powerball").Msg("Error fetching jackpot")
 	} else {
 		if err := saveJackpot(db, pbRecord); err != nil {
-			log.Printf("Error saving Powerball: %v", err)
+			log.Error().Err(err).Str("game", "Powerball").Msg("Error saving jackpot")
 		} else {
-			fmt.Printf("✓ Powerball: Draw #%d on %s - $%d million (Cash: $%.1f million)\n",
-				pbRecord.DrawNumber,
-				pbRecord.DrawDate.Format("2006-01-02"),
-				pbRecord.Jackpot/1000000,
-				float64(pbRecord.EstimatedCash)/1000000)
+			log.Info().
+				Str("game", "Powerball").
+				Int("draw_number", pbRecord.DrawNumber).
+				Str("draw_date", pbRecord.DrawDate.Format("2006-01-02")).
+				Int64("jackpot_dollars", pbRecord.Jackpot).
+				Int64("cash_value_dollars", pbRecord.EstimatedCash).
+				Msg("Jackpot data saved successfully")
 		}
 	}
 
 	// Fetch Mega Millions jackpot
-	fmt.Println("Fetching Mega Millions jackpot...")
+	log.Info().Str("game", "Mega Millions").Msg("Fetching jackpot data")
 	mmRecord, err := fetchJackpot(MegaMillionsGameID, "Mega Millions")
 	if err != nil {
-		log.Printf("Error fetching Mega Millions: %v", err)
+		log.Error().Err(err).Str("game", "Mega Millions").Msg("Error fetching jackpot")
 	} else {
 		if err := saveJackpot(db, mmRecord); err != nil {
-			log.Printf("Error saving Mega Millions: %v", err)
+			log.Error().Err(err).Str("game", "Mega Millions").Msg("Error saving jackpot")
 		} else {
-			fmt.Printf("✓ Mega Millions: Draw #%d on %s - $%d million (Cash: $%.1f million)\n",
-				mmRecord.DrawNumber,
-				mmRecord.DrawDate.Format("2006-01-02"),
-				mmRecord.Jackpot/1000000,
-				float64(mmRecord.EstimatedCash)/1000000)
+			log.Info().
+				Str("game", "Mega Millions").
+				Int("draw_number", mmRecord.DrawNumber).
+				Str("draw_date", mmRecord.DrawDate.Format("2006-01-02")).
+				Int64("jackpot_dollars", mmRecord.Jackpot).
+				Int64("cash_value_dollars", mmRecord.EstimatedCash).
+				Msg("Jackpot data saved successfully")
 		}
 	}
 
-	fmt.Printf("\nData saved to lottery/jackpots.db at %s\n", time.Now().UTC().Format(time.RFC3339))
+	log.Info().Str("database", "jackpots.db").Msg("Jackpot checker completed successfully")
 }
 
 func initDatabase() (*sql.DB, error) {
@@ -132,12 +169,12 @@ func initDatabase() (*sql.DB, error) {
 		draw_date TEXT NOT NULL,
 		jackpot INTEGER NOT NULL,
 		estimated_cash INTEGER NOT NULL,
-		checked_at TEXT NOT NULL,
-		UNIQUE(game, draw_number, draw_date)
+		checked_at TEXT NOT NULL
 	);
 
 	CREATE INDEX IF NOT EXISTS idx_game_date ON jackpots(game, draw_date);
 	CREATE INDEX IF NOT EXISTS idx_checked_at ON jackpots(checked_at);
+	CREATE INDEX IF NOT EXISTS idx_game_draw ON jackpots(game, draw_number, draw_date);
 	`
 
 	if _, err := db.Exec(createTableSQL); err != nil {
@@ -184,7 +221,7 @@ func fetchJackpot(gameID int, gameName string) (*JackpotRecord, error) {
 		DrawDate:      lotteryData.NextDraw.DrawDate.Time,
 		Jackpot:       int64(math.Round(lotteryData.NextDraw.Jackpot)),
 		EstimatedCash: int64(math.Round(lotteryData.NextDraw.EstimatedCash)),
-		CheckedAt:     time.Now(),
+		CheckedAt:     time.Now().UTC(),
 	}
 
 	return record, nil
@@ -194,10 +231,6 @@ func saveJackpot(db *sql.DB, record *JackpotRecord) error {
 	insertSQL := `
 	INSERT INTO jackpots (game, draw_number, draw_date, jackpot, estimated_cash, checked_at)
 	VALUES (?, ?, ?, ?, ?, ?)
-	ON CONFLICT(game, draw_number, draw_date) DO UPDATE SET
-		jackpot = excluded.jackpot,
-		estimated_cash = excluded.estimated_cash,
-		checked_at = excluded.checked_at
 	`
 
 	_, err := db.Exec(
