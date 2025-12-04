@@ -71,7 +71,7 @@ Individual directories contain build/import scripts:
 
 - `duolingo/build-character.sh` - TOML → markdown character reference
 - `us-states/import.sh` - CSV → SQLite database
-- `lottery/download.sh` - Download New York lottery winning numbers
+- `lottery/Lottery_numbers_download.sh` - Download New York lottery winning numbers
 - `lottery/check-jackpots.sh` - Run Go program to fetch California lottery jackpots
 - `individuals/chicks/google-maps/process-reviews.sh` - Process Google Maps review data
 
