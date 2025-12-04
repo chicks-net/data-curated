@@ -39,6 +39,8 @@
     <dict>
         <key>PATH</key>
         <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>JSON_LOGS</key>
+        <string>true</string>
     </dict>
 
     <!-- Keep the job alive (restart if it exits) -->
