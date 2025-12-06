@@ -6,6 +6,19 @@ for the winning lottery numbers.
 
 ## Quick Start
 
+### Prerequisites
+
+Install required tools (Go, wget, sqlite3):
+
+```bash
+just install-lottery-deps
+```
+
+This checks for missing prerequisites and installs them automatically using your
+system's package manager (Homebrew on macOS, apt/yum/dnf on Linux).
+
+### Running the Tools
+
 Using the project's justfile workflow:
 
 ```bash

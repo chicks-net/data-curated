@@ -10,6 +10,84 @@ list:
 	just --list
 	@echo "{{GREEN}}Your justfile is waiting for more scripts and snippets{{NORMAL}}"
 
+# Install prerequisites for lottery tools (Go, wget, sqlite3)
+[group('lottery')]
+install-lottery-deps:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	echo "Checking lottery tool prerequisites..."
+	echo ""
+
+	MISSING=()
+
+	# Check for Go
+	if ! command -v go &> /dev/null; then
+		echo "❌ Go not found"
+		MISSING+=("go")
+	else
+		echo "✓ Go $(go version | awk '{print $3}')"
+	fi
+
+	# Check for wget
+	if ! command -v wget &> /dev/null; then
+		echo "❌ wget not found"
+		MISSING+=("wget")
+	else
+		echo "✓ wget $(wget --version | head -n1 | awk '{print $3}')"
+	fi
+
+	# Check for sqlite3
+	if ! command -v sqlite3 &> /dev/null; then
+		echo "❌ sqlite3 not found"
+		MISSING+=("sqlite3")
+	else
+		echo "✓ sqlite3 $(sqlite3 --version | awk '{print $1}')"
+	fi
+
+	# If nothing missing, we're done
+	if [ ${#MISSING[@]} -eq 0 ]; then
+		echo ""
+		echo "✅ All prerequisites installed!"
+		exit 0
+	fi
+
+	# Install missing prerequisites
+	echo ""
+	echo "Installing missing prerequisites: ${MISSING[*]}"
+	echo ""
+
+	# Detect platform and install
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		# macOS - use Homebrew
+		if ! command -v brew &> /dev/null; then
+			echo "Error: Homebrew not found. Please install Homebrew first:"
+			echo "  /bin/bash -c \"\$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)\""
+			exit 1
+		fi
+		brew install "${MISSING[@]}"
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		# Linux - try to detect package manager
+		if command -v apt-get &> /dev/null; then
+			sudo apt-get update && sudo apt-get install -y "${MISSING[@]}"
+		elif command -v yum &> /dev/null; then
+			sudo yum install -y "${MISSING[@]}"
+		elif command -v dnf &> /dev/null; then
+			sudo dnf install -y "${MISSING[@]}"
+		else
+			echo "Error: Could not detect package manager (apt, yum, or dnf)"
+			echo "Please install manually: ${MISSING[*]}"
+			exit 1
+		fi
+	else
+		echo "Error: Unsupported platform: $OSTYPE"
+		echo "Please install manually: ${MISSING[*]}"
+		exit 1
+	fi
+
+	echo ""
+	echo "✅ Prerequisites installed successfully!"
+
 # Check California lottery jackpots and show recent results
 [working-directory("lottery")]
 [group('lottery')]
