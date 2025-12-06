@@ -69,11 +69,47 @@ install-lottery-deps:
 	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 		# Linux - try to detect package manager
 		if command -v apt-get &> /dev/null; then
-			sudo apt-get update && sudo apt-get install -y "${MISSING[@]}"
+			# Map package names for apt-based systems
+			APT_PACKAGES=()
+			for pkg in "${MISSING[@]}"; do
+				case "$pkg" in
+					go)
+						APT_PACKAGES+=("golang-go")
+						;;
+					*)
+						APT_PACKAGES+=("$pkg")
+						;;
+				esac
+			done
+			sudo apt-get update && sudo apt-get install -y "${APT_PACKAGES[@]}"
 		elif command -v yum &> /dev/null; then
-			sudo yum install -y "${MISSING[@]}"
+			# Map package names for yum-based systems
+			YUM_PACKAGES=()
+			for pkg in "${MISSING[@]}"; do
+				case "$pkg" in
+					go)
+						YUM_PACKAGES+=("golang")
+						;;
+					*)
+						YUM_PACKAGES+=("$pkg")
+						;;
+				esac
+			done
+			sudo yum install -y "${YUM_PACKAGES[@]}"
 		elif command -v dnf &> /dev/null; then
-			sudo dnf install -y "${MISSING[@]}"
+			# Map package names for dnf-based systems
+			DNF_PACKAGES=()
+			for pkg in "${MISSING[@]}"; do
+				case "$pkg" in
+					go)
+						DNF_PACKAGES+=("golang")
+						;;
+					*)
+						DNF_PACKAGES+=("$pkg")
+						;;
+				esac
+			done
+			sudo dnf install -y "${DNF_PACKAGES[@]}"
 		else
 			echo "Error: Could not detect package manager (apt, yum, or dnf)"
 			echo "Please install manually: ${MISSING[*]}"
@@ -88,16 +124,32 @@ install-lottery-deps:
 	echo ""
 	echo "✅ Prerequisites installed successfully!"
 
+# Hidden recipe to verify lottery prerequisites are installed
+_check_lottery_deps:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	MISSING=()
+	if ! command -v go &> /dev/null; then
+		MISSING+=("go")
+	fi
+	if ! command -v wget &> /dev/null; then
+		MISSING+=("wget")
+	fi
+	if ! command -v sqlite3 &> /dev/null; then
+		MISSING+=("sqlite3")
+	fi
+	if [ ${#MISSING[@]} -gt 0 ]; then
+		echo "Error: Missing required tools: ${MISSING[*]}"
+		echo "Run 'just install-lottery-deps' to install them."
+		exit 1
+	fi
+
 # Check California lottery jackpots and show recent results
 [working-directory("lottery")]
 [group('lottery')]
-check-jackpots:
+check-jackpots: _check_lottery_deps
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
-	if ! command -v sqlite3 &> /dev/null; then
-		echo "Error: sqlite3 command not found. Please install SQLite."
-		exit 1
-	fi
 	echo "Checking California Lottery jackpots..."
 	echo ""
 	go run jackpot-checker.go
@@ -117,7 +169,7 @@ check-jackpots:
 # Download New York lottery winning numbers (Powerball and Mega Millions)
 [working-directory("lottery")]
 [group('lottery')]
-download-lottery-numbers:
+download-lottery-numbers: _check_lottery_deps
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
 	wget https://data.ny.gov/api/views/d6yy-54nr/rows.csv?accessType=DOWNLOAD -O Lottery_Powerball_Winning_Numbers__Beginning_2010.csv
