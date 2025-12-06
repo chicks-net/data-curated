@@ -15,7 +15,7 @@ list:
 [group('lottery')]
 check-jackpots:
 	#!/usr/bin/env bash
-	set -e
+	set -euo pipefail # strict mode
 	if ! command -v sqlite3 &> /dev/null; then
 		echo "Error: sqlite3 command not found. Please install SQLite."
 		exit 1
@@ -41,5 +41,6 @@ check-jackpots:
 [group('lottery')]
 download-lottery-numbers:
 	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
 	wget https://data.ny.gov/api/views/d6yy-54nr/rows.csv?accessType=DOWNLOAD -O Lottery_Powerball_Winning_Numbers__Beginning_2010.csv
 	wget https://data.ny.gov/api/views/5xaw-6ayf/rows.csv?accessType=DOWNLOAD -O Lottery_Mega_Millions_Winning_Numbers__Beginning_2002.csv
