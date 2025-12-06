@@ -16,7 +16,19 @@ All this gets stored in `jackpots.db` for tracking over time.
 
 ## Running It
 
-Make sure you've got Go installed, then:
+### Using just (Recommended)
+
+If you're using the project's justfile workflow:
+
+```bash
+just check-jackpots
+```
+
+This handles the directory navigation and shows recent jackpot history after fetching.
+
+### Direct Execution
+
+Or run the Go program directly:
 
 ```bash
 cd lottery
