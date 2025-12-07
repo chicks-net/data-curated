@@ -111,6 +111,16 @@ The graph generator creates an SVG file that can be:
 - X-axis labels showing dates in "MMM 'YY" format
 - Missing months filled with zero to show activity gaps
 
+**Examples:**
+
+All months:
+
+![Blog posts per month - all time](blog-monthly-20251207-graph.svg)
+
+Last 36 months:
+
+![Blog posts per month - last 36 months](blog-monthly-20251207-graph-36.svg)
+
 ## Implementation Details
 
 ### Post Counter
