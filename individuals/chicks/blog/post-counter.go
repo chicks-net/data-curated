@@ -77,6 +77,7 @@ func fetchAllPostDates(startURL string) ([]time.Time, error) {
 
 // fetchPostDatesFromPage fetches post dates from a single page and returns the next page URL
 func fetchPostDatesFromPage(url string) ([]time.Time, string, error) {
+	log.Printf("Fetching: %s", url)
 	resp, err := http.Get(url)
 	if err != nil {
 		return nil, "", err
@@ -106,29 +107,48 @@ func fetchPostDatesFromPage(url string) ([]time.Time, string, error) {
 		}
 	}
 
+	log.Printf("Found %d dates on this page", len(dates))
+
 	// Look for "Next »" pagination link
 	nextURL := findNextPageURL(html, url)
+
+	if nextURL != "" {
+		log.Printf("Found next page: %s", nextURL)
+	} else {
+		log.Printf("No next page found (this is the last page)")
+	}
 
 	return dates, nextURL, nil
 }
 
 // findNextPageURL extracts the next page URL from pagination links
 func findNextPageURL(html, baseURL string) string {
-	// Look for "Next »" or similar pagination link
-	// Pattern: <a href="/posts/page/2/">Next »</a>
-	nextPattern := regexp.MustCompile(`<a\s+href="([^"]+)">Next\s*[»›&raquo;]`)
-	match := nextPattern.FindStringSubmatch(html)
+	// Try multiple patterns to find "Next" pagination link
+	patterns := []string{
+		// Pattern 1: Standard anchor with "Next" text (case-insensitive, flexible spacing)
+		`(?i)<a[^>]+href="([^"]+)"[^>]*>Next\s*[»›&raquo;]`,
+		`(?i)<a[^>]+href="([^"]+)"[^>]*>\s*Next\s*»`,
+		// Pattern 2: Reverse order (href after content)
+		`(?i)Next\s*[»›&raquo;][^<]*</a[^>]*>\s*<a[^>]+href="([^"]+)"`,
+		// Pattern 3: Look for /posts/page/ URLs specifically
+		`href="(/posts/page/\d+/)"`,
+	}
 
-	if len(match) >= 2 {
-		nextPath := match[1]
-		// Convert relative URL to absolute if needed
-		if strings.HasPrefix(nextPath, "/") {
-			return "https://www.chicks.net" + nextPath
-		} else if strings.HasPrefix(nextPath, "http") {
-			return nextPath
-		} else {
-			// Relative path from current page
-			return baseURL + "/" + nextPath
+	for _, pattern := range patterns {
+		nextPattern := regexp.MustCompile(pattern)
+		match := nextPattern.FindStringSubmatch(html)
+
+		if len(match) >= 2 {
+			nextPath := match[1]
+			// Convert relative URL to absolute if needed
+			if strings.HasPrefix(nextPath, "/") {
+				return "https://www.chicks.net" + nextPath
+			} else if strings.HasPrefix(nextPath, "http") {
+				return nextPath
+			} else {
+				// Relative path from current page
+				return baseURL + "/" + nextPath
+			}
 		}
 	}
 
