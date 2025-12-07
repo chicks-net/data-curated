@@ -37,6 +37,16 @@ imports modules from `.just/` directory:
 4. `just merge` - Squash-merge PR, delete branch, return to main with pull
 5. `just sync` - Escape from branch back to main without merging
 
+### Lottery commands
+
+- `just install-lottery-deps` - Install prerequisites (Go, wget, sqlite3)
+- `just check-jackpots` - Fetch California lottery jackpots, show recent results
+- `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
+
+### Blog analysis commands
+
+- `just count-posts` - Count blog posts per month from chicks.net
+
 ### Other commands
 
 - `just prweb` - Open current branch's PR in browser
@@ -71,18 +81,21 @@ Individual directories contain build/import scripts:
 
 - `duolingo/build-character.sh` - TOML → markdown character reference
 - `us-states/import.sh` - CSV → SQLite database
-- `lottery/Lottery_numbers_download.sh` - Download New York lottery winning numbers
-- `lottery/check-jackpots.sh` - Run Go program to fetch California lottery jackpots
 - `individuals/chicks/google-maps/process-reviews.sh` - Process Google Maps review data
+
+Most data operations are now integrated into the justfile (see commands above).
 
 ### Go programs
 
-The `lottery/` directory contains a Go program for fetching California lottery data:
+The repository contains several Go programs:
 
-- `jackpot-checker.go` - Fetches Mega Millions and Powerball jackpots from California Lottery API
-- Run with: `cd lottery && go run jackpot-checker.go`
-- Stores data in `lottery/jackpots.db` SQLite database
-- See lottery/JACKPOT-README.md for full documentation
+- `lottery/jackpot-checker.go` - Fetches Mega Millions and Powerball jackpots from California Lottery API
+  - Run with: `just check-jackpots` (preferred) or `cd lottery && go run jackpot-checker.go`
+  - Stores data in `lottery/jackpots.db` SQLite database
+  - See lottery/JACKPOT-README.md for full documentation
+- `individuals/chicks/blog/post-counter.go` - Counts blog posts per month from chicks.net
+  - Run with: `just count-posts`
+  - Generates timestamped CSV files with monthly post counts
 
 ## Data Formats
 
