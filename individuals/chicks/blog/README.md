@@ -5,8 +5,18 @@ A Go program that counts the number of blog posts per month from
 
 ## Usage
 
+### Direct execution
+
 ```bash
 go run post-counter.go
+```
+
+### Using just
+
+From the repository root:
+
+```bash
+just count-posts
 ```
 
 ## What It Does
