@@ -190,3 +190,44 @@ count-posts:
 		echo "📊 CSV output: {{BLUE}}$CSV_FILE{{NORMAL}}"
 		echo "Total rows: {{BLUE}}$(tail -n +2 "$CSV_FILE" | wc -l | tr -d ' '){{NORMAL}}"
 	fi
+
+# Generate graph from blog post CSV data
+[working-directory("individuals/chicks/blog")]
+[group('blog')]
+graph-posts CSV="":
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	CSV_FILE="{{CSV}}"
+	# If no CSV specified, find the most recent one
+	if [ -z "$CSV_FILE" ]; then
+		CSV_FILE=$(ls -t blog-monthly-*.csv 2>/dev/null | head -1 || echo "")
+		if [ -z "$CSV_FILE" ]; then
+			echo "Error: No CSV file found. Run 'just count-posts' first."
+			exit 1
+		fi
+		echo "{{GREEN}}Generating graph from $CSV_FILE{{NORMAL}}"
+	else
+		if [ ! -f "$CSV_FILE" ]; then
+			echo "Error: File not found: $CSV_FILE"
+			exit 1
+		fi
+		echo "{{GREEN}}Generating graph from $CSV_FILE{{NORMAL}}"
+	fi
+	echo ""
+	go run graph-generator.go "$CSV_FILE"
+
+# Generate graph for the last 36 months of blog posts
+[working-directory("individuals/chicks/blog")]
+[group('blog')]
+graph-posts-36:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	# Find the most recent CSV file
+	CSV_FILE=$(ls -t blog-monthly-*.csv 2>/dev/null | head -1 || echo "")
+	if [ -z "$CSV_FILE" ]; then
+		echo "Error: No CSV file found. Run 'just count-posts' first."
+		exit 1
+	fi
+	echo "{{GREEN}}Generating graph for last 36 months from $CSV_FILE{{NORMAL}}"
+	echo ""
+	go run graph-generator.go "$CSV_FILE" 36
