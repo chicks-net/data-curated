@@ -178,12 +178,12 @@ download-lottery-numbers: _check_lottery_deps
 # Count blog posts per month from chicks.net
 [working-directory("individuals/chicks/blog")]
 [group('blog')]
-count-posts: _check_lottery_deps
+count-posts:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
 	echo "{{GREEN}}Counting blog posts from https://www.chicks.net/posts/{{NORMAL}} ..."
 	echo ""
-	go run post-counter.go 2>&1 | grep -v "^2025/" || true
+	go run post-counter.go
 	echo ""
 	CSV_FILE=$(find . -maxdepth 1 -name 'blog-monthly-*.csv' -type f -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2- | sed 's|^\./||')
 	if [ -n "$CSV_FILE" ] && [ -f "$CSV_FILE" ]; then
