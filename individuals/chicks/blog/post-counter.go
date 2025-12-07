@@ -116,7 +116,9 @@ func fetchPostDatesFromPage(url string) ([]time.Time, string, error) {
 		if len(match) >= 4 {
 			dateStr := fmt.Sprintf("%s %s, %s", match[1], match[2], match[3])
 			t, err := time.Parse("January 2, 2006", dateStr)
-			if err == nil {
+			if err != nil {
+				log.Printf("Warning: failed to parse date '%s': %v", dateStr, err)
+			} else {
 				dates = append(dates, t)
 			}
 		}
