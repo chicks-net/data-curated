@@ -174,3 +174,19 @@ download-lottery-numbers: _check_lottery_deps
 	set -euo pipefail # strict mode
 	wget "https://data.ny.gov/api/views/d6yy-54nr/rows.csv?accessType=DOWNLOAD" -O Lottery_Powerball_Winning_Numbers__Beginning_2010.csv
 	wget "https://data.ny.gov/api/views/5xaw-6ayf/rows.csv?accessType=DOWNLOAD" -O Lottery_Mega_Millions_Winning_Numbers__Beginning_2002.csv
+
+# Count blog posts per month from chicks.net
+[working-directory("individuals/chicks/blog")]
+[group('blog')]
+count-posts:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	echo "{{GREEN}}Counting blog posts from https://www.chicks.net/posts/{{NORMAL}} ..."
+	echo ""
+	go run post-counter.go
+	echo ""
+	CSV_FILE=$(find . -maxdepth 1 -name 'blog-monthly-*.csv' -type f -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2- | sed 's|^\./||')
+	if [ -n "$CSV_FILE" ] && [ -f "$CSV_FILE" ]; then
+		echo "📊 CSV output: {{BLUE}}$CSV_FILE{{NORMAL}}"
+		echo "Total rows: {{BLUE}}$(tail -n +2 "$CSV_FILE" | wc -l | tr -d ' '){{NORMAL}}"
+	fi
