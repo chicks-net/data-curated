@@ -1,12 +1,15 @@
 package main
 
 import (
+	"encoding/csv"
 	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -38,6 +41,15 @@ func main() {
 		return sorted[i].Month < sorted[j].Month
 	})
 
+	// Generate filename with today's date
+	now := time.Now()
+	filename := fmt.Sprintf("blog-monthly-%s.csv", now.Format("20060102"))
+
+	// Write to CSV file
+	if err := writeCSV(filename, sorted); err != nil {
+		log.Fatalf("Error writing CSV: %v", err)
+	}
+
 	// Display results
 	fmt.Println("Posts per Month:")
 	fmt.Println("================")
@@ -48,6 +60,7 @@ func main() {
 	}
 	fmt.Println("================")
 	fmt.Printf("Total Posts: %d\n", totalPosts)
+	fmt.Printf("\nResults written to: %s\n", filename)
 }
 
 // fetchAllPostDates fetches all post dates from the blog, following pagination
@@ -165,4 +178,31 @@ func countPostsByMonth(dates []time.Time) map[string]int {
 	}
 
 	return counts
+}
+
+// writeCSV writes the post counts to a CSV file
+func writeCSV(filename string, data []PostCount) error {
+	file, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// Write header
+	if err := writer.Write([]string{"Month", "Count"}); err != nil {
+		return err
+	}
+
+	// Write data rows
+	for _, pc := range data {
+		row := []string{pc.Month, strconv.Itoa(pc.Count)}
+		if err := writer.Write(row); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -14,12 +14,15 @@ go run post-counter.go
 The program:
 
 1. Fetches the blog posts page from `https://www.chicks.net/posts/`
-2. Follows pagination links (if present) to gather all posts
+2. Follows pagination links to gather all posts across multiple pages
 3. Parses post dates using regex pattern matching
 4. Groups posts by month (YYYY-MM format)
-5. Displays count of posts per month in chronological order
+5. Writes results to CSV file named `blog-monthly-YYYYMMDD.csv`
+6. Displays count of posts per month in chronological order
 
 ## Output Format
+
+### Console Output
 
 ```text
 Posts per Month:
@@ -29,7 +32,18 @@ Posts per Month:
 2025-08: 1
 ================
 Total Posts: 10
+
+Results written to: blog-monthly-20251207.csv
 ```
+
+### CSV Output
+
+The program creates a CSV file with the naming pattern `blog-monthly-YYYYMMDD.csv`
+where YYYYMMDD is today's date. The CSV contains:
+
+- Header row: `Month,Count`
+- Data rows: Month in YYYY-MM format, post count for that month
+- Sorted chronologically by month
 
 ## Implementation Details
 
