@@ -56,7 +56,11 @@ func readCSV(filename string) ([]DataPoint, error) {
 		return nil, err
 	}
 
-	var data []DataPoint
+	// First, read the data into a map
+	dataMap := make(map[string]int)
+	var minDate, maxDate time.Time
+	firstDate := true
+
 	for i, record := range records {
 		if i == 0 {
 			continue // Skip header
@@ -77,11 +81,43 @@ func readCSV(filename string) ([]DataPoint, error) {
 			continue
 		}
 
+		dataMap[record[0]] = count
+
+		if firstDate {
+			minDate = date
+			maxDate = date
+			firstDate = false
+		} else {
+			if date.Before(minDate) {
+				minDate = date
+			}
+			if date.After(maxDate) {
+				maxDate = date
+			}
+		}
+	}
+
+	if len(dataMap) == 0 {
+		return nil, fmt.Errorf("no valid data found in CSV")
+	}
+
+	// Now fill in all months between min and max
+	var data []DataPoint
+	currentDate := time.Date(minDate.Year(), minDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(maxDate.Year(), maxDate.Month(), 1, 0, 0, 0, 0, time.UTC)
+
+	for !currentDate.After(endDate) {
+		monthKey := currentDate.Format("2006-01")
+		count := dataMap[monthKey] // Will be 0 if not in map
+
 		data = append(data, DataPoint{
-			Month: record[0],
+			Month: monthKey,
 			Count: count,
-			Date:  date,
+			Date:  currentDate,
 		})
+
+		// Move to next month
+		currentDate = currentDate.AddDate(0, 1, 0)
 	}
 
 	return data, nil
