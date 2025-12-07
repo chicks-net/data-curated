@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+const baseURL = "https://www.chicks.net"
+
 // PostCount represents the count of posts for a given month
 type PostCount struct {
 	Month string
@@ -21,7 +23,7 @@ type PostCount struct {
 }
 
 func main() {
-	url := "https://www.chicks.net/posts/"
+	url := baseURL + "/posts/"
 
 	// Fetch all posts (handle pagination)
 	allDates, err := fetchAllPostDates(url)
@@ -155,7 +157,7 @@ func findNextPageURL(html, baseURL string) string {
 			nextPath := match[1]
 			// Convert relative URL to absolute if needed
 			if strings.HasPrefix(nextPath, "/") {
-				return "https://www.chicks.net" + nextPath
+				return baseURL + nextPath
 			} else if strings.HasPrefix(nextPath, "http") {
 				return nextPath
 			} else {
