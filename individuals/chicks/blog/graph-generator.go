@@ -147,6 +147,11 @@ func readCSV(filename string) ([]DataPoint, error) {
 }
 
 func generateSVG(data []DataPoint) string {
+	// Require at least 2 data points to avoid division by zero
+	if len(data) < 2 {
+		log.Fatal("At least 2 data points required for graphing")
+	}
+
 	width := 1200
 	height := 420
 	padding := 80
