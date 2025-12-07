@@ -185,8 +185,8 @@ count-posts: _check_lottery_deps
 	echo ""
 	go run post-counter.go 2>&1 | grep -v "^2025/" || true
 	echo ""
-	CSV_FILE=$(ls -t blog-monthly-*.csv | head -1)
-	if [ -f "$CSV_FILE" ]; then
+	CSV_FILE=$(find . -maxdepth 1 -name 'blog-monthly-*.csv' -type f -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2- | sed 's|^\./||')
+	if [ -n "$CSV_FILE" ] && [ -f "$CSV_FILE" ]; then
 		echo "📊 CSV output: {{BLUE}}$CSV_FILE{{NORMAL}}"
 		echo "Total rows: {{BLUE}}$(tail -n +2 "$CSV_FILE" | wc -l | tr -d ' '){{NORMAL}}"
 	fi
