@@ -19,10 +19,24 @@ type DataPoint struct {
 
 func main() {
 	if len(os.Args) < 2 {
-		log.Fatal("Usage: go run graph-generator.go <csv-file>")
+		log.Fatal("Usage: go run graph-generator.go <csv-file> [months]")
 	}
 
 	csvFile := os.Args[1]
+
+	// Parse optional months argument (default to 0 = all months)
+	lastMonths := 0
+	if len(os.Args) >= 3 {
+		var err error
+		lastMonths, err = strconv.Atoi(os.Args[2])
+		if err != nil {
+			log.Fatalf("Invalid months argument: %v", err)
+		}
+		if lastMonths < 0 {
+			log.Fatal("Months argument must be positive")
+		}
+	}
+
 	data, err := readCSV(csvFile)
 	if err != nil {
 		log.Fatalf("Error reading CSV: %v", err)
@@ -32,8 +46,17 @@ func main() {
 		log.Fatal("No data found in CSV")
 	}
 
+	// Limit to last N months if specified
+	if lastMonths > 0 && lastMonths < len(data) {
+		data = data[len(data)-lastMonths:]
+	}
+
 	// Generate output filename
-	outputFile := strings.TrimSuffix(csvFile, ".csv") + "-graph.svg"
+	outputFile := strings.TrimSuffix(csvFile, ".csv") + "-graph"
+	if lastMonths > 0 {
+		outputFile += fmt.Sprintf("-%d", lastMonths)
+	}
+	outputFile += ".svg"
 
 	svg := generateSVG(data)
 	if err := os.WriteFile(outputFile, []byte(svg), 0644); err != nil {

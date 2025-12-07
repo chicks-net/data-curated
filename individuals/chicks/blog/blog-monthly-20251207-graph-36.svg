@@ -1,0 +1,176 @@
+
+<svg
+    width="1200"
+    height="420"
+    viewBox="0 0 1200 420"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg">
+        <rect xmlns="http://www.w3.org/2000/svg" data-testid="card_bg" id="cardBg"
+        x="0" y="0" rx="0" height="100%" stroke="#E4E2E2" fill-opacity="1"
+        width="100%" fill="#00000000" stroke-opacity="1" style="stroke:#8b949e; stroke-width:1;"/>
+
+        <style>
+            body {
+                font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+            }
+            .header {
+                font: 600 20px 'Segoe UI', Ubuntu, Sans-Serif;
+                text-align: center;
+                color: #8b949e;
+                margin-top: 20px;
+            }
+            svg {
+                font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
+                user-select: none;
+            }
+
+.ct-label {
+  fill: #8b949e;
+  color: #8b949e;
+  font-size: .75rem;
+  line-height: 1;
+}
+
+.ct-grid-background,
+.ct-line {
+  fill: none;
+}
+
+.ct-chart-bar .ct-label,
+.ct-chart-line .ct-label {
+  display: block;
+  display: -webkit-box;
+  display: -moz-box;
+  display: -ms-flexbox;
+  display: -webkit-flex;
+  display: flex;
+}
+
+.ct-label.ct-horizontal.ct-start {
+  -webkit-box-align: flex-end;
+  -webkit-align-items: flex-end;
+  -ms-flex-align: flex-end;
+  align-items: flex-end;
+  -webkit-box-pack: flex-start;
+  -webkit-justify-content: flex-start;
+  -ms-flex-pack: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  text-anchor: start;
+}
+
+.ct-label.ct-horizontal.ct-end {
+  -webkit-box-align: flex-start;
+  -webkit-align-items: flex-start;
+  -ms-flex-align: flex-start;
+  align-items: flex-start;
+  -webkit-box-pack: flex-start;
+  -webkit-justify-content: flex-start;
+  -ms-flex-pack: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  text-anchor: start;
+}
+
+.ct-label.ct-vertical.ct-start {
+  -webkit-box-align: flex-end;
+  -webkit-align-items: flex-end;
+  -ms-flex-align: flex-end;
+  align-items: flex-end;
+  -webkit-box-pack: flex-end;
+  -webkit-justify-content: flex-end;
+  -ms-flex-pack: flex-end;
+  justify-content: flex-end;
+  text-align: right;
+  text-anchor: end;
+}
+
+.ct-label.ct-vertical.ct-end {
+  -webkit-box-align: flex-end;
+  -webkit-align-items: flex-end;
+  -ms-flex-align: flex-end;
+  align-items: flex-end;
+  -webkit-box-pack: flex-start;
+  -webkit-justify-content: flex-start;
+  -ms-flex-pack: flex-start;
+  justify-content: flex-start;
+  text-align: left;
+  text-anchor: start;
+}
+
+.ct-grid {
+  stroke: #8b949e;
+  stroke-width: 1px;
+  stroke-opacity: 0.3;
+  stroke-dasharray: 2px;
+}
+
+.ct-point {
+  stroke-width: 10px;
+  stroke-linecap: round;
+  stroke: #8b949e;
+  animation: blink 1s ease-in-out forwards;
+}
+
+.ct-line {
+  stroke-width: 4px;
+  stroke-dasharray: 5000;
+  stroke-dashoffset: 5000;
+  stroke: #26a641;
+  animation: dash 5s ease-in-out forwards;
+}
+
+.ct-area {
+  stroke: none;
+  fill-opacity: 0.1;
+}
+
+.ct-series-a .ct-area,
+.ct-series-a .ct-slice-pie {
+  fill: #26a641;
+}
+
+.ct-label .ct-horizontal {
+  transform: rotate(-90deg)
+}
+
+
+    @keyframes blink {
+        from {
+            opacity: 0;
+            transform:translateX(-20px);
+        }
+        to {
+            opacity:1;
+            transform: translateX(0);
+        }
+    }
+
+
+    @keyframes dash {
+        to {
+            stroke-dashoffset: 0;
+        }
+    }
+
+
+        </style>
+
+        <foreignObject x="0" y="0" width="1200" height="50">
+            <h1 xmlns="http://www.w3.org/1999/xhtml" class="header">
+                Blog Posts Per Month
+            </h1>
+        </foreignObject>
+        <svg xmlns:ct="http://gionkunz.github.com/chartist-js/ct" width="1200" height="420" class="ct-chart-line">
+            <g class="ct-grids"><line y1="80" y2="80" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line y1="134" y2="134" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line y1="188" y2="188" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line y1="242" y2="242" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line y1="296" y2="296" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line y1="350" y2="350" x1="80" x2="1170" class="ct-grid ct-vertical"></line><line x1="80" x2="80" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="111" x2="111" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="142" x2="142" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="173" x2="173" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="204" x2="204" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="235" x2="235" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="266" x2="266" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="298" x2="298" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="329" x2="329" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="360" x2="360" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="391" x2="391" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="422" x2="422" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="453" x2="453" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="484" x2="484" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="516" x2="516" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="547" x2="547" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="578" x2="578" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="609" x2="609" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="640" x2="640" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="671" x2="671" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="702" x2="702" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="734" x2="734" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="765" x2="765" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="796" x2="796" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="827" x2="827" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="858" x2="858" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="889" x2="889" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="920" x2="920" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="952" x2="952" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="983" x2="983" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1014" x2="1014" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1045" x2="1045" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1076" x2="1076" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1107" x2="1107" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1138" x2="1138" y1="80" y2="350" class="ct-grid ct-horizontal"></line><line x1="1170" x2="1170" y1="80" y2="350" class="ct-grid ct-horizontal"></line></g>
+            <g>
+                <g class="ct-series ct-series-a">
+                    <path d="M80,350L111,350L142,350L173,350L204,350L235,350L266,296L298,188L329,350L360,296L391,296L422,350L453,296L484,350L516,350L547,350L578,350L609,296L640,296L671,134L702,350L734,242L765,350L796,350L827,350L858,350L889,296L920,296L952,296L983,242L1014,242L1045,350L1076,296L1107,188L1138,242L1170,296" class="ct-line"></path>
+                    <line x1="80" y1="350" x2="81" y2="350" class="ct-point" ct:value="0"></line><line x1="111" y1="350" x2="112" y2="350" class="ct-point" ct:value="0"></line><line x1="142" y1="350" x2="143" y2="350" class="ct-point" ct:value="0"></line><line x1="173" y1="350" x2="174" y2="350" class="ct-point" ct:value="0"></line><line x1="204" y1="350" x2="205" y2="350" class="ct-point" ct:value="0"></line><line x1="235" y1="350" x2="236" y2="350" class="ct-point" ct:value="0"></line><line x1="266" y1="296" x2="267" y2="296" class="ct-point" ct:value="1"></line><line x1="298" y1="188" x2="299" y2="188" class="ct-point" ct:value="3"></line><line x1="329" y1="350" x2="330" y2="350" class="ct-point" ct:value="0"></line><line x1="360" y1="296" x2="361" y2="296" class="ct-point" ct:value="1"></line><line x1="391" y1="296" x2="392" y2="296" class="ct-point" ct:value="1"></line><line x1="422" y1="350" x2="423" y2="350" class="ct-point" ct:value="0"></line><line x1="453" y1="296" x2="454" y2="296" class="ct-point" ct:value="1"></line><line x1="484" y1="350" x2="485" y2="350" class="ct-point" ct:value="0"></line><line x1="516" y1="350" x2="517" y2="350" class="ct-point" ct:value="0"></line><line x1="547" y1="350" x2="548" y2="350" class="ct-point" ct:value="0"></line><line x1="578" y1="350" x2="579" y2="350" class="ct-point" ct:value="0"></line><line x1="609" y1="296" x2="610" y2="296" class="ct-point" ct:value="1"></line><line x1="640" y1="296" x2="641" y2="296" class="ct-point" ct:value="1"></line><line x1="671" y1="134" x2="672" y2="134" class="ct-point" ct:value="4"></line><line x1="702" y1="350" x2="703" y2="350" class="ct-point" ct:value="0"></line><line x1="734" y1="242" x2="735" y2="242" class="ct-point" ct:value="2"></line><line x1="765" y1="350" x2="766" y2="350" class="ct-point" ct:value="0"></line><line x1="796" y1="350" x2="797" y2="350" class="ct-point" ct:value="0"></line><line x1="827" y1="350" x2="828" y2="350" class="ct-point" ct:value="0"></line><line x1="858" y1="350" x2="859" y2="350" class="ct-point" ct:value="0"></line><line x1="889" y1="296" x2="890" y2="296" class="ct-point" ct:value="1"></line><line x1="920" y1="296" x2="921" y2="296" class="ct-point" ct:value="1"></line><line x1="952" y1="296" x2="953" y2="296" class="ct-point" ct:value="1"></line><line x1="983" y1="242" x2="984" y2="242" class="ct-point" ct:value="2"></line><line x1="1014" y1="242" x2="1015" y2="242" class="ct-point" ct:value="2"></line><line x1="1045" y1="350" x2="1046" y2="350" class="ct-point" ct:value="0"></line><line x1="1076" y1="296" x2="1077" y2="296" class="ct-point" ct:value="1"></line><line x1="1107" y1="188" x2="1108" y2="188" class="ct-point" ct:value="3"></line><line x1="1138" y1="242" x2="1139" y2="242" class="ct-point" ct:value="2"></line><line x1="1170" y1="296" x2="1171" y2="296" class="ct-point" ct:value="1"></line>
+                </g>
+            </g>
+            <g class="ct-labels"><text x="50" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Dec '22</text><text x="143" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Mar '23</text><text x="236" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Jun '23</text><text x="330" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Sep '23</text><text x="423" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Dec '23</text><text x="517" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Mar '24</text><text x="610" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Jun '24</text><text x="704" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Sep '24</text><text x="797" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Dec '24</text><text x="890" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Mar '25</text><text x="984" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Jun '25</text><text x="1077" y="370" width="60" height="40" class="ct-label ct-horizontal ct-end">Sep '25</text><text y="85" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">5</text><text y="139" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">4</text><text y="193" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">3</text><text y="247" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">2</text><text y="301" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">1</text><text y="355" x="70" height="20" width="60" class="ct-label ct-vertical ct-start">0</text></g>
+            <text class="ct-axis-title ct-label" x="600" y="410" dominant-baseline="text-after-edge" text-anchor="middle">Months</text>
+            <text class="ct-axis-title ct-label" x="20" y="210" transform="rotate(-90, 20, 210)" dominant-baseline="hanging" text-anchor="middle">Posts</text>
+        </svg>
+</svg>
