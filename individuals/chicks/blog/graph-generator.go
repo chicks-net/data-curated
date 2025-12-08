@@ -178,18 +178,43 @@ func generateSVG(data []DataPoint) string {
 	pathData := ""
 	points := ""
 
+	// Calculate all coordinates first
+	coords := make([][2]int, len(data))
 	for i, d := range data {
-		x := chartLeft + (i * chartWidth / (len(data) - 1))
-		y := chartTop + chartHeight - (d.Count * chartHeight / yMax)
+		coords[i][0] = chartLeft + (i * chartWidth / (len(data) - 1))
+		coords[i][1] = chartTop + chartHeight - (d.Count * chartHeight / yMax)
+	}
+
+	// Generate smooth curve using Catmull-Rom splines converted to cubic Bezier
+	for i := range data {
+		x := coords[i][0]
+		y := coords[i][1]
 
 		if i == 0 {
 			pathData = fmt.Sprintf("M%d,%d", x, y)
 		} else {
-			pathData += fmt.Sprintf("L%d,%d", x, y)
+			// Calculate control points for smooth curve
+			var cp1x, cp1y, cp2x, cp2y int
+
+			// Get points for Catmull-Rom calculation
+			p0 := coords[max(0, i-1)]
+			p1 := coords[i-1]
+			p2 := coords[i]
+			p3 := coords[min(len(coords)-1, i+1)]
+
+			// Catmull-Rom to Bezier conversion with tension = 0.5
+			tension := 0.16667 // 1/6 for smooth curves
+
+			cp1x = p1[0] + int(float64(p2[0]-p0[0])*tension)
+			cp1y = p1[1] + int(float64(p2[1]-p0[1])*tension)
+			cp2x = p2[0] - int(float64(p3[0]-p1[0])*tension)
+			cp2y = p2[1] - int(float64(p3[1]-p1[1])*tension)
+
+			pathData += fmt.Sprintf(" C%d,%d %d,%d %d,%d", cp1x, cp1y, cp2x, cp2y, x, y)
 		}
 
 		points += fmt.Sprintf(`<line x1="%d" y1="%d" x2="%d" y2="%d" class="ct-point" ct:value="%d"></line>`,
-			x, y, x+1, y, d.Count)
+			x, y, x+1, y, data[i].Count)
 	}
 
 	// Generate grid lines
@@ -419,6 +444,13 @@ func generateSVG(data []DataPoint) string {
 
 func max(a, b int) int {
 	if a > b {
+		return a
+	}
+	return b
+}
+
+func min(a, b int) int {
+	if a < b {
 		return a
 	}
 	return b
