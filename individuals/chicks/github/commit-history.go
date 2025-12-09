@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -53,6 +54,7 @@ type CommitRecord struct {
 	CommitterEmail string
 	CommitterDate  time.Time
 	Message        string
+	Emoji          string
 	RepoName       string
 	RepoFullName   string
 	HTMLURL        string
@@ -143,6 +145,7 @@ func main() {
 				CommitterEmail: commit.Commit.Committer.Email,
 				CommitterDate:  commit.Commit.Committer.Date,
 				Message:        commit.Commit.Message,
+				Emoji:          extractEmoji(commit.Commit.Message),
 				RepoName:       commit.Repository.Name,
 				RepoFullName:   commit.Repository.FullName,
 				HTMLURL:        commit.HTMLURL,
@@ -209,6 +212,7 @@ func initDatabase() (*sql.DB, error) {
 		committer_email TEXT NOT NULL,
 		committer_date TEXT NOT NULL,
 		message TEXT NOT NULL,
+		emoji TEXT,
 		repo_name TEXT NOT NULL,
 		repo_full_name TEXT NOT NULL,
 		html_url TEXT NOT NULL,
@@ -220,6 +224,7 @@ func initDatabase() (*sql.DB, error) {
 	CREATE INDEX IF NOT EXISTS idx_repo_full_name ON commits(repo_full_name);
 	CREATE INDEX IF NOT EXISTS idx_author_email ON commits(author_email);
 	CREATE INDEX IF NOT EXISTS idx_fetched_at ON commits(fetched_at);
+	CREATE INDEX IF NOT EXISTS idx_emoji ON commits(emoji);
 	`
 
 	if _, err := db.Exec(createTableSQL); err != nil {
@@ -277,9 +282,9 @@ func saveCommit(db *sql.DB, record *CommitRecord) error {
 	INSERT INTO commits (
 		sha, author_name, author_email, author_date,
 		committer_name, committer_email, committer_date,
-		message, repo_name, repo_full_name, html_url, fetched_at
+		message, emoji, repo_name, repo_full_name, html_url, fetched_at
 	)
-	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+	VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`
 
 	_, err := db.Exec(
@@ -292,6 +297,7 @@ func saveCommit(db *sql.DB, record *CommitRecord) error {
 		record.CommitterEmail,
 		record.CommitterDate.Format(time.RFC3339),
 		record.Message,
+		record.Emoji,
 		record.RepoName,
 		record.RepoFullName,
 		record.HTMLURL,
@@ -303,4 +309,27 @@ func saveCommit(db *sql.DB, record *CommitRecord) error {
 	}
 
 	return nil
+}
+
+// extractEmoji extracts the first emoji from a commit message
+// Returns empty string if no emoji is found
+func extractEmoji(message string) string {
+	// Regex pattern to match emojis
+	// This covers most common emoji ranges in Unicode
+	emojiPattern := regexp.MustCompile(`[\x{1F600}-\x{1F64F}]|` + // Emoticons
+		`[\x{1F300}-\x{1F5FF}]|` + // Misc Symbols and Pictographs
+		`[\x{1F680}-\x{1F6FF}]|` + // Transport and Map
+		`[\x{1F1E0}-\x{1F1FF}]|` + // Flags
+		`[\x{2600}-\x{26FF}]|` + // Misc symbols
+		`[\x{2700}-\x{27BF}]|` + // Dingbats
+		`[\x{1F900}-\x{1F9FF}]|` + // Supplemental Symbols and Pictographs
+		`[\x{1FA00}-\x{1FA6F}]|` + // Chess Symbols
+		`[\x{1FA70}-\x{1FAFF}]|` + // Symbols and Pictographs Extended-A
+		`[\x{FE00}-\x{FE0F}]|` + // Variation Selectors
+		`[\x{1F018}-\x{1F270}]|` + // Various asian characters
+		`[\x{238C}-\x{2454}]|` + // Misc items
+		`[\x{20D0}-\x{20FF}]`) // Combining Diacritical Marks for Symbols
+
+	match := emojiPattern.FindString(message)
+	return match
 }

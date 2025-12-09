@@ -7,6 +7,7 @@ and stores it in a SQLite database for analysis.
 
 - Fetches commit history using the GitHub Search API via `gh` command
 - Stores commits in a SQLite database
+- Extracts and indexes emojis from commit messages
 - Avoids API rate limits by using authenticated `gh` CLI
 - Handles pagination automatically
 - Skips duplicate commits on subsequent runs
@@ -55,12 +56,16 @@ CREATE TABLE commits (
     committer_email TEXT NOT NULL,
     committer_date TEXT NOT NULL,
     message TEXT NOT NULL,
+    emoji TEXT,
     repo_name TEXT NOT NULL,
     repo_full_name TEXT NOT NULL,
     html_url TEXT NOT NULL,
     fetched_at TEXT NOT NULL
 );
 ```
+
+The `emoji` column contains the first emoji extracted from the commit message,
+making it easy to analyze commit categorization patterns.
 
 Indexes are created on:
 
@@ -69,6 +74,7 @@ Indexes are created on:
 - `repo_full_name` - Repository-based queries
 - `author_email` - Author-based queries
 - `fetched_at` - Track when data was collected
+- `emoji` - Emoji-based filtering and grouping
 
 ## Viewing the Data
 
@@ -125,6 +131,76 @@ FROM commits
 GROUP BY date
 ORDER BY commits DESC
 LIMIT 10;
+```
+
+### Commits by emoji
+
+```sql
+SELECT emoji, COUNT(*) as count
+FROM commits
+WHERE LENGTH(emoji) > 0
+GROUP BY emoji
+ORDER BY count DESC;
+```
+
+### Most popular emojis with percentages
+
+```sql
+SELECT
+  emoji,
+  COUNT(*) as count,
+  ROUND(100.0 * COUNT(*) / (SELECT COUNT(*) FROM commits WHERE LENGTH(emoji) > 0), 1) as percentage
+FROM commits
+WHERE LENGTH(emoji) > 0
+GROUP BY emoji
+ORDER BY count DESC
+LIMIT 20;
+```
+
+Example results from a dataset of 999 commits (898 with emojis):
+
+```
+emoji|count|percentage
+🧼|24|2.7
+🐈|19|2.1
+📚|11|1.2
+📖|10|1.1
+📓|9|1.0
+🧹|9|1.0
+✅|8|0.9
+📃|8|0.9
+🧑|8|0.9
+🪨|8|0.9
+📒|7|0.8
+📛|7|0.8
+🛝|7|0.8
+🧰|7|0.8
+🌀|6|0.7
+👔|6|0.7
+📊|6|0.7
+📗|6|0.7
+🔬|6|0.7
+🚚|6|0.7
+```
+
+### Recent commits with emojis
+
+```sql
+SELECT emoji, substr(message, 1, 60) as message_preview, repo_full_name
+FROM commits
+WHERE LENGTH(emoji) > 0
+ORDER BY author_date DESC
+LIMIT 10;
+```
+
+### Emoji usage over time
+
+```sql
+SELECT strftime('%Y-%m', author_date) as month, emoji, COUNT(*) as count
+FROM commits
+WHERE LENGTH(emoji) > 0
+GROUP BY month, emoji
+ORDER BY month DESC, count DESC;
 ```
 
 ## Data Sources
