@@ -14,7 +14,8 @@
       "Bash(git log:*)",
       "Bash(go get:*)",
       "Bash(identify:*)",
-      "Bash(just shellcheck:*)"
+      "Bash(just shellcheck:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": [],
     "ask": []
