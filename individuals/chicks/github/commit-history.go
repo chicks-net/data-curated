@@ -15,6 +15,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	// GitHub API configuration
+	CommitsPerPage      = 100  // Number of commits to fetch per API request
+	GitHubAPILimit      = 1000 // Maximum results returned by GitHub Search API
+	SHALogLength        = 7    // Number of SHA characters to display in logs
+	DatabaseFile        = "./commits.db"
+	InitialPage         = 1 // Starting page number for pagination
+	DateFormatShort     = "2006-01-02"
+	EnvJSONLogs         = "JSON_LOGS"
+	EnvJSONLogsValue    = "true"
+)
+
 // CommitSearchResponse represents the GitHub API response for commit search
 type CommitSearchResponse struct {
 	TotalCount        int            `json:"total_count"`
@@ -68,7 +80,7 @@ func main() {
 		return time.Now().UTC()
 	}
 
-	if os.Getenv("JSON_LOGS") == "true" {
+	if os.Getenv(EnvJSONLogs) == EnvJSONLogsValue {
 		zerolog.TimeFieldFormat = time.RFC3339
 		log.Logger = zerolog.New(os.Stdout).With().Timestamp().Caller().Logger()
 	} else {
@@ -105,8 +117,8 @@ func main() {
 	log.Info().Str("username", username).Msg("Retrieved GitHub username")
 
 	// Fetch commits with pagination
-	page := 1
-	perPage := 100
+	page := InitialPage
+	perPage := CommitsPerPage
 	totalFetched := 0
 	newCommits := 0
 
@@ -158,9 +170,9 @@ func main() {
 			} else {
 				newCommits++
 				log.Debug().
-					Str("sha", commit.SHA[:7]).
+					Str("sha", commit.SHA[:SHALogLength]).
 					Str("repo", commit.Repository.FullName).
-					Str("date", commit.Commit.Author.Date.Format("2006-01-02")).
+					Str("date", commit.Commit.Author.Date.Format(DateFormatShort)).
 					Msg("Saved commit")
 			}
 		}
@@ -180,9 +192,11 @@ func main() {
 			break
 		}
 
-		// GitHub search API has a limit of 1000 results
-		if totalFetched >= 1000 {
-			log.Warn().Msg("Reached GitHub search API limit of 1000 results")
+		// GitHub search API has a limit
+		if totalFetched >= GitHubAPILimit {
+			log.Warn().
+				Int("limit", GitHubAPILimit).
+				Msg("Reached GitHub search API limit")
 			break
 		}
 
@@ -192,12 +206,12 @@ func main() {
 	log.Info().
 		Int("total_fetched", totalFetched).
 		Int("new_commits", newCommits).
-		Str("database", "commits.db").
+		Str("database", DatabaseFile).
 		Msg("Commit history fetch completed")
 }
 
 func initDatabase() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./commits.db")
+	db, err := sql.Open("sqlite3", DatabaseFile)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
