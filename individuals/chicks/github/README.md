@@ -160,6 +160,7 @@ LIMIT 20;
 Example results from a dataset of 999 commits (898 with emojis):
 
 |emoji|count|percentage|
+|-----|-----|----------|
 |🧼|24|2.7|
 |🐈|19|2.1|
 |📚|11|1.2|
