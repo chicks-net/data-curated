@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"regexp"
+	"strings"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -241,9 +242,8 @@ func getGitHubUsername() (string, error) {
 		return "", fmt.Errorf("gh api user failed: %w", err)
 	}
 
-	username := string(output)
-	// Trim any whitespace/newlines
-	username = username[:len(username)-1]
+	// Trim any whitespace/newlines safely
+	username := strings.TrimSpace(string(output))
 
 	return username, nil
 }
