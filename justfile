@@ -231,3 +231,39 @@ graph-posts-36:
 	echo "{{GREEN}}Generating graph for last 36 months from $CSV_FILE{{NORMAL}}"
 	echo ""
 	go run graph-generator.go "$CSV_FILE" 36
+
+# Open a SQLite database in Datasette browser (checks if datasette is already running)
+[group('data')]
+datasette DB:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+
+	# Check if datasette is already running on port 8001
+	if lsof -i :8001 > /dev/null 2>&1; then
+		echo "{{RED}}Error: Datasette is already running on port 8001!{{NORMAL}}"
+		echo ""
+		# Get PID and command line from lsof output
+		lsof -i :8001 | tail -n +2 | while read -r line; do
+			pid=$(echo "$line" | awk '{print $2}')
+			echo "{{YELLOW}}PID:{{NORMAL}} $pid"
+			echo "{{YELLOW}}Command:{{NORMAL}} $(ps -p "$pid" -o command= 2>/dev/null || echo 'Unable to retrieve command')"
+			echo ""
+		done
+		exit 1
+	fi
+
+	# Check if database file exists
+	if [ ! -f "{{DB}}" ]; then
+		echo "{{RED}}Error: Database file not found: {{DB}}{{NORMAL}}"
+		exit 1
+	fi
+
+	# Check if datasette is installed
+	if ! command -v datasette &> /dev/null; then
+		echo "{{RED}}Error: datasette command not found{{NORMAL}}"
+		echo "Install with: pip install datasette"
+		exit 1
+	fi
+
+	echo "{{GREEN}}Opening {{DB}} in Datasette...{{NORMAL}}"
+	datasette "{{DB}}" -o
