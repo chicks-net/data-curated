@@ -233,7 +233,7 @@ graph-posts-36:
 	go run graph-generator.go "$CSV_FILE" 36
 
 # Open a SQLite database in Datasette browser (checks if datasette is already running)
-[group('data')]
+[group('Utility')]
 datasette DB:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
@@ -267,3 +267,57 @@ datasette DB:
 
 	echo "{{GREEN}}Opening {{DB}} in Datasette...{{NORMAL}}"
 	datasette "{{DB}}" -o
+
+# Download US Census Bureau data for a state
+[working-directory("us-cities")]
+[group('us-cities')]
+download-census-data STATE:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	./scripts/download-census-data.sh {{STATE}}
+
+# Import downloaded Census data into SQLite database
+[working-directory("us-cities")]
+[group('us-cities')]
+import-census-data *STATES:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	if [ $# -eq 0 ]; then
+		echo "Error: No states specified"
+		echo "Usage: just import-census-data STATE [STATE ...]"
+		echo "Example: just import-census-data CA VA"
+		exit 1
+	fi
+	python3 scripts/import-to-sqlite.py "$@"
+
+# Download and import Census data for one or more states
+[working-directory("us-cities")]
+[group('us-cities')]
+setup-state *STATES:
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+	if [ $# -eq 0 ]; then
+		echo "Error: No states specified"
+		echo "Usage: just setup-state STATE [STATE ...]"
+		echo "Example: just setup-state CA VA NY"
+		exit 1
+	fi
+
+	echo "{{GREEN}}Setting up Census data for states: $*{{NORMAL}}"
+	echo ""
+
+	# Download data for each state
+	for state in "$@"; do
+		echo "{{BLUE}}Downloading data for $state...{{NORMAL}}"
+		./scripts/download-census-data.sh "$state"
+		echo ""
+	done
+
+	# Import all states at once
+	echo "{{BLUE}}Importing data into SQLite...{{NORMAL}}"
+	python3 scripts/import-to-sqlite.py "$@"
+
+# Open the US cities database in Datasette
+[group('us-cities')]
+cities-db:
+	just datasette us-cities/cities.db
