@@ -238,12 +238,13 @@ datasette DB:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
 
-	# Check if datasette is already running
-	if pgrep -f "datasette" > /dev/null 2>&1; then
-		echo "{{RED}}Error: Datasette is already running!{{NORMAL}}"
+	# Check if datasette is already running on port 8001
+	if lsof -i :8001 > /dev/null 2>&1; then
+		echo "{{RED}}Error: Datasette is already running on port 8001!{{NORMAL}}"
 		echo ""
-		# Get PID(s) and command line(s)
-		pgrep -f "datasette" | while read -r pid; do
+		# Get PID and command line from lsof output
+		lsof -i :8001 | tail -n +2 | while read -r line; do
+			pid=$(echo "$line" | awk '{print $2}')
 			echo "{{YELLOW}}PID:{{NORMAL}} $pid"
 			echo "{{YELLOW}}Command:{{NORMAL}} $(ps -p "$pid" -o command= 2>/dev/null || echo 'Unable to retrieve command')"
 			echo ""
