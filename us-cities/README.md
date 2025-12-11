@@ -71,10 +71,12 @@ If you prefer to run the scripts directly:
 ```
 
 The script accepts either:
+
 - 2-digit FIPS codes (e.g., `06` for California)
 - 2-letter state abbreviations (e.g., `CA` for California)
 
 Downloaded files are saved to `us-cities/data/`:
+
 - `2020_gaz_place_XX.txt` - Gazetteer file with coordinates
 - `SUB-EST2020_XX.csv` - Population estimates file
 
@@ -145,7 +147,7 @@ Common state FIPS codes for reference:
 | TN | 47 | TX | 48 | UT | 49 |
 | VT | 50 | VA | 51 | WA | 53 |
 | WV | 54 | WI | 55 | WY | 56 |
-| PR | 72 |
+| PR | 72 | | | | |
 
 ## Limitations
 
@@ -170,6 +172,7 @@ The data comes from the US Census Bureau and is in the public domain. The script
 ## Data Updates
 
 Census Bureau data sources:
+
 - Gazetteer files are updated periodically with new Census data
 - Population estimates are released annually in May/June
 - To get the latest data, re-run the download and import scripts
