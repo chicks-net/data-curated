@@ -8,7 +8,8 @@ import? '.just/gh-process.just'
 [group('example')]
 list:
 	just --list
-	@echo "{{GREEN}}Your justfile is waiting for more scripts and snippets{{NORMAL}}"
+
+jackpot_database := "jackpots.db"
 
 # Install prerequisites for lottery tools (Go, wget, sqlite3)
 [group('lottery')]
@@ -150,12 +151,14 @@ _check_lottery_deps:
 check-jackpots: _check_lottery_deps
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
+
 	echo "Checking California Lottery jackpots..."
 	echo ""
 	go run jackpot-checker.go
+
 	echo ""
 	echo "Recent jackpot checks:"
-	sqlite3 jackpots.db "SELECT \
+	sqlite3 {{ jackpot_database }} "SELECT \
 	  game, \
 	  printf('Draw #%d', draw_number) as draw, \
 	  draw_date, \
@@ -165,6 +168,66 @@ check-jackpots: _check_lottery_deps
 	FROM jackpots \
 	ORDER BY checked_at DESC \
 	LIMIT 10;"
+
+# Show the age of the jackpots database and when data was last updated
+[working-directory("lottery")]
+[group('lottery')]
+jackpot-status: _check_lottery_deps
+	#!/usr/bin/env bash
+	set -euo pipefail # strict mode
+
+	DB_FILE="{{ jackpot_database }}"
+
+	if [ ! -f "$DB_FILE" ]; then
+		echo "{{RED}}Error: Database file not found: $DB_FILE{{NORMAL}}"
+		echo "Run 'just check-jackpots' to create it."
+		exit 1
+	fi
+
+	echo "{{GREEN}}Jackpot Database Status{{NORMAL}} ($DB_FILE)"
+	echo ""
+
+	# Show database file age
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		# macOS stat format
+		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	else
+		# Linux stat format
+		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	fi
+
+	# Show last database entry
+	LAST_ENTRY=$(sqlite3 "$DB_FILE" "SELECT datetime(checked_at) FROM jackpots ORDER BY checked_at DESC LIMIT 1;")
+
+	if [ -n "$LAST_ENTRY" ]; then
+		echo "{{YELLOW}}Last jackpot check:{{NORMAL}} $LAST_ENTRY"
+		echo ""
+
+		# Calculate how long ago
+		LAST_TIMESTAMP=$(sqlite3 "$DB_FILE" "SELECT strftime('%s', checked_at) FROM jackpots ORDER BY checked_at DESC LIMIT 1;")
+		NOW=$(date +%s)
+		DIFF=$((NOW - LAST_TIMESTAMP))
+
+		DAYS=$((DIFF / 86400))
+		HOURS=$(((DIFF % 86400) / 3600))
+		MINUTES=$(((DIFF % 3600) / 60))
+
+		if [ $DAYS -gt 0 ]; then
+			echo "{{BLUE}}Time since last check:{{NORMAL}} $DAYS days, $HOURS hours, $MINUTES minutes ago"
+		elif [ $HOURS -gt 0 ]; then
+			echo "{{BLUE}}Time since last check:{{NORMAL}} $HOURS hours, $MINUTES minutes ago"
+		else
+			echo "{{BLUE}}Time since last check:{{NORMAL}} $MINUTES minutes ago"
+		fi
+
+		# Show total entries
+		TOTAL_ENTRIES=$(sqlite3 "$DB_FILE" "SELECT COUNT(*) FROM jackpots;")
+		echo "{{BLUE}}Total entries:{{NORMAL}} $TOTAL_ENTRIES"
+	else
+		echo "{{RED}}No entries found in database{{NORMAL}}"
+	fi
 
 # Download New York lottery winning numbers (Powerball and Mega Millions)
 [working-directory("lottery")]
