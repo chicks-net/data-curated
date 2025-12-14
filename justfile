@@ -158,7 +158,7 @@ check-jackpots: _check_lottery_deps
 
 	echo ""
 	echo "Recent jackpot checks:"
-	sqlite3 {{ jackpot_database }} "SELECT \
+	sqlite3 "{{ jackpot_database }}" "SELECT \
 	  game, \
 	  printf('Draw #%d', draw_number) as draw, \
 	  draw_date, \
@@ -337,7 +337,7 @@ datasette DB:
 download-census-data STATE:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
-	./scripts/download-census-data.sh {{STATE}}
+	./scripts/download-census-data.sh "{{STATE}}"
 
 # Import downloaded Census data into SQLite database
 [working-directory("us-cities")]
