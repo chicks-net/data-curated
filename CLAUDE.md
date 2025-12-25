@@ -117,3 +117,5 @@ Most datasets follow a pattern of:
 2. Conversion scripts to transform data
 3. Output in multiple formats (especially SQLite for Datasette)
 4. README documentation explaining data sources and usage
+
+Lottery number CSVs may not be in chronological order due to upstream issues that we cannot fix.
