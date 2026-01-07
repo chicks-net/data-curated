@@ -16,6 +16,8 @@ Some links to places that I think could be handy.
 
 - [mobygratis](https://mobygratis.com/) has some unique limitations, but could
   be really handy.
+- [Youtube Audio Library](https://www.youtube.com/audiolibrary) has free music
+  pre-cleared for YouTube.
 
 ### Books and Periodicals
 
