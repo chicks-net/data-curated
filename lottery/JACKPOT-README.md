@@ -116,11 +116,11 @@ Amounts are stored as integers (actual dollar amounts, not millions).
 For automatic execution every 4 hours on macOS, use the included launchd plist:
 
 ```bash
-cp net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
+cp launchd/net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
 ```
 
-See [LAUNCHD-SETUP.md](LAUNCHD-SETUP.md) for detailed setup instructions and
+See [LAUNCHD-SETUP.md](launchd/LAUNCHD-SETUP.md) for detailed setup instructions and
 customization options.
 
 ### Linux/Unix (cron)

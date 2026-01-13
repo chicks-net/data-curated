@@ -9,7 +9,7 @@ Copy the plist file to your LaunchAgents directory and load it:
 
 ```bash
 # Copy the plist file
-cp net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
+cp launchd/net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
 
 # Load the job
 launchctl load ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
@@ -58,7 +58,7 @@ launchctl unload ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
 
 ```bash
 launchctl unload ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
-cp net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
+cp launchd/net.chicks.lottery.jackpot-checker.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
 ```
 
