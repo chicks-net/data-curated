@@ -244,6 +244,12 @@ download-lottery-numbers: _check_lottery_deps
 analyze-megamillions:
 	Rscript analyze-megamillions.R
 
+# Analyze Powerball number frequency
+[working-directory("lottery/powerball-analysis")]
+[group('lottery')]
+analyze-powerball:
+	Rscript analyze-powerball.R
+
 # Count blog posts per month from chicks.net
 [working-directory("individuals/chicks/blog")]
 [group('blog')]
