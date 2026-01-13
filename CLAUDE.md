@@ -45,6 +45,7 @@ imports modules from `.just/` directory:
 - `just jackpot-status` - Show database age and when data was last updated
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
+- `just analyze-powerball` - Analyze Powerball number frequency (requires R)
 
 ### Blog analysis commands
 
