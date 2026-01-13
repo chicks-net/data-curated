@@ -15,6 +15,7 @@ Datasette and SQLite.
 - `duolingo/` - Spanish learning character data in TOML format with build scripts
 - `lottery/` - NY lottery winning numbers (CSV) + CA lottery jackpot tracker (Go/SQLite)
 - `us-states/` - US state data with CSV, TSV, and SQLite versions
+- `us-cities/` - US city data from Census Bureau (coordinates, population 2010-2020)
 - `good-sites/` - Curated list of useful websites
 - `individuals/` - Personal data collections and projects
 - `us-presidents/` - US president data
@@ -41,15 +42,26 @@ imports modules from `.just/` directory:
 
 - `just install-lottery-deps` - Install prerequisites (Go, wget, sqlite3)
 - `just check-jackpots` - Fetch California lottery jackpots, show recent results
+- `just jackpot-status` - Show database age and when data was last updated
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
 
 ### Blog analysis commands
 
 - `just count-posts` - Count blog posts per month from chicks.net
+- `just graph-posts` - Generate graph from blog post CSV data (all months)
+- `just graph-posts-36` - Generate graph for the last 36 months of blog posts
+
+### US cities commands
+
+- `just setup-state <STATE> [STATE...]` - Download and import Census data for state(s)
+- `just download-census-data <STATE>` - Download Census data for a single state
+- `just import-census-data <STATE> [STATE...]` - Import downloaded Census data to SQLite
+- `just cities-db` - Open cities.db in Datasette browser
 
 ### Other commands
 
+- `just datasette <DB>` - Open any SQLite database in Datasette browser
 - `just prweb` - Open current branch's PR in browser
 - `just release <version>` - Create GitHub release with generated notes
 - `just` or `just list` - Show all available commands
@@ -82,6 +94,8 @@ Individual directories contain build/import scripts:
 
 - `duolingo/build-character.sh` - TOML → markdown character reference
 - `us-states/import.sh` - CSV → SQLite database
+- `us-cities/scripts/download-census-data.sh` - Download Census Bureau data for states
+- `us-cities/scripts/import-to-sqlite.py` - Import Census data into SQLite
 - `individuals/chicks/google-maps/process-reviews.sh` - Process Google Maps review data
 
 Most data operations are now integrated into the justfile (see commands above).
@@ -97,6 +111,9 @@ The repository contains several Go programs:
 - `individuals/chicks/blog/post-counter.go` - Counts blog posts per month from chicks.net
   - Run with: `just count-posts`
   - Generates timestamped CSV files with monthly post counts
+- `individuals/chicks/blog/graph-generator.go` - Generates PNG graphs from blog post CSV data
+  - Run with: `just graph-posts` or `just graph-posts-36`
+  - Creates timestamped PNG files visualizing post frequency over time
 
 ## Data Formats
 
