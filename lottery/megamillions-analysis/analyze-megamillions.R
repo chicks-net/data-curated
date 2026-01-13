@@ -67,8 +67,8 @@ cat("\n=== OUTPUT FILES ===\n")
 cat("Main numbers frequency saved to: megamillions-main-numbers-frequency.csv\n")
 cat("Mega Ball frequency saved to: megamillions-mega-ball-frequency.csv\n")
 
-# Create visualization if possible
-if (interactive() || !is.null(getOption("device"))) {
+# Create visualization (skip if running in test mode)
+if (!isTRUE(getOption("skip.plots"))) {
   # Main numbers bar chart
   p1 <- ggplot(main_freq, aes(x = reorder(Number, -Count), y = Count)) +
     geom_col(fill = "steelblue") +

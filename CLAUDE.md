@@ -42,6 +42,7 @@ imports modules from `.just/` directory:
 - `just install-lottery-deps` - Install prerequisites (Go, wget, sqlite3)
 - `just check-jackpots` - Fetch California lottery jackpots, show recent results
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
+- `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
 
 ### Blog analysis commands
 

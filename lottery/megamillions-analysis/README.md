@@ -16,6 +16,12 @@ cd lottery/megamillions-analysis
 Rscript analyze-megamillions.R
 ```
 
+If you don't have tidyverse installed, run this in R first:
+
+```r
+install.packages("tidyverse")
+```
+
 The script will crunch through all the historical drawings and generate:
 
 - Frequency tables (CSV files)
@@ -26,7 +32,7 @@ The script will crunch through all the historical drawings and generate:
 
 Based on **2,466 drawings** from May 17, 2002 to January 9, 2026:
 
-### Main Numbers (1-70)
+### Main Numbers (1-75)
 
 **Most frequently drawn:**
 
@@ -76,10 +82,10 @@ numbers dataset, which goes back to the game's inception in 2002. The CSV file
 lives in the parent `lottery/` directory.
 
 Note that numbers 71-75 appear less frequently because they were only added to
-the pool more recently when Mega Millions expanded the number range. Before
-October 2017, the main numbers only went up to 75, and before that it was even
-smaller. So don't go thinking those high numbers are "due" - they just haven't
-been in the game as long.
+the pool more recently when Mega Millions expanded the number range in October
+2017. Before that expansion, the main numbers only went up to 70, and before
+previous changes it was even smaller. So don't go thinking those high numbers
+are "due" - they just haven't been in the game as long.
 
 ## Technical Details
 

@@ -238,6 +238,12 @@ download-lottery-numbers: _check_lottery_deps
 	wget "https://data.ny.gov/api/views/d6yy-54nr/rows.csv?accessType=DOWNLOAD" -O Lottery_Powerball_Winning_Numbers__Beginning_2010.csv
 	wget "https://data.ny.gov/api/views/5xaw-6ayf/rows.csv?accessType=DOWNLOAD" -O Lottery_Mega_Millions_Winning_Numbers__Beginning_2002.csv
 
+# Analyze Mega Millions number frequency
+[working-directory("lottery/megamillions-analysis")]
+[group('lottery')]
+analyze-megamillions:
+	Rscript analyze-megamillions.R
+
 # Count blog posts per month from chicks.net
 [working-directory("individuals/chicks/blog")]
 [group('blog')]

@@ -17,7 +17,8 @@
       "Bash(go get:*)",
       "Bash(identify:*)",
       "Bash(just shellcheck:*)",
-      "Bash(sqlite3:*)"
+      "Bash(sqlite3:*)",
+      "Bash(just claude_review:*)"
     ],
     "deny": [],
     "ask": []
