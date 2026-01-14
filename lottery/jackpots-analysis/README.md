@@ -22,12 +22,15 @@ Rscript -e 'install.packages(c("DBI", "RSQLite", "ggplot2", "dplyr", "tidyr", "l
 ## Running the Analysis
 
 ```bash
-# From the repository root
+# Recommended: Use the just command (from anywhere in the repo)
+just analyze-jackpots
+
+# Or run Rscript directly (from the repository root)
 Rscript lottery/jackpots-analysis/analyze-jackpots.R
 
-# Or make it executable and run directly
-chmod +x lottery/jackpots-analysis/analyze-jackpots.R
-./lottery/jackpots-analysis/analyze-jackpots.R
+# Or make it executable and run directly (from this directory)
+chmod +x analyze-jackpots.R
+./analyze-jackpots.R
 ```
 
 ## Output
@@ -43,17 +46,32 @@ The script generates both text output and visualizations:
 
 ### Visualizations
 
-1. **jackpot-trends.png** - Line chart showing how jackpots change over time
-   for both games, clearly showing growth periods and resets when someone wins
+#### 1. Jackpot Trends Over Time
 
-2. **cash-percentage.png** - Box plot comparing the cash value percentage
-   between Mega Millions and Powerball
+Line chart showing how jackpots change over time for both games, clearly
+showing growth periods and resets when someone wins.
 
-3. **jackpot-distribution.png** - Histogram showing the frequency distribution
-   of different jackpot amounts for each game
+![Jackpot Trends](jackpot-trends.png)
 
-4. **jackpot-changes.png** - Line chart showing the change in jackpot amount
-   between consecutive draws (positive = increase, negative = reset/win)
+#### 2. Cash Value Percentage Comparison
+
+Box plot comparing the cash value percentage between Mega Millions and Powerball.
+
+![Cash Percentage](cash-percentage.png)
+
+#### 3. Jackpot Amount Distribution
+
+Histogram showing the frequency distribution of different jackpot amounts for
+each game.
+
+![Jackpot Distribution](jackpot-distribution.png)
+
+#### 4. Jackpot Changes Between Draws
+
+Line chart showing the change in jackpot amount between consecutive draws
+(positive = increase, negative = reset/win).
+
+![Jackpot Changes](jackpot-changes.png)
 
 ## Analysis Details
 
