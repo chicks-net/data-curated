@@ -250,6 +250,12 @@ analyze-megamillions:
 analyze-powerball:
 	Rscript analyze-powerball.R
 
+# Analyze California lottery jackpot trends
+[working-directory("lottery/jackpots-analysis")]
+[group('lottery')]
+analyze-jackpots:
+	Rscript analyze-jackpots.R
+
 # Count blog posts per month from chicks.net
 [working-directory("individuals/chicks/blog")]
 [group('blog')]

@@ -19,7 +19,8 @@
       "Bash(just shellcheck:*)",
       "Bash(sqlite3:*)",
       "Bash(just claude_review:*)",
-      "Bash(just analyze-powerball:*)"
+      "Bash(just analyze-powerball:*)",
+      "Bash(just analyze-jackpots:*)"
     ],
     "deny": [],
     "ask": []
