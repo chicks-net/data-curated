@@ -46,6 +46,7 @@ imports modules from `.just/` directory:
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
 - `just analyze-powerball` - Analyze Powerball number frequency (requires R)
+- `just analyze-jackpots` - Analyze California lottery jackpot trends (requires R)
 
 ### Blog analysis commands
 
@@ -115,6 +116,24 @@ The repository contains several Go programs:
 - `individuals/chicks/blog/graph-generator.go` - Generates PNG graphs from blog post CSV data
   - Run with: `just graph-posts` or `just graph-posts-36`
   - Creates timestamped PNG files visualizing post frequency over time
+
+### R analysis scripts
+
+The repository contains R scripts for statistical analysis and visualization:
+
+- `lottery/megamillions-analysis/analyze-megamillions.R` - Analyzes Mega Millions number frequency
+  - Run with: `just analyze-megamillions`
+  - Requires NY lottery CSV data (download with `just download-lottery-numbers`)
+  - Generates frequency tables and visualizations
+- `lottery/powerball-analysis/analyze-powerball.R` - Analyzes Powerball number frequency
+  - Run with: `just analyze-powerball`
+  - Requires NY lottery CSV data (download with `just download-lottery-numbers`)
+  - Generates frequency tables and visualizations
+- `lottery/jackpots-analysis/analyze-jackpots.R` - Analyzes California lottery jackpot trends
+  - Run with: `just analyze-jackpots`
+  - Uses `lottery/jackpots.db` (populated by `just check-jackpots`)
+  - Generates 4 visualizations: trends, cash percentage, distribution, changes
+  - See lottery/jackpots-analysis/README.md for details
 
 ## Data Formats
 
