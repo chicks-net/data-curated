@@ -21,7 +21,8 @@
       "Bash(just claude_review:*)",
       "Bash(just analyze-powerball:*)",
       "Bash(just analyze-jackpots:*)",
-      "Bash(./analyze-megamillions.pl)"
+      "Bash(./analyze-megamillions.pl)",
+      "Bash(just analyze-megamillions-pl:*)"
     ],
     "deny": [],
     "ask": []

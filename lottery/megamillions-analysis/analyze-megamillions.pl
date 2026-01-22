@@ -12,7 +12,18 @@
 
 use strict;
 use warnings;
-use lib "$ENV{HOME}/perl5/lib/perl5";
+# Add local::lib paths if they exist (for CPAN modules installed locally)
+BEGIN {
+    use Config;
+    my $local_lib_base = "$ENV{HOME}/perl5/lib/perl5";
+    if (-d $local_lib_base) {
+        # Add architecture-specific directory first (for XS modules)
+        my $arch_dir = "$local_lib_base/$Config{archname}";
+        unshift @INC, $arch_dir if -d $arch_dir;
+        # Then add the base directory
+        unshift @INC, $local_lib_base;
+    }
+}
 use Text::CSV_XS;
 use Statistics::Descriptive;
 
@@ -35,15 +46,34 @@ my ($min_date, $max_date);
 my %main_freq;
 my %mega_ball_freq;
 
+# Helper function to convert MM/DD/YYYY to YYYYMMDD for comparison
+sub date_to_sortable {
+    my ($date) = @_;
+    if ($date =~ m{^(\d{1,2})/(\d{1,2})/(\d{4})$}) {
+        return sprintf("%04d%02d%02d", $3, $1, $2);
+    }
+    return $date;  # Return as-is if format doesn't match
+}
+
 # Process each row
 while (my $row = $csv->getline($fh)) {
     my ($draw_date, $winning_numbers, $mega_ball, $multiplier) = @$row;
 
     $drawing_count++;
 
-    # Track date range
-    $min_date = $draw_date if !defined $min_date || $draw_date lt $min_date;
-    $max_date = $draw_date if !defined $max_date || $draw_date gt $max_date;
+    # Track date range (convert to sortable format for comparison)
+    my $sortable_date = date_to_sortable($draw_date);
+    if (!defined $min_date) {
+        $min_date = $draw_date;
+    } elsif ($sortable_date lt date_to_sortable($min_date)) {
+        $min_date = $draw_date;
+    }
+
+    if (!defined $max_date) {
+        $max_date = $draw_date;
+    } elsif ($sortable_date gt date_to_sortable($max_date)) {
+        $max_date = $draw_date;
+    }
 
     # Parse the winning numbers (space-separated)
     my @numbers = split /\s+/, $winning_numbers;
@@ -116,7 +146,7 @@ print "\n=== OUTPUT FILES ===\n";
 # Main numbers frequency CSV
 my $main_csv_file = "megamillions-main-numbers-frequency-perl.csv";
 open my $main_out, ">:encoding(utf8)", $main_csv_file or die "Cannot open $main_csv_file: $!";
-my $main_csv_writer = Text::CSV_XS->new({ binary => 1, eol => "\n" });
+my $main_csv_writer = Text::CSV_XS->new({ binary => 1, eol => "\n", quote_space => 0 });
 
 $main_csv_writer->print($main_out, ["Number", "Count"]);
 foreach my $num (sort { $main_freq{$b} <=> $main_freq{$a} || $a <=> $b } keys %main_freq) {

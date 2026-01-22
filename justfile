@@ -244,6 +244,12 @@ download-lottery-numbers: _check_lottery_deps
 analyze-megamillions:
 	Rscript analyze-megamillions.R
 
+# Analyze Mega Millions number frequency (Perl version)
+[working-directory("lottery/megamillions-analysis")]
+[group('lottery')]
+analyze-megamillions-pl:
+	./analyze-megamillions.pl
+
 # Analyze Powerball number frequency
 [working-directory("lottery/powerball-analysis")]
 [group('lottery')]
