@@ -408,3 +408,136 @@ setup-state *STATES:
 [group('us-cities')]
 cities-db:
 	just datasette us-cities/cities.db
+
+# Fetch GitHub commit history for chicks-net
+[working-directory("individuals/chicks/github")]
+[group('github')]
+fetch-commits:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	echo "Fetching GitHub commit history..."
+	go run commit-history.go
+
+# Fetch GitHub contribution history for chicks-net
+[working-directory("individuals/chicks/github")]
+[group('github')]
+fetch-contributions:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	echo "Fetching GitHub contribution history..."
+	go run github-contributions.go
+
+# Show commit statistics
+[working-directory("individuals/chicks/github")]
+[group('github')]
+commit-stats:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [ ! -f commits.db ]; then
+		echo "Error: commits.db not found. Run 'just fetch-commits' first."
+		exit 1
+	fi
+	sqlite3 commits.db "SELECT
+	  COUNT(*) as total_commits,
+	  COUNT(DISTINCT repo_full_name) as repositories,
+	  COUNT(CASE WHEN LENGTH(emoji) > 0 THEN 1 END) as commits_with_emoji,
+	  MIN(DATE(author_date)) as earliest_commit,
+	  MAX(DATE(author_date)) as latest_commit
+	FROM commits;"
+
+# Show contribution statistics
+[working-directory("individuals/chicks/github")]
+[group('github')]
+contribution-stats:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [ ! -f contributions.db ]; then
+		echo "Error: contributions.db not found. Run 'just fetch-contributions' first."
+		exit 1
+	fi
+	sqlite3 contributions.db "SELECT
+	  COUNT(DISTINCT date) as total_days,
+	  SUM(contribution_count) as total_contributions,
+	  MAX(contribution_count) as max_day,
+	  ROUND(AVG(contribution_count), 2) as avg_per_day,
+	  MIN(date) as earliest_date,
+	  MAX(date) as latest_date
+	FROM contributions;"
+
+# Show monthly contribution totals
+[working-directory("individuals/chicks/github")]
+[group('github')]
+contribution-monthly MONTHS="24":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [ ! -f contributions.db ]; then
+		echo "Error: contributions.db not found. Run 'just fetch-contributions' first."
+		exit 1
+	fi
+	echo "Monthly Contribution Summary (last {{MONTHS}} months)"
+	echo ""
+	sqlite3 -header -column contributions.db "SELECT
+	  strftime('%Y-%m', date) as month,
+	  SUM(contribution_count) as total,
+	  ROUND(AVG(contribution_count), 1) as daily_avg,
+	  MAX(contribution_count) as peak_day,
+	  COUNT(DISTINCT CASE WHEN contribution_count > 0 THEN date END) as active_days,
+	  COUNT(DISTINCT CASE WHEN contribution_count = 0 THEN date END) as inactive_days
+	FROM contributions
+	GROUP BY month
+	ORDER BY month DESC
+	LIMIT {{MONTHS}};"
+
+# Show longest contribution streaks
+[working-directory("individuals/chicks/github")]
+[group('github')]
+contribution-streaks LIMIT="10":
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [ ! -f contributions.db ]; then
+		echo "Error: contributions.db not found. Run 'just fetch-contributions' first."
+		exit 1
+	fi
+	echo "Longest Contribution Streaks (top {{LIMIT}})"
+	echo ""
+	sqlite3 -header -column contributions.db "WITH distinct_days AS (
+	  SELECT DISTINCT date
+	  FROM contributions
+	  WHERE contribution_count > 0
+	  ORDER BY date
+	),
+	gaps AS (
+	  SELECT
+	    date,
+	    LAG(date) OVER (ORDER BY date) as prev_date,
+	    CASE
+	      WHEN julianday(date) - julianday(LAG(date) OVER (ORDER BY date)) = 1 THEN 0
+	      ELSE 1
+	    END as is_new_streak
+	  FROM distinct_days
+	),
+	streak_groups AS (
+	  SELECT
+	    date,
+	    SUM(is_new_streak) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as streak_id
+	  FROM gaps
+	)
+	SELECT
+	  MIN(date) as streak_start,
+	  MAX(date) as streak_end,
+	  COUNT(*) as days
+	FROM streak_groups
+	GROUP BY streak_id
+	HAVING COUNT(*) > 1
+	ORDER BY days DESC
+	LIMIT {{LIMIT}};"
+
+# View commits in Datasette
+[group('github')]
+commits-db:
+	just datasette individuals/chicks/github/commits.db
+
+# View contributions in Datasette
+[group('github')]
+contributions-db:
+	just datasette individuals/chicks/github/contributions.db

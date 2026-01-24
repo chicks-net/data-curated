@@ -1,9 +1,16 @@
-# GitHub Commit History Tracker
+# GitHub Data Trackers
 
-This Go program fetches your GitHub commit history using the GitHub CLI (`gh`)
-and stores it in a SQLite database for analysis.
+This directory contains Go programs for tracking and analyzing GitHub activity
+using the GitHub CLI (`gh`) and GraphQL API.
 
-## Features
+## Programs
+
+### Commit History Tracker (`commit-history.go`)
+
+Fetches individual commit details using the GitHub Search API and stores them
+in a SQLite database for analysis.
+
+**Features:**
 
 - Fetches commit history using the GitHub Search API via `gh` command
 - Stores commits in a SQLite database
@@ -12,6 +19,30 @@ and stores it in a SQLite database for analysis.
 - Handles pagination automatically
 - Skips duplicate commits on subsequent runs
 - Supports up to 1000 most recent commits (GitHub API limitation)
+
+**Database:** `commits.db`
+
+### Contributions Tracker (`github-contributions.go`)
+
+Fetches daily contribution counts from GitHub's contribution calendar using the
+GraphQL API. Provides complete historical data from account creation (2011-10-03)
+to present.
+
+**Features:**
+
+- Fetches complete contribution history using GitHub GraphQL API
+- Stores daily contribution counts in SQLite database
+- Year-by-year fetching strategy (efficient and resumable)
+- Incremental updates (only fetch recent data on subsequent runs)
+- Includes all contribution types (commits, PRs, issues, reviews)
+- No pagination needed - complete data in ~15 API requests
+
+**Database:** `contributions.db`
+
+**Complementary to commit-history:** While `commit-history.go` tracks individual
+commit details (limited to 1000 results), `github-contributions.go` provides
+aggregated daily contribution counts for all activity types across your entire
+GitHub history.
 
 ## Prerequisites
 
@@ -28,22 +59,34 @@ go mod download
 
 ## Usage
 
-Run the program from the `individuals/chicks/github` directory:
+### Fetch Commit History
 
 ```bash
 go run commit-history.go
 ```
 
-Or build and run:
+### Fetch Contribution Counts
 
 ```bash
-go build -o commit-history commit-history.go
-./commit-history
+go run github-contributions.go
 ```
 
-## Database Schema
+Or use the justfile commands from the repository root:
 
-The program creates a `commits.db` SQLite database with the following schema:
+```bash
+just fetch-commits        # Fetch commit history
+just fetch-contributions  # Fetch contribution counts
+just commit-stats         # Show commit statistics
+just contribution-stats   # Show contribution statistics
+just commits-db          # Open commits.db in Datasette
+just contributions-db    # Open contributions.db in Datasette
+```
+
+## Database Schemas
+
+### Commits Database (`commits.db`)
+
+Created by `commit-history.go`:
 
 ```sql
 CREATE TABLE commits (
@@ -76,18 +119,43 @@ Indexes are created on:
 - `fetched_at` - Track when data was collected
 - `emoji` - Emoji-based filtering and grouping
 
+### Contributions Database (`contributions.db`)
+
+Created by `github-contributions.go`:
+
+```sql
+CREATE TABLE contributions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    date TEXT NOT NULL,
+    contribution_count INTEGER NOT NULL,
+    fetched_at TEXT NOT NULL,
+    UNIQUE(date, fetched_at)
+);
+```
+
+The `UNIQUE(date, fetched_at)` constraint allows tracking how contribution counts
+change over time (GitHub may retroactively adjust counts).
+
+Indexes are created on:
+
+- `date` - Fast date-based queries
+- `fetched_at` - Track when data was collected
+- `contribution_count` - Filter by activity level
+
 ## Viewing the Data
 
-Use Datasette to browse the commit history:
+Use Datasette to browse the databases:
 
 ```bash
 datasette commits.db -o
+datasette contributions.db -o
 ```
 
 Or query directly with SQLite:
 
 ```bash
 sqlite3 commits.db "SELECT author_date, repo_full_name, message FROM commits ORDER BY author_date DESC LIMIT 10;"
+sqlite3 contributions.db "SELECT date, contribution_count FROM contributions ORDER BY date DESC LIMIT 10;"
 ```
 
 ## Logging
@@ -99,11 +167,115 @@ The program uses structured logging with zerolog:
 
 ## Limitations
 
+### Commit History (`commits.db`)
+
 - GitHub Search API returns a maximum of 1000 results
 - Only public commits are included in search results
 - Private repository commits require appropriate permissions
 
+### Contributions (`contributions.db`)
+
+- Data starts from account creation date (2011-10-03 for chicks-net)
+- Contribution counts may change retroactively as GitHub adjusts metrics
+- Private contributions are included in counts but not detailed
+
 ## Example Queries
+
+### Contributions Queries
+
+#### Total contributions over time
+
+```sql
+SELECT
+  strftime('%Y', date) as year,
+  SUM(contribution_count) as total_contributions
+FROM contributions
+GROUP BY year
+ORDER BY year DESC;
+```
+
+#### Most active days
+
+```sql
+SELECT date, contribution_count
+FROM contributions
+ORDER BY contribution_count DESC
+LIMIT 20;
+```
+
+#### Average contributions by day of week
+
+```sql
+SELECT
+  CASE CAST(strftime('%w', date) AS INTEGER)
+    WHEN 0 THEN 'Sunday'
+    WHEN 1 THEN 'Monday'
+    WHEN 2 THEN 'Tuesday'
+    WHEN 3 THEN 'Wednesday'
+    WHEN 4 THEN 'Thursday'
+    WHEN 5 THEN 'Friday'
+    WHEN 6 THEN 'Saturday'
+  END as day_of_week,
+  ROUND(AVG(contribution_count), 2) as avg_contributions,
+  COUNT(*) as total_days
+FROM contributions
+GROUP BY strftime('%w', date)
+ORDER BY CAST(strftime('%w', date) AS INTEGER);
+```
+
+#### Contribution streaks
+
+```sql
+WITH distinct_days AS (
+  SELECT DISTINCT date
+  FROM contributions
+  WHERE contribution_count > 0
+  ORDER BY date
+),
+gaps AS (
+  SELECT
+    date,
+    LAG(date) OVER (ORDER BY date) as prev_date,
+    CASE
+      WHEN julianday(date) - julianday(LAG(date) OVER (ORDER BY date)) = 1 THEN 0
+      ELSE 1
+    END as is_new_streak
+  FROM distinct_days
+),
+streak_groups AS (
+  SELECT
+    date,
+    SUM(is_new_streak) OVER (ORDER BY date ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) as streak_id
+  FROM gaps
+)
+SELECT
+  MIN(date) as streak_start,
+  MAX(date) as streak_end,
+  COUNT(*) as days
+FROM streak_groups
+GROUP BY streak_id
+HAVING COUNT(*) > 1
+ORDER BY days DESC
+LIMIT 10;
+```
+
+#### Monthly contribution summary
+
+```sql
+SELECT
+  strftime('%Y-%m', date) as month,
+  SUM(contribution_count) as total,
+  ROUND(AVG(contribution_count), 1) as daily_avg,
+  MAX(contribution_count) as peak_day,
+  COUNT(DISTINCT CASE WHEN contribution_count > 0 THEN date END) as active_days,
+  COUNT(DISTINCT CASE WHEN contribution_count = 0 THEN date END) as inactive_days
+FROM contributions
+GROUP BY month
+ORDER BY month DESC
+LIMIT 12;
+```
+
+### Commit History Queries
 
 ### Commits per repository
 
@@ -204,11 +376,37 @@ ORDER BY month DESC, count DESC;
 
 ## Data Sources
 
+### Commit History
+
 Data is fetched from the GitHub Search API using the `gh api` command:
 
 ```bash
 gh api '/search/commits?q=author:USERNAME&sort=author-date&order=desc'
 ```
 
-This approach uses your authenticated GitHub CLI session, avoiding rate limits
+### Contributions
+
+Data is fetched from the GitHub GraphQL API using the `gh api graphql` command:
+
+```bash
+gh api graphql -f query='
+  query {
+    user(login: "USERNAME") {
+      contributionsCollection(from: "2011-10-03T00:00:00Z", to: "2026-01-23T23:59:59Z") {
+        contributionCalendar {
+          totalContributions
+          weeks {
+            contributionDays {
+              date
+              contributionCount
+            }
+          }
+        }
+      }
+    }
+  }
+'
+```
+
+Both approaches use your authenticated GitHub CLI session, avoiding rate limits
 that would affect unauthenticated API requests.
