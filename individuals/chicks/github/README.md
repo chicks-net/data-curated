@@ -295,7 +295,7 @@ GROUP BY month
 ORDER BY month DESC;
 ```
 
-### Most active days
+### Most active  commit days
 
 ```sql
 SELECT DATE(author_date) as date, COUNT(*) as commits
