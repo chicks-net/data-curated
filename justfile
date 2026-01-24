@@ -541,3 +541,9 @@ commits-db:
 [group('github')]
 contributions-db:
 	just datasette individuals/chicks/github/contributions.db
+
+# Analyze GitHub contribution trends with visualizations
+[working-directory("individuals/chicks/github/contributions-analysis")]
+[group('github')]
+analyze-contributions:
+	Rscript analyze-contributions.R
