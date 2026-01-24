@@ -73,6 +73,11 @@ imports modules from `.just/` directory:
 - `just commits-db` - Open commits.db in Datasette browser
 - `just contributions-db` - Open contributions.db in Datasette browser
 
+### R package management
+
+- `just install-r-deps` - Install all R packages used in this repository
+- `just install-r-package <PACKAGE>` - Install or update a single R package (e.g., zoo, ggplot2, dplyr)
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
@@ -140,7 +145,14 @@ The repository contains several Go programs:
 
 ### R analysis scripts
 
-The repository contains R scripts for statistical analysis and visualization:
+The repository contains R scripts for statistical analysis and visualization.
+
+**Installing R dependencies:**
+
+- Run `just install-r-deps` to install all required R packages (tidyverse, DBI, RSQLite, zoo, lubridate, scales)
+- Or install individual packages with `just install-r-package <PACKAGE>`
+
+**Analysis scripts:**
 
 - `lottery/megamillions-analysis/analyze-megamillions.R` - Analyzes Mega Millions number frequency
   - Run with: `just analyze-megamillions`
@@ -155,6 +167,10 @@ The repository contains R scripts for statistical analysis and visualization:
   - Uses `lottery/jackpots.db` (populated by `just check-jackpots`)
   - Generates 4 visualizations: trends, cash percentage, distribution, changes
   - See lottery/jackpots-analysis/README.md for details
+- `individuals/chicks/github/contributions-analysis/analyze-contributions.R` - Analyzes GitHub contribution trends
+  - Run with: `just analyze-contributions`
+  - Uses `contributions.db` (populated by `just fetch-contributions`)
+  - Generates 2 visualizations: recent timeline and all-time weekly trends with running averages
 
 ## Data Formats
 
