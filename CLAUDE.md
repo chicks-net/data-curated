@@ -69,6 +69,7 @@ imports modules from `.just/` directory:
 - `just contribution-stats` - Show contribution database statistics
 - `just contribution-monthly [MONTHS]` - Show monthly contribution totals (default: 24 months)
 - `just contribution-streaks [LIMIT]` - Show longest contribution streaks (default: 10)
+- `just analyze-contributions` - Analyze contribution trends with visualizations (requires R)
 - `just commits-db` - Open commits.db in Datasette browser
 - `just contributions-db` - Open contributions.db in Datasette browser
 
