@@ -387,7 +387,13 @@ graph-posts CSV="":
 	CSV_FILE="{{CSV}}"
 	# If no CSV specified, find the most recent one
 	if [ -z "$CSV_FILE" ]; then
-		CSV_FILE=$(ls -t blog-monthly-*.csv 2>/dev/null | head -1 || echo "")
+		# Find most recent CSV file using portable bash approach
+		for f in blog-monthly-*.csv; do
+			[ -e "$f" ] || continue
+			if [ -z "$CSV_FILE" ] || [ "$f" -nt "$CSV_FILE" ]; then
+				CSV_FILE="$f"
+			fi
+		done
 		if [ -z "$CSV_FILE" ]; then
 			echo "Error: No CSV file found. Run 'just count-posts' first."
 			exit 1
@@ -409,8 +415,14 @@ graph-posts CSV="":
 graph-posts-36:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
-	# Find the most recent CSV file
-	CSV_FILE=$(ls -t blog-monthly-*.csv 2>/dev/null | head -1 || echo "")
+	# Find most recent CSV file using portable bash approach
+	CSV_FILE=""
+	for f in blog-monthly-*.csv; do
+		[ -e "$f" ] || continue
+		if [ -z "$CSV_FILE" ] || [ "$f" -nt "$CSV_FILE" ]; then
+			CSV_FILE="$f"
+		fi
+	done
 	if [ -z "$CSV_FILE" ]; then
 		echo "Error: No CSV file found. Run 'just count-posts' first."
 		exit 1
