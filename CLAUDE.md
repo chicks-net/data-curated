@@ -61,6 +61,17 @@ imports modules from `.just/` directory:
 - `just import-census-data <STATE> [STATE...]` - Import downloaded Census data to SQLite
 - `just cities-db` - Open cities.db in Datasette browser
 
+### GitHub commands
+
+- `just fetch-commits` - Fetch GitHub commit history (up to 1000 most recent)
+- `just fetch-contributions` - Fetch complete contribution history (2011-present)
+- `just commit-stats` - Show commit database statistics
+- `just contribution-stats` - Show contribution database statistics
+- `just contribution-monthly [MONTHS]` - Show monthly contribution totals (default: 24 months)
+- `just contribution-streaks [LIMIT]` - Show longest contribution streaks (default: 10)
+- `just commits-db` - Open commits.db in Datasette browser
+- `just contributions-db` - Open contributions.db in Datasette browser
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
@@ -116,6 +127,15 @@ The repository contains several Go programs:
 - `individuals/chicks/blog/graph-generator.go` - Generates PNG graphs from blog post CSV data
   - Run with: `just graph-posts` or `just graph-posts-36`
   - Creates timestamped PNG files visualizing post frequency over time
+- `individuals/chicks/github/commit-history.go` - Fetches GitHub commit history via Search API
+  - Run with: `just fetch-commits`
+  - Stores up to 1000 most recent commits in `commits.db`
+  - See individuals/chicks/github/README.md for full documentation
+- `individuals/chicks/github/github-contributions.go` - Fetches complete GitHub contribution history via GraphQL API
+  - Run with: `just fetch-contributions`
+  - Stores daily contribution counts from 2011-present in `contributions.db`
+  - Includes all contribution types (commits, PRs, issues, reviews)
+  - See individuals/chicks/github/README.md for full documentation
 
 ### R analysis scripts
 

@@ -22,7 +22,13 @@
       "Bash(just analyze-powerball:*)",
       "Bash(just analyze-jackpots:*)",
       "Bash(./analyze-megamillions.pl)",
-      "Bash(just analyze-megamillions-pl:*)"
+      "Bash(just analyze-megamillions-pl:*)",
+      "Bash(gh api --help:*)",
+      "Bash(gh api graphql --help:*)",
+      "Bash(just fetch-contributions:*)",
+      "Bash(just contribution-stats:*)",
+      "Bash(just contribution-monthly:*)",
+      "Bash(just contribution-streaks:*)"
     ],
     "deny": [],
     "ask": []
