@@ -262,6 +262,106 @@ analyze-powerball:
 analyze-jackpots:
 	Rscript analyze-jackpots.R
 
+# Install all R packages used in this repository
+[group('Utility')]
+install-r-deps:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	echo "{{GREEN}}Installing R packages used in this repository{{NORMAL}}"
+	echo ""
+
+	# List of all R packages used across analysis scripts
+	PACKAGES=(
+		"tidyverse"  # Used by lottery analysis scripts (includes ggplot2, dplyr, tidyr, readr)
+		"DBI"        # Database interface for jackpots and contributions analysis
+		"RSQLite"    # SQLite database driver
+		"zoo"        # Rolling averages in contributions analysis
+		"lubridate"  # Date handling in jackpots and contributions analysis
+		"scales"     # Number formatting in plots
+	)
+
+	echo "{{BLUE}}Packages to check/install:{{NORMAL}}"
+	for pkg in "${PACKAGES[@]}"; do
+		echo "  - $pkg"
+	done
+	echo ""
+
+	# Install each package
+	for pkg in "${PACKAGES[@]}"; do
+		just install-r-package "$pkg"
+		echo ""
+	done
+
+	echo "{{GREEN}}✓ All R dependencies installed!{{NORMAL}}"
+
+# Install a single R package (e.g., zoo, ggplot2, dplyr)
+[group('Utility')]
+install-r-package PACKAGE:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if R is installed
+	if ! command -v R &> /dev/null; then
+		echo "{{RED}}Error: R is not installed{{NORMAL}}"
+		echo ""
+		echo "Install R:"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "  brew install r"
+		elif command -v apt-get &> /dev/null; then
+			echo "  sudo apt-get install r-base"
+		elif command -v yum &> /dev/null; then
+			echo "  sudo yum install R"
+		elif command -v dnf &> /dev/null; then
+			echo "  sudo dnf install R"
+		fi
+		exit 1
+	fi
+
+	echo "{{GREEN}}Checking R package: {{PACKAGE}}{{NORMAL}}"
+	echo ""
+
+	# Check if package is already installed and get version
+	INSTALLED_VERSION=$(R --quiet --no-save -e "if ('{{PACKAGE}}' %in% installed.packages()[,'Package']) { cat(as.character(packageVersion('{{PACKAGE}}'))) } else { cat('NOT_INSTALLED') }" 2>/dev/null | tail -1)
+
+	if [ "$INSTALLED_VERSION" != "NOT_INSTALLED" ]; then
+		echo "{{YELLOW}}Package {{PACKAGE}} is already installed (version $INSTALLED_VERSION){{NORMAL}}"
+		echo ""
+
+		# Check for updates
+		echo "{{BLUE}}Checking for updates...{{NORMAL}}"
+		UPDATE_INFO=$(R --quiet --no-save -e "
+		old <- old.packages(repos='https://cloud.r-project.org')
+		if ('{{PACKAGE}}' %in% rownames(old)) {
+		  cat('UPDATE_AVAILABLE:', old['{{PACKAGE}}', 'ReposVer'])
+		} else {
+		  cat('CURRENT')
+		}" 2>/dev/null | tail -1)
+
+		if [[ "$UPDATE_INFO" == UPDATE_AVAILABLE:* ]]; then
+			NEW_VERSION="${UPDATE_INFO#UPDATE_AVAILABLE: }"
+			echo "{{GREEN}}Update available: $INSTALLED_VERSION → $NEW_VERSION{{NORMAL}}"
+			echo ""
+			echo "{{BLUE}}Updating package...{{NORMAL}}"
+			R --quiet --no-save -e "install.packages('{{PACKAGE}}', repos='https://cloud.r-project.org')"
+			echo ""
+			echo "{{GREEN}}✓ Package {{PACKAGE}} updated to $NEW_VERSION{{NORMAL}}"
+		else
+			echo "{{GREEN}}✓ Package {{PACKAGE}} is up to date{{NORMAL}}"
+		fi
+	else
+		echo "{{BLUE}}Installing R package: {{PACKAGE}}{{NORMAL}}"
+		echo ""
+
+		# Install the package
+		R --quiet --no-save -e "install.packages('{{PACKAGE}}', repos='https://cloud.r-project.org')"
+
+		# Get the installed version
+		NEW_VERSION=$(R --quiet --no-save -e "cat(as.character(packageVersion('{{PACKAGE}}')))" 2>/dev/null | tail -1)
+		echo ""
+		echo "{{GREEN}}✓ Package {{PACKAGE}} installed successfully (version $NEW_VERSION){{NORMAL}}"
+	fi
+
 # Count blog posts per month from chicks.net
 [working-directory("individuals/chicks/blog")]
 [group('blog')]
