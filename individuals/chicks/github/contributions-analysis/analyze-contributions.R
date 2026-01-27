@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 # GitHub Contributions Analysis
 # Analyzes GitHub contribution data from SQLite database
-# Shows daily contribution counts with 7/30/90-day running averages
+# Shows daily contribution counts with 14/30/90-day running averages
 
 # Load required libraries
 library(DBI)
@@ -43,7 +43,7 @@ contributions$date <- as.Date(contributions$date)
 contributions <- contributions %>%
   arrange(date) %>%
   mutate(
-    avg_7day = rollmean(contribution_count, k=7, fill=NA, align="right"),
+    avg_14day = rollmean(contribution_count, k=14, fill=NA, align="right"),
     avg_30day = rollmean(contribution_count, k=30, fill=NA, align="right"),
     avg_90day = rollmean(contribution_count, k=90, fill=NA, align="right")
   )
@@ -83,8 +83,8 @@ p <- ggplot(plot_data, aes(x = date)) +
              size = 1,
              color = "gray50") +
   # Running average lines
-  geom_line(aes(y = avg_7day, color = "7-day average"),
-            linewidth = 0.8) +
+  geom_line(aes(y = avg_14day, color = "14-day average"),
+            linewidth = 0.5) +
   geom_line(aes(y = avg_30day, color = "30-day average"),
             linewidth = 0.8) +
   geom_line(aes(y = avg_90day, color = "90-day average"),
@@ -93,7 +93,7 @@ p <- ggplot(plot_data, aes(x = date)) +
   scale_color_manual(
     name = "Moving Averages",
     values = c(
-      "7-day average" = "#2E86AB",    # Blue
+      "14-day average" = "#2E86AB",    # Blue
       "30-day average" = "#A23B72",   # Purple
       "90-day average" = "#F18F01"    # Orange
     )
@@ -146,7 +146,7 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
            fill = "gray50") +
   # Running average lines (based on daily averages)
   geom_line(aes(y = avg_4week * 7, color = "4-week average"),
-            linewidth = 0.8) +
+            linewidth = 0.5) +
   geom_line(aes(y = avg_13week * 7, color = "13-week average"),
             linewidth = 0.8) +
   geom_line(aes(y = avg_26week * 7, color = "26-week average"),
