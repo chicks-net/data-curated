@@ -588,15 +588,49 @@ contribution-monthly MONTHS="24":
 	fi
 	echo "Monthly Contribution Summary (last {{MONTHS}} months)"
 	echo ""
-	sqlite3 -header -column contributions.db "SELECT
-	  strftime('%Y-%m', date) as month,
-	  SUM(contribution_count) as total,
-	  ROUND(AVG(contribution_count), 1) as daily_avg,
-	  MAX(contribution_count) as peak_day,
-	  COUNT(DISTINCT CASE WHEN contribution_count > 0 THEN date END) as active_days,
-	  COUNT(DISTINCT CASE WHEN contribution_count = 0 THEN date END) as inactive_days
-	FROM contributions
-	GROUP BY month
+	sqlite3 -header -column contributions.db "WITH latest_contributions AS (
+	  SELECT 
+	    date,
+	    MAX(contribution_count) as contribution_count
+	  FROM contributions
+	  GROUP BY date
+	),
+	monthly_stats AS (
+	  SELECT
+	    strftime('%Y-%m', date) as month,
+	    SUM(contribution_count) as total,
+	    ROUND(AVG(contribution_count), 1) as daily_avg,
+	    MAX(contribution_count) as peak_day,
+	    COUNT(DISTINCT CASE WHEN contribution_count > 0 THEN date END) as active_days,
+	    -- Only count inactive days up to today for current month
+	    COUNT(DISTINCT CASE 
+	      WHEN contribution_count = 0 AND date < date('now')
+	      THEN date 
+	    END) as inactive_days
+	  FROM latest_contributions
+	  GROUP BY month
+	)
+	SELECT
+	  month,
+	  total,
+	  daily_avg,
+	  peak_day,
+	  active_days,
+	  -- For current month, calculate total days as active_days + inactive_days
+	  -- For past months, use fixed day counts
+	  CASE 
+	    WHEN month = strftime('%Y-%m', 'now') 
+	    THEN active_days + COALESCE(inactive_days, 0)
+	    ELSE (
+	      CASE 
+	        WHEN month = strftime('%Y-%m', date('now', 'start of month', '-1 month'))
+	        THEN strftime('%d', date('now', 'start of month', '-1 day'))
+	        ELSE strftime('%d', date(month || '-01', 'start of month', '+1 month', '-1 day'))
+	      END
+	    )
+	  END as total_days,
+	  inactive_days
+	FROM monthly_stats
 	ORDER BY month DESC
 	LIMIT {{MONTHS}};"
 
