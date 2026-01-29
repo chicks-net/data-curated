@@ -20,17 +20,31 @@ commits <- dbGetQuery(conn, "
 # Close database connection
 dbDisconnect(conn)
 
-# Convert to datetime and extract hour
+# Convert to datetime and extract hour (keeping original timezone for analysis)
 commits <- commits %>%
   mutate(
     author_datetime = ymd_hms(author_date),
+    # Extract timezone info (last 6 characters like "-07:00")
+    original_tz = str_sub(author_date, -6),
+    # Get hour from original datetime (preserves local time patterns)
     hour = hour(author_datetime),
     hour_label = factor(hour, levels = 0:23)
   )
 
 # Basic statistics
 cat("Total commits analyzed:", nrow(commits), "\n")
-cat("Date range:", min(commits$author_datetime), "to", max(commits$author_datetime), "\n\n")
+cat("Date range:", min(commits$author_datetime), "to", max(commits$author_datetime), "\n")
+
+# Timezone analysis
+tz_counts <- commits %>%
+  count(original_tz, sort = TRUE) %>%
+  mutate(percentage = n / sum(n) * 100)
+
+cat("\nTimezone distribution:\n")
+print(tz_counts %>% mutate(percentage = round(percentage, 1)))
+
+cat("\nNote: Hours shown in commit authors' local timezones\n")
+cat("Original commit times span multiple timezones and are analyzed as-is\n\n")
 
 # Hourly distribution
 hourly_counts <- commits %>%
@@ -62,14 +76,14 @@ for(i in 1:nrow(peak_hours)) {
 # Create visualization
 p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
   geom_col(fill = "steelblue", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "darkblue", size = 1) +
+  geom_line(aes(group = 1), color = "darkblue", linewidth = 1) +
   geom_point(aes(group = 1), color = "darkblue", size = 2) +
   scale_x_discrete(labels = paste0(sprintf("%02d", 0:23), ":00")) +
   scale_y_continuous(labels = comma_format()) +
   labs(
-    title = "GitHub Commits by Hour of Day",
-    subtitle = paste("Analysis of", comma_format()(nrow(commits)), "commits"),
-    x = "Hour of Day",
+    title = "GitHub Commits by Hour of Day (Local Time)",
+    subtitle = paste("Analysis of", comma_format()(nrow(commits)), "commits in authors' local time"),
+    x = "Hour of Day (Local Time)",
     y = "Number of Commits"
   ) +
   theme_minimal() +
@@ -82,13 +96,14 @@ p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
 # Create percentage chart
 p2 <- ggplot(hourly_counts, aes(x = hour_label, y = percentage)) +
   geom_col(fill = "coral", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "darkred", size = 1) +
+  geom_line(aes(group = 1), color = "darkred", linewidth = 1) +
   geom_point(aes(group = 1), color = "darkred", size = 2) +
   scale_x_discrete(labels = paste0(sprintf("%02d", 0:23), ":00")) +
   scale_y_continuous(labels = percent_format()) +
   labs(
-    title = "Commits by Hour of Day (Percentage)",
-    x = "Hour of Day",
+    title = "Commits by Hour of Day (Local Time - Percentage)",
+    subtitle = "Analysis in authors' local timezones",
+    x = "Hour of Day (Local Time)",
     y = "Percentage of Total Commits"
   ) +
   theme_minimal() +
@@ -97,7 +112,7 @@ p2 <- ggplot(hourly_counts, aes(x = hour_label, y = percentage)) +
     plot.title = element_text(face = "bold", size = 16)
   )
 
-# Analyze by time of day (morning, afternoon, evening, night)
+# Analyze by time of day (morning, afternoon, evening, night) - local time
 time_periods <- commits %>%
   mutate(
     time_period = case_when(
@@ -121,8 +136,8 @@ p3 <- ggplot(time_periods, aes(x = reorder(time_period, n), y = n, fill = time_p
             hjust = 0.5, vjust = -0.5, size = 3) +
   scale_y_continuous(labels = comma_format()) +
   labs(
-    title = "Commits by Time Period",
-    subtitle = "Distribution across morning, afternoon, evening, and night",
+    title = "Commits by Time Period (Local Time)",
+    subtitle = "Distribution across local time periods",
     x = NULL,
     y = "Number of Commits"
   ) +
@@ -142,6 +157,7 @@ ggsave("commits-by-time-period.png", p3, width = 10, height = 6, dpi = 300)
 # Save summary data
 write_csv(hourly_counts, "hourly-commit-distribution.csv", na = "NA")
 write_csv(time_periods, "time-period-distribution.csv", na = "NA")
+write_csv(tz_counts, "timezone-distribution.csv", na = "NA")
 
 cat("\nAnalysis complete! Files saved:\n")
 cat("- commits-by-hour.png\n")
@@ -149,3 +165,4 @@ cat("- commits-by-hour-percentage.png\n")
 cat("- commits-by-time-period.png\n")
 cat("- hourly-commit-distribution.csv\n")
 cat("- time-period-distribution.csv\n")
+cat("- timezone-distribution.csv\n")
