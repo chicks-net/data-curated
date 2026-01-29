@@ -74,7 +74,7 @@ Shows daily contribution points with three running averages to identify
 short-term, medium-term, and long-term trends.
 
 - **Gray points**: Daily contribution counts
-- **Blue line**: 7-day running average (weekly trend)
+- **Blue line**: 14-day running average (weekly trend)
 - **Purple line**: 30-day running average (monthly trend)
 - **Orange line**: 90-day running average (quarterly trend)
 
