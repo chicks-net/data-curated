@@ -94,25 +94,6 @@ p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
     plot.subtitle = element_text(size = 12)
   )
 
-# Create percentage chart
-p2 <- ggplot(hourly_counts, aes(x = hour_label, y = percentage)) +
-  geom_col(fill = "coral", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "darkred", linewidth = 1) +
-  geom_point(aes(group = 1), color = "darkred", size = 2) +
-  scale_x_discrete(labels = paste0(sprintf("%02d", 0:23), ":00")) +
-  scale_y_continuous(labels = percent_format()) +
-  labs(
-    title = "Commits by Hour of Day (Local Time - Percentage)",
-    subtitle = "Analysis in authors' local timezones",
-    x = "Hour of Day (Local Time)",
-    y = "Percentage of Total Commits"
-  ) +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    plot.title = element_text(face = "bold", size = 16)
-  )
-
 # Analyze by time of day (morning, afternoon, evening, night) - local time
 time_periods <- commits %>%
   mutate(
@@ -152,7 +133,6 @@ p3 <- ggplot(time_periods, aes(x = reorder(time_period, n), y = n, fill = time_p
 
 # Save plots
 ggsave("commits-by-hour.png", p1, width = 12, height = 6, dpi = 300)
-ggsave("commits-by-hour-percentage.png", p2, width = 12, height = 6, dpi = 300)
 ggsave("commits-by-time-period.png", p3, width = 10, height = 6, dpi = 300)
 
 # Save summary data
@@ -162,7 +142,6 @@ write_csv(tz_counts, "timezone-distribution.csv", na = "NA")
 
 cat("\nAnalysis complete! Files saved:\n")
 cat("- commits-by-hour.png\n")
-cat("- commits-by-hour-percentage.png\n") 
 cat("- commits-by-time-period.png\n")
 cat("- hourly-commit-distribution.csv\n")
 cat("- time-period-distribution.csv\n")
