@@ -533,7 +533,7 @@ fetch-commits:
 [working-directory("individuals/chicks/github/commits-analysis")]
 [group('github')]
 analyze-commits:
-        Rscript analyze-commits-by-hour.R
+	Rscript analyze-commits-by-hour.R
 
 # Fetch GitHub contribution history for chicks-net
 [working-directory("individuals/chicks/github")]
