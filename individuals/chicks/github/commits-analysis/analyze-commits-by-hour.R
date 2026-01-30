@@ -1,11 +1,12 @@
 # Commits by Hour Analysis
 # Analyzes GitHub commit patterns by hour of the day
 
-library(tidyverse)
+options(tidyverse.quiet = TRUE) 
+library(tidyverse, warn.conflicts = FALSE)
 library(DBI)
 library(RSQLite)
 library(lubridate)
-library(scales)
+library(scales, warn.conflicts = FALSE)
 
 # Connect to the database
 conn <- dbConnect(RSQLite::SQLite(), "../commits.db")
