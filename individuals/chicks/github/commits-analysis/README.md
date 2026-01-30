@@ -32,6 +32,12 @@ cd individuals/chicks/github/commits-analysis
 Rscript analyze-commits-by-hour.R
 ```
 
+## Graphs
+
+![Bar chart showing commit frequency by hour (local time)](commits-by-hour.png)
+
+![Grouped by morning/afternoon/evening/night (local time)](commits-by-time-period.png)
+
 ## Data Source
 
 Analysis uses the `commits.db` SQLite database containing up to 1000 most
