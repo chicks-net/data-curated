@@ -530,6 +530,11 @@ fetch-commits:
 	echo "Fetching GitHub commit history..."
 	go run commit-history.go
 
+[working-directory("individuals/chicks/github/commits-analysis")]
+[group('github')]
+analyze-commits:
+        Rscript analyze-commits-by-hour.R
+
 # Fetch GitHub contribution history for chicks-net
 [working-directory("individuals/chicks/github")]
 [group('github')]
@@ -538,24 +543,6 @@ fetch-contributions:
 	set -euo pipefail
 	echo "Fetching GitHub contribution history..."
 	go run github-contributions.go
-
-# Show commit statistics
-[working-directory("individuals/chicks/github")]
-[group('github')]
-commit-stats:
-	#!/usr/bin/env bash
-	set -euo pipefail
-	if [ ! -f commits.db ]; then
-		echo "Error: commits.db not found. Run 'just fetch-commits' first."
-		exit 1
-	fi
-	sqlite3 commits.db "SELECT
-	  COUNT(*) as total_commits,
-	  COUNT(DISTINCT repo_full_name) as repositories,
-	  COUNT(CASE WHEN LENGTH(emoji) > 0 THEN 1 END) as commits_with_emoji,
-	  MIN(DATE(author_date)) as earliest_commit,
-	  MAX(DATE(author_date)) as latest_commit
-	FROM commits;"
 
 # Show contribution statistics
 [working-directory("individuals/chicks/github")]
