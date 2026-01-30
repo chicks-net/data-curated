@@ -77,7 +77,6 @@ for(i in 1:nrow(peak_hours)) {
 # Create visualization
 p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
   geom_col(fill = "steelblue", alpha = 0.7) +
-  geom_line(aes(group = 1), color = "darkblue", linewidth = 1) +
   geom_point(aes(group = 1), color = "darkblue", size = 2) +
   scale_x_discrete(labels = paste0(sprintf("%02d", 0:23), ":00")) +
   scale_y_continuous(labels = comma_format()) +
