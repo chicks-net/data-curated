@@ -279,6 +279,7 @@ install-r-deps:
 		"zoo"        # Rolling averages in contributions analysis
 		"lubridate"  # Date handling in jackpots and contributions analysis
 		"scales"     # Number formatting in plots
+		"censusapi"  # Census Bureau API access for restaurant analysis
 	)
 
 	echo "{{BLUE}}Packages to check/install:{{NORMAL}}"
