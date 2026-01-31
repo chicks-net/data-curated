@@ -78,6 +78,10 @@ imports modules from `.just/` directory:
 - `just install-r-deps` - Install all R packages used in this repository
 - `just install-r-package <PACKAGE>` - Install or update a single R package (e.g., zoo, ggplot2, dplyr)
 
+### Restaurant data commands
+
+- `just analyze-restaurants` - Analyze US restaurant density by county (requires Census API key)
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
@@ -149,10 +153,19 @@ The repository contains R scripts for statistical analysis and visualization.
 
 **Installing R dependencies:**
 
-- Run `just install-r-deps` to install all required R packages (tidyverse, DBI, RSQLite, zoo, lubridate, scales)
+- Run `just install-r-deps` to install all required R packages (tidyverse, DBI, RSQLite, zoo, lubridate, scales, censusapi)
 - Or install individual packages with `just install-r-package <PACKAGE>`
 
 **Analysis scripts:**
+
+- `us-restaurants/analyze-restaurants.R` - Analyzes US restaurant density by county
+  - Run with: `just analyze-restaurants`
+  - Uses Census Bureau County Business Patterns (CBP) API
+  - Combines restaurant establishment counts with ACS population data
+  - Calculates restaurants per 10,000 residents
+  - Requires free Census API key: <https://api.census.gov/data/key_signup.html>
+  - Set key with: `export CENSUS_KEY=your_key_here` or add to `~/.Renviron`
+  - See us-restaurants/README.md for detailed documentation
 
 - `lottery/megamillions-analysis/analyze-megamillions.R` - Analyzes Mega Millions number frequency
   - Run with: `just analyze-megamillions`

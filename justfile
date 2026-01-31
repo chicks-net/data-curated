@@ -407,7 +407,7 @@ graph-posts CSV="":
 		echo "{{GREEN}}Generating graph from $CSV_FILE{{NORMAL}}"
 	fi
 	echo ""
-	go run graph-generator.go "$CSV_FILE"
+	Rscript graph-generator.R "$CSV_FILE"
 
 # Generate graph for the last 36 months of blog posts
 [working-directory("individuals/chicks/blog")]
@@ -429,7 +429,7 @@ graph-posts-36:
 	fi
 	echo "{{GREEN}}Generating graph for last 36 months from $CSV_FILE{{NORMAL}}"
 	echo ""
-	go run graph-generator.go "$CSV_FILE" 36
+	Rscript graph-generator.R "$CSV_FILE" 36
 
 # Open a SQLite database in Datasette browser (checks if datasette is already running)
 [group('Utility')]
@@ -680,3 +680,9 @@ contributions-db:
 [group('github')]
 analyze-contributions:
 	Rscript analyze-contributions.R
+
+# Analyze US restaurant density by county
+[working-directory("us-restaurants")]
+[group('restaurants')]
+analyze-restaurants:
+	Rscript analyze-restaurants.R
