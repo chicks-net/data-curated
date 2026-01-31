@@ -11,6 +11,10 @@ density by county:
 1. **County Business Patterns (CBP)** - Annual establishment counts by NAICS code
 2. **American Community Survey (ACS)** - Population estimates for per capita calculations
 
+**Background:** This implementation is based on prior research documented in
+[`Restaurant_data_sources_by_geographic_area_Claude.pdf`](Restaurant_data_sources_by_geographic_area_Claude.pdf),
+which explored various data sources and R packages for accessing US restaurant data at county and city levels.
+
 ## Example Output
 
 Running `just analyze-restaurants` produces:
