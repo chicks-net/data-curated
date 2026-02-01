@@ -30,7 +30,8 @@
       "Bash(just contribution-monthly:*)",
       "Bash(just contribution-streaks:*)",
       "Bash(just analyze-contributions:*)",
-      "Bash(just analyze-restaurants:*)"
+      "Bash(just analyze-restaurants:*)",
+      "Bash(just graph-posts:*)"
     ],
     "deny": [],
     "ask": []
