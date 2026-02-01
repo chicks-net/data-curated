@@ -33,7 +33,6 @@ if (!file.exists(csv_file)) {
 suppressPackageStartupMessages({
   library(ggplot2)
   library(scales)
-  library(lubridate)
   library(zoo)
 })
 
