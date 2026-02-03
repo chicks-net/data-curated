@@ -139,7 +139,57 @@ weekly_data <- contributions %>%
     avg_26week = rollmean(avg_per_day, k=26, fill=NA, align="right")
   )
 
+# Load and process job history
+jobs_csv <- "../../jobs/job_history.csv"
+jobs <- read.csv(jobs_csv, stringsAsFactors = FALSE)
+jobs$start_date <- as.Date(jobs$Start.Date)
+jobs$end_date <- ifelse(jobs$End.Date == "",
+                        as.character(Sys.Date()),
+                        jobs$End.Date)
+jobs$end_date <- as.Date(jobs$end_date)
+
+# Merge all roles at the same company (combines consecutive positions)
+jobs <- jobs %>%
+  group_by(Company) %>%
+  summarize(
+    start_date = min(start_date),
+    end_date = max(end_date),
+    .groups = "drop"
+  )
+
+# Filter to jobs that overlap with GitHub data
+github_start <- min(contributions$date)
+jobs_filtered <- jobs %>%
+  filter(end_date >= github_start) %>%
+  arrange(start_date) %>%
+  mutate(
+    midpoint = start_date + (end_date - start_date) / 2,
+    duration_months = interval(start_date, end_date) / months(1),
+    job_index = row_number(),
+    fill_color = ifelse(job_index %% 2 == 0, "#B3C7E6", "#D3D3D3")
+  )
+
 p2 <- ggplot(weekly_data, aes(x = week)) +
+  # Employment periods - drawn first, behind everything else
+  geom_rect(data = jobs_filtered,
+            aes(xmin = start_date, xmax = end_date,
+                ymin = -Inf, ymax = Inf,
+                fill = fill_color),
+            alpha = 0.20,
+            inherit.aes = FALSE) +
+  scale_fill_identity() +
+  # Company labels (all companies)
+  geom_text(data = jobs_filtered,
+            aes(x = midpoint,
+                y = max(weekly_data$contributions, na.rm = TRUE) * 0.95,
+                label = Company),
+            angle = 90,
+            vjust = 0.5,
+            hjust = 1,
+            size = 2.875,
+            color = "gray30",
+            alpha = 0.6,
+            inherit.aes = FALSE) +
   # Weekly bars
   geom_col(aes(y = contributions),
            alpha = 0.3,
@@ -163,7 +213,7 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
   # Labels and theme
   labs(
     title = "GitHub Contributions for chicks-net - All Time",
-    subtitle = "Weekly totals with running averages (lines show weekly equivalent of daily averages)",
+    subtitle = "Weekly totals with running averages and employment periods (shaded regions)",
     x = "Date",
     y = "Contributions per Week"
   ) +
