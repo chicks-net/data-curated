@@ -10,7 +10,7 @@ import json
 import sqlite3
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 CHANNEL_URL = "https://www.youtube.com/@ChristopherHicksFINI"
@@ -53,6 +53,11 @@ def create_database():
         )
     """)
 
+    # Create indexes for common queries
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_upload_date ON videos(upload_date)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_video_type ON videos(video_type)")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_view_count ON videos(view_count DESC)")
+
     conn.commit()
     conn.close()
 
@@ -71,7 +76,7 @@ def fetch_video_metadata():
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=60)
 
         # Parse each line as JSON (yt-dlp outputs one JSON object per line)
         videos = []
@@ -83,6 +88,9 @@ def fetch_video_metadata():
     except subprocess.CalledProcessError as e:
         print(f"Error running yt-dlp: {e}", file=sys.stderr)
         print(f"stderr: {e.stderr}", file=sys.stderr)
+        return None
+    except subprocess.TimeoutExpired as e:
+        print(f"Timeout fetching video list: {e}", file=sys.stderr)
         return None
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}", file=sys.stderr)
@@ -99,9 +107,9 @@ def fetch_detailed_metadata(video_id):
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=30)
         return json.loads(result.stdout)
-    except (subprocess.CalledProcessError, json.JSONDecodeError) as e:
+    except (subprocess.CalledProcessError, json.JSONDecodeError, subprocess.TimeoutExpired) as e:
         print(f"Error fetching details for {video_id}: {e}", file=sys.stderr)
         return None
 
@@ -112,7 +120,7 @@ def determine_video_type(video_data):
     duration = video_data.get('duration', 0)
     url = video_data.get('webpage_url', '')
 
-    if duration and duration <= 60:
+    if duration is not None and 0 < duration <= 60:
         return 'short'
     elif '/shorts/' in url:
         return 'short'
@@ -128,7 +136,7 @@ def store_videos(videos):
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    fetched_at = datetime.utcnow().isoformat()
+    fetched_at = datetime.now(timezone.utc).isoformat()
 
     stored_count = 0
     print(f"Processing {len(videos)} videos...")
@@ -178,6 +186,10 @@ def store_videos(videos):
         ))
 
         stored_count += 1
+
+        # Commit periodically to prevent data loss on interruption
+        if stored_count % 10 == 0:
+            conn.commit()
 
     # Record fetch history
     cursor.execute("""
