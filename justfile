@@ -708,14 +708,17 @@ fetch-youtube-videos:
 		exit 1
 	fi
 
-	# Check if Python is installed
-	if ! command -v python3 &> /dev/null; then
-		echo "{{RED}}Error: Python 3 is not installed{{NORMAL}}"
+	# Check if uv is installed
+	if ! command -v uv &> /dev/null; then
+		echo "{{RED}}Error: uv is not installed{{NORMAL}}"
+		echo ""
+		echo "Install with:"
+		echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
 		exit 1
 	fi
 
 	echo "{{GREEN}}Fetching YouTube videos...{{NORMAL}}"
-	python3 fetch-videos.py
+	uv run fetch-videos.py
 
 # View YouTube video database in Datasette
 [group('youtube')]
