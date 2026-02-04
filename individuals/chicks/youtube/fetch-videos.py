@@ -63,16 +63,42 @@ def create_database():
 
 
 def fetch_video_metadata():
-    """Fetch video metadata using yt-dlp."""
-    print(f"Fetching videos from {CHANNEL_URL}...")
+    """Fetch video metadata using yt-dlp from both videos and shorts tabs."""
+    all_videos = []
 
-    # Use yt-dlp to get all videos from the channel
+    # Fetch regular videos
+    print(f"Fetching regular videos from {CHANNEL_URL}/videos...")
+    videos = fetch_from_url(f"{CHANNEL_URL}/videos", is_shorts_tab=False)
+    if videos is not None:
+        all_videos.extend(videos)
+        print(f"  Found {len(videos)} regular videos")
+
+    # Fetch shorts
+    print(f"Fetching shorts from {CHANNEL_URL}/shorts...")
+    shorts = fetch_from_url(f"{CHANNEL_URL}/shorts", is_shorts_tab=True)
+    if shorts is not None:
+        all_videos.extend(shorts)
+        print(f"  Found {len(shorts)} shorts")
+
+    if not all_videos and videos is None and shorts is None:
+        return None
+
+    return all_videos
+
+
+def fetch_from_url(url, is_shorts_tab=False):
+    """Fetch video metadata from a specific URL using yt-dlp.
+
+    Args:
+        url: The URL to fetch from
+        is_shorts_tab: True if fetching from /shorts endpoint
+    """
     cmd = [
         "yt-dlp",
         "--dump-json",
         "--flat-playlist",
         "--extractor-args", "youtube:skip=dash,hls",
-        f"{CHANNEL_URL}/videos"
+        url
     ]
 
     try:
@@ -82,7 +108,10 @@ def fetch_video_metadata():
         videos = []
         for line in result.stdout.strip().split('\n'):
             if line:
-                videos.append(json.loads(line))
+                video_data = json.loads(line)
+                # Tag videos with their source endpoint
+                video_data['_from_shorts_tab'] = is_shorts_tab
+                videos.append(video_data)
 
         return videos
     except subprocess.CalledProcessError as e:
@@ -90,7 +119,7 @@ def fetch_video_metadata():
         print(f"stderr: {e.stderr}", file=sys.stderr)
         return None
     except subprocess.TimeoutExpired as e:
-        print(f"Timeout fetching video list: {e}", file=sys.stderr)
+        print(f"Timeout fetching from {url}: {e}", file=sys.stderr)
         return None
     except json.JSONDecodeError as e:
         print(f"Error parsing JSON: {e}", file=sys.stderr)
@@ -118,16 +147,21 @@ def determine_video_type(video_data):
     """Determine if video is a short or regular video.
 
     Detection priority:
-    1. URL pattern (/shorts/) - most definitive
-    2. Aspect ratio (vertical video: height > width)
-    3. Duration (<= 60 seconds) combined with aspect ratio
+    1. Source endpoint (/shorts tab) - definitive
+    2. URL pattern (/shorts/) - most reliable indicator
+    3. Aspect ratio (vertical video: height > width)
+    4. Duration (<= 60 seconds) combined with aspect ratio
     """
+    # Check if this came from the /shorts endpoint - that's definitive
+    if video_data.get('_from_shorts_tab'):
+        return 'short'
+
     url = video_data.get('webpage_url', '')
     duration = video_data.get('duration', 0)
     width = video_data.get('width')
     height = video_data.get('height')
 
-    # Check URL pattern first - this is the most reliable indicator
+    # Check URL pattern - this is the most reliable indicator
     if url and '/shorts/' in url:
         return 'short'
 
@@ -173,6 +207,9 @@ def store_videos(videos):
         detailed = fetch_detailed_metadata(video_id)
         if not detailed:
             continue
+
+        # Preserve the source endpoint tag for accurate type detection
+        detailed['_from_shorts_tab'] = video.get('_from_shorts_tab', False)
 
         # Extract data
         tags = json.dumps(detailed.get('tags', []))
