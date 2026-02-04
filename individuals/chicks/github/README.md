@@ -44,6 +44,30 @@ commit details (limited to 1000 results), `github-contributions.go` provides
 aggregated daily contribution counts for all activity types across your entire
 GitHub history.
 
+### Comment Tracker (`comment-fetcher.go`)
+
+Fetches all comments made on GitHub projects, repositories, and gists using the
+GraphQL API. Collects issue comments, commit comments, discussion comments, and
+gist comments with full context.
+
+**Features:**
+
+- Fetches all comment types using GitHub GraphQL API
+- Stores comments in unified SQLite database with type-specific metadata
+- Organization filtering (marks chicks-net/fini-net comments separately)
+- Incremental updates (only fetch new/updated comments)
+- Handles SAML-protected repositories gracefully
+- No pagination limits (fetches complete history)
+- Direct URLs to each comment for easy reference
+
+**Database:** `comments.db`
+
+**Comment types tracked:**
+- **Issue comments** - Comments on issues and pull requests
+- **Commit comments** - Code review comments on commits
+- **Discussion comments** - Participation in GitHub Discussions
+- **Gist comments** - Comments on public gists
+
 ## Prerequisites
 
 - Go 1.25.5 or later
@@ -71,15 +95,24 @@ go run commit-history.go
 go run github-contributions.go
 ```
 
+### Fetch Comments
+
+```bash
+go run comment-fetcher.go
+```
+
 Or use the justfile commands from the repository root:
 
 ```bash
 just fetch-commits        # Fetch commit history
 just fetch-contributions  # Fetch contribution counts
+just fetch-comments       # Fetch comment history
 just commit-stats         # Show commit statistics
 just contribution-stats   # Show contribution statistics
-just commits-db          # Open commits.db in Datasette
-just contributions-db    # Open contributions.db in Datasette
+just comment-stats        # Show comment statistics
+just commits-db           # Open commits.db in Datasette
+just contributions-db     # Open contributions.db in Datasette
+just comments-db          # Open comments.db in Datasette
 ```
 
 ## Database Schemas
@@ -142,6 +175,47 @@ Indexes are created on:
 - `fetched_at` - Track when data was collected
 - `contribution_count` - Filter by activity level
 
+### Comments Database (`comments.db`)
+
+Created by `comment-fetcher.go`:
+
+```sql
+CREATE TABLE comments (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    comment_id TEXT NOT NULL UNIQUE,
+    comment_type TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    body TEXT NOT NULL,
+    body_text TEXT,
+    repo_full_name TEXT NOT NULL,
+    repo_owner TEXT NOT NULL,
+    repo_owner_type TEXT NOT NULL,
+    issue_number INTEGER,
+    issue_title TEXT,
+    is_pull_request BOOLEAN,
+    commit_oid TEXT,
+    discussion_title TEXT,
+    gist_id TEXT,
+    html_url TEXT NOT NULL,
+    fetched_at TEXT NOT NULL,
+    is_own_org BOOLEAN NOT NULL DEFAULT 0
+);
+```
+
+The `is_own_org` flag marks comments on chicks-net/fini-net repositories,
+allowing easy filtering for external vs. internal project participation.
+
+Indexes are created on:
+
+- `comment_id` - Fast duplicate checking
+- `comment_type` - Filter by comment type
+- `created_at` - Time-based queries
+- `updated_at` - Incremental update support
+- `repo_full_name` - Repository-based queries
+- `is_own_org` - Filter external vs. internal
+- `(is_own_org, comment_type, created_at)` - Combined filtering
+
 ## Viewing the Data
 
 Use Datasette to browse the databases:
@@ -149,6 +223,7 @@ Use Datasette to browse the databases:
 ```bash
 datasette commits.db -o
 datasette contributions.db -o
+datasette comments.db -o
 ```
 
 Or query directly with SQLite:
@@ -156,6 +231,7 @@ Or query directly with SQLite:
 ```bash
 sqlite3 commits.db "SELECT author_date, repo_full_name, message FROM commits ORDER BY author_date DESC LIMIT 10;"
 sqlite3 contributions.db "SELECT date, contribution_count FROM contributions ORDER BY date DESC LIMIT 10;"
+sqlite3 comments.db "SELECT comment_type, repo_full_name, created_at FROM comments WHERE is_own_org = 0 ORDER BY created_at DESC LIMIT 10;"
 ```
 
 ## Logging
@@ -180,6 +256,77 @@ The program uses structured logging with zerolog:
 - Private contributions are included in counts but not detailed
 
 ## Example Queries
+
+### Comment Queries
+
+#### External comments by type
+
+```sql
+SELECT comment_type, COUNT(*) as total_comments
+FROM comments
+WHERE is_own_org = 0
+GROUP BY comment_type
+ORDER BY comment_type;
+```
+
+#### Most commented external repositories
+
+```sql
+SELECT
+  repo_full_name,
+  COUNT(*) as comment_count,
+  MIN(created_at) as first_comment,
+  MAX(created_at) as last_comment
+FROM comments
+WHERE is_own_org = 0
+GROUP BY repo_full_name
+ORDER BY comment_count DESC
+LIMIT 20;
+```
+
+#### Comment activity by year
+
+```sql
+SELECT
+  strftime('%Y', created_at) as year,
+  comment_type,
+  COUNT(*) as comments
+FROM comments
+WHERE is_own_org = 0
+GROUP BY year, comment_type
+ORDER BY year DESC, comment_type;
+```
+
+#### Recent external comments
+
+```sql
+SELECT
+  comment_type,
+  repo_full_name,
+  COALESCE(issue_title, discussion_title, 'Commit ' || substr(commit_oid, 1, 7)) as context,
+  substr(body_text, 1, 100) as preview,
+  html_url
+FROM comments
+WHERE is_own_org = 0
+ORDER BY created_at DESC
+LIMIT 10;
+```
+
+#### Most active discussion participation
+
+```sql
+SELECT
+  repo_full_name,
+  discussion_title,
+  COUNT(*) as comment_count,
+  MIN(created_at) as first_comment,
+  MAX(created_at) as last_comment
+FROM comments
+WHERE comment_type = 'discussion' AND is_own_org = 0
+GROUP BY repo_full_name, discussion_title
+ORDER BY comment_count DESC
+LIMIT 10;
+```
 
 ### Contributions Queries
 

@@ -35,7 +35,9 @@
       "Bash(gh issue view:*)",
       "Bash(yt-dlp:*)",
       "Bash(just fetch-youtube-videos:*)",
-      "Bash(just youtube-status:*)"
+      "Bash(just youtube-status:*)",
+      "Bash(just fetch-comments:*)",
+      "Bash(just comment-stats:*)"
     ],
     "deny": [],
     "ask": []

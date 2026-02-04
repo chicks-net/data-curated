@@ -682,6 +682,40 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
+# Fetch GitHub comments on external projects
+[working-directory("individuals/chicks/github")]
+[group('github')]
+fetch-comments:
+	go run comment-fetcher.go
+
+# Show comment statistics
+[working-directory("individuals/chicks/github")]
+[group('github')]
+comment-stats:
+	#!/usr/bin/env bash
+	set -euo pipefail
+	if [ ! -f comments.db ]; then
+		echo "Error: comments.db not found. Run 'just fetch-comments' first."
+		exit 1
+	fi
+	echo "Comment statistics (external projects only):"
+	echo ""
+	sqlite3 comments.db "SELECT
+	  comment_type,
+	  COUNT(*) as total_comments,
+	  COUNT(DISTINCT repo_full_name) as repos,
+	  MIN(created_at) as earliest,
+	  MAX(created_at) as latest
+	FROM comments
+	WHERE is_own_org = 0
+	GROUP BY comment_type
+	ORDER BY comment_type;"
+
+# View comments in Datasette
+[group('github')]
+comments-db:
+	just datasette individuals/chicks/github/comments.db
+
 # Analyze US restaurant density by county
 [working-directory("us-restaurants")]
 [group('restaurants')]
