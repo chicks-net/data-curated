@@ -166,7 +166,7 @@ jobs_filtered <- jobs %>%
     midpoint = start_date + (end_date - start_date) / 2,
     duration_months = interval(start_date, end_date) / months(1),
     job_index = row_number(),
-    fill_color = ifelse(job_index %% 2 == 0, "#B3C7E6", "#D3D3D3")
+    fill_color = ifelse(job_index %% 2 == 0, "#7B9FCC", "#C8BFB0")
   )
 
 p2 <- ggplot(weekly_data, aes(x = week)) +
@@ -196,9 +196,9 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
            fill = "gray50") +
   # Running average lines (based on daily averages)
   geom_line(aes(y = avg_4week * 7, color = "4-week average"),
-            linewidth = 0.5) +
+            linewidth = 0.3) +
   geom_line(aes(y = avg_13week * 7, color = "13-week average"),
-            linewidth = 0.8) +
+            linewidth = 0.5) +
   geom_line(aes(y = avg_26week * 7, color = "26-week average"),
             linewidth = 0.8) +
   # Color scheme
