@@ -548,7 +548,7 @@ fetch-contributions:
 # Show contribution statistics
 [working-directory("individuals/chicks/github")]
 [group('github')]
-contribution-stats:
+_contribution-stats:
 	#!/usr/bin/env bash
 	set -euo pipefail
 	if [ ! -f contributions.db ]; then
@@ -691,7 +691,7 @@ fetch-comments:
 # Show comment statistics
 [working-directory("individuals/chicks/github")]
 [group('github')]
-comment-stats:
+_comment-stats:
 	#!/usr/bin/env bash
 	set -euo pipefail
 	if [ ! -f comments.db ]; then
