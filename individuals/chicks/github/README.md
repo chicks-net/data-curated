@@ -63,6 +63,7 @@ gist comments with full context.
 **Database:** `comments.db`
 
 **Comment types tracked:**
+
 - **Issue comments** - Comments on issues and pull requests
 - **Commit comments** - Code review comments on commits
 - **Discussion comments** - Participation in GitHub Discussions
