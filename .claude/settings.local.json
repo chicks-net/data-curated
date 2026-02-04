@@ -37,7 +37,8 @@
       "Bash(just fetch-youtube-videos:*)",
       "Bash(just youtube-status:*)",
       "Bash(just fetch-comments:*)",
-      "Bash(just comment-stats:*)"
+      "Bash(just comment-stats:*)",
+      "Bash(just db-status:*)"
     ],
     "deny": [],
     "ask": []

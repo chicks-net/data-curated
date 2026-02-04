@@ -809,3 +809,75 @@ youtube-status:
 	else
 		echo "{{RED}}No fetch history found{{NORMAL}}"
 	fi
+
+# Check age of all database files in the repository
+[group('Utility')]
+db-status:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	echo "{{GREEN}}Database File Status{{NORMAL}}"
+	echo ""
+
+	# Find all .db files and count them
+	DB_COUNT=$(find . -name "*.db" -type f | wc -l | tr -d ' ')
+
+	if [ "$DB_COUNT" -eq 0 ]; then
+		echo "{{YELLOW}}No database files found{{NORMAL}}"
+		exit 0
+	fi
+
+	NOW=$(date +%s)
+
+	# Print header
+	printf "%-50s %-20s %-15s\n" "DATABASE FILE" "MODIFIED" "AGE"
+	printf "%-50s %-20s %-15s\n" "$(printf '%.0s-' {1..50})" "$(printf '%.0s-' {1..20})" "$(printf '%.0s-' {1..15})"
+
+	# Process each database file
+	find . -name "*.db" -type f | sort | while IFS= read -r db; do
+		# Get file modification time
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			# macOS
+			MOD_TIME=$(stat -f "%m" "$db")
+			MOD_DATE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$db")
+		else
+			# Linux
+			MOD_TIME=$(stat -c "%Y" "$db")
+			MOD_DATE=$(date -r "$db" "+%Y-%m-%d %H:%M")
+		fi
+
+		# Calculate age in seconds
+		AGE_SECONDS=$((NOW - MOD_TIME))
+
+		# Convert to days/hours/minutes
+		DAYS=$((AGE_SECONDS / 86400))
+		HOURS=$(((AGE_SECONDS % 86400) / 3600))
+		MINUTES=$(((AGE_SECONDS % 3600) / 60))
+
+		# Format age string
+		if [ $DAYS -gt 0 ]; then
+			AGE_STR="${DAYS}d ${HOURS}h ${MINUTES}m"
+		elif [ $HOURS -gt 0 ]; then
+			AGE_STR="${HOURS}h ${MINUTES}m"
+		else
+			AGE_STR="${MINUTES}m"
+		fi
+
+		# Determine color based on path and age
+		# Blue: us-* databases and individuals/github-contrib/ (static/manual datasets)
+		# Red: older than 24 hours (86400 seconds)
+		# Yellow: older than 8 hours (28800 seconds)
+		# Green: newer than 8 hours
+		if [[ "$db" == ./us-* || "$db" == ./individuals/github-contrib/* ]]; then
+			COLOR="{{BLUE}}"
+		elif [ $AGE_SECONDS -gt 86400 ]; then
+			COLOR="{{RED}}"
+		elif [ $AGE_SECONDS -gt 28800 ]; then
+			COLOR="{{YELLOW}}"
+		else
+			COLOR="{{GREEN}}"
+		fi
+
+		# Print the line with color for the age column
+		printf "%-50s %-20s ${COLOR}%-15s{{NORMAL}}\n" "$db" "$MOD_DATE" "$AGE_STR"
+	done
