@@ -82,6 +82,12 @@ imports modules from `.just/` directory:
 
 - `just analyze-restaurants` - Analyze US restaurant density by county (requires Census API key)
 
+### YouTube commands
+
+- `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
+- `just youtube-db` - Open videos.db in Datasette browser
+- `just youtube-status` - Show database statistics and recent videos
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
@@ -120,6 +126,7 @@ Individual directories contain build/import scripts:
 - `us-cities/scripts/download-census-data.sh` - Download Census Bureau data for states
 - `us-cities/scripts/import-to-sqlite.py` - Import Census data into SQLite
 - `individuals/chicks/google-maps/process-reviews.sh` - Process Google Maps review data
+- `individuals/chicks/youtube/fetch-videos.py` - Fetch YouTube video metadata using yt-dlp
 
 Most data operations are now integrated into the justfile (see commands above).
 
@@ -146,6 +153,17 @@ The repository contains several Go programs:
   - Stores daily contribution counts from 2011-present in `contributions.db`
   - Includes all contribution types (commits, PRs, issues, reviews)
   - See individuals/chicks/github/README.md for full documentation
+
+### Python programs
+
+The repository contains Python programs for data fetching and processing:
+
+- `individuals/chicks/youtube/fetch-videos.py` - Fetches YouTube video metadata using yt-dlp
+  - Run with: `just fetch-youtube-videos` (preferred) or `cd individuals/chicks/youtube && python3 fetch-videos.py`
+  - Stores video metadata in `individuals/chicks/youtube/videos.db` SQLite database
+  - Collects: title, description, upload date, duration, view count, like count, comment count, tags, etc.
+  - No YouTube API key required (uses yt-dlp scraping)
+  - See individuals/chicks/youtube/README.md for full documentation
 
 ### R analysis scripts
 
