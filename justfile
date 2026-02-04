@@ -687,3 +687,91 @@ analyze-contributions:
 [group('restaurants')]
 analyze-restaurants:
 	Rscript analyze-restaurants.R
+
+# Fetch YouTube video metadata and create/update database
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+fetch-youtube-videos:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if yt-dlp is installed
+	if ! command -v yt-dlp &> /dev/null; then
+		echo "{{RED}}Error: yt-dlp is not installed{{NORMAL}}"
+		echo ""
+		echo "Install with:"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "  brew install yt-dlp"
+		else
+			echo "  pip install yt-dlp"
+		fi
+		exit 1
+	fi
+
+	# Check if uv is installed
+	if ! command -v uv &> /dev/null; then
+		echo "{{RED}}Error: uv is not installed{{NORMAL}}"
+		echo ""
+		echo "Install with:"
+		echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
+		exit 1
+	fi
+
+	echo "{{GREEN}}Fetching YouTube videos...{{NORMAL}}"
+	uv run fetch-videos.py
+
+# View YouTube video database in Datasette
+[group('youtube')]
+youtube-db:
+	just datasette individuals/chicks/youtube/videos.db
+
+# Show YouTube database status
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+youtube-status:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	DB_FILE="videos.db"
+
+	if [ ! -f "$DB_FILE" ]; then
+		echo "{{RED}}Error: Database file not found: $DB_FILE{{NORMAL}}"
+		echo "Run 'just fetch-youtube-videos' to create it."
+		exit 1
+	fi
+
+	echo "{{GREEN}}YouTube Video Database Status{{NORMAL}}"
+	echo ""
+
+	# Show database file age
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	else
+		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	fi
+
+	# Show last fetch time
+	LAST_FETCH=$(sqlite3 "$DB_FILE" "SELECT fetched_at FROM fetch_history ORDER BY id DESC LIMIT 1;" 2>/dev/null || echo "")
+
+	if [ -n "$LAST_FETCH" ]; then
+		echo "{{YELLOW}}Last fetch:{{NORMAL}} $LAST_FETCH"
+		echo ""
+
+		# Show video counts
+		TOTAL_VIDEOS=$(sqlite3 "$DB_FILE" "SELECT COUNT(*) FROM videos;")
+		echo "{{BLUE}}Total videos:{{NORMAL}} $TOTAL_VIDEOS"
+
+		# Show video type breakdown
+		echo ""
+		echo "{{BLUE}}Video type breakdown:{{NORMAL}}"
+		sqlite3 -column "$DB_FILE" "SELECT video_type, COUNT(*) as count FROM videos GROUP BY video_type;"
+
+		# Show most recent videos
+		echo ""
+		echo "{{BLUE}}Most recent uploads (last 5):{{NORMAL}}"
+		sqlite3 -column "$DB_FILE" "SELECT substr(title, 1, 50) as title, upload_date FROM videos ORDER BY upload_date DESC LIMIT 5;"
+	else
+		echo "{{RED}}No fetch history found{{NORMAL}}"
+	fi
