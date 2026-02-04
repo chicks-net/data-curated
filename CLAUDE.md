@@ -65,13 +65,16 @@ imports modules from `.just/` directory:
 
 - `just fetch-commits` - Fetch GitHub commit history (up to 1000 most recent)
 - `just fetch-contributions` - Fetch complete contribution history (2011-present)
+- `just fetch-comments` - Fetch comments on external projects (issues, commits, discussions, gists)
 - `just commit-stats` - Show commit database statistics
 - `just contribution-stats` - Show contribution database statistics
+- `just comment-stats` - Show comment statistics (external projects only)
 - `just contribution-monthly [MONTHS]` - Show monthly contribution totals (default: 24 months)
 - `just contribution-streaks [LIMIT]` - Show longest contribution streaks (default: 10)
 - `just analyze-contributions` - Analyze contribution trends with visualizations (requires R)
 - `just commits-db` - Open commits.db in Datasette browser
 - `just contributions-db` - Open contributions.db in Datasette browser
+- `just comments-db` - Open comments.db in Datasette browser
 
 ### R package management
 
@@ -152,6 +155,12 @@ The repository contains several Go programs:
   - Run with: `just fetch-contributions`
   - Stores daily contribution counts from 2011-present in `contributions.db`
   - Includes all contribution types (commits, PRs, issues, reviews)
+  - See individuals/chicks/github/README.md for full documentation
+- `individuals/chicks/github/comment-fetcher.go` - Fetches comments on external GitHub projects via GraphQL API
+  - Run with: `just fetch-comments`
+  - Stores all comment types in `comments.db` (issues, commits, discussions, gists)
+  - Filters and marks chicks-net/fini-net organization comments
+  - Supports incremental updates
   - See individuals/chicks/github/README.md for full documentation
 
 ### Python programs
