@@ -315,8 +315,16 @@ func fetchIssueComments(db *sql.DB, username string) error {
 				continue
 			}
 
-			createdAt, _ := time.Parse(time.RFC3339, node.CreatedAt)
-			updatedAt, _ := time.Parse(time.RFC3339, node.UpdatedAt)
+			createdAt, err := time.Parse(time.RFC3339, node.CreatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid createdAt timestamp")
+				continue
+			}
+			updatedAt, err := time.Parse(time.RFC3339, node.UpdatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid updatedAt timestamp")
+				continue
+			}
 
 			// Skip if not updated since last fetch
 			if !lastUpdate.IsZero() && !updatedAt.After(lastUpdate) {
@@ -456,8 +464,21 @@ func fetchCommitComments(db *sql.DB, username string) error {
 		}
 
 		for _, node := range response.Data.User.CommitComments.Nodes {
-			createdAt, _ := time.Parse(time.RFC3339, node.CreatedAt)
-			updatedAt, _ := time.Parse(time.RFC3339, node.UpdatedAt)
+			// Skip comments without repository access (SAML-protected orgs)
+			if node.Repository.NameWithOwner == "" {
+				continue
+			}
+
+			createdAt, err := time.Parse(time.RFC3339, node.CreatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid createdAt timestamp")
+				continue
+			}
+			updatedAt, err := time.Parse(time.RFC3339, node.UpdatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid updatedAt timestamp")
+				continue
+			}
 
 			if !lastUpdate.IsZero() && !updatedAt.After(lastUpdate) {
 				continue
@@ -590,8 +611,21 @@ func fetchDiscussionComments(db *sql.DB, username string) error {
 		}
 
 		for _, node := range response.Data.User.RepositoryDiscussionComments.Nodes {
-			createdAt, _ := time.Parse(time.RFC3339, node.CreatedAt)
-			updatedAt, _ := time.Parse(time.RFC3339, node.UpdatedAt)
+			// Skip comments without repository access (SAML-protected orgs)
+			if node.Discussion.Repository.NameWithOwner == "" {
+				continue
+			}
+
+			createdAt, err := time.Parse(time.RFC3339, node.CreatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid createdAt timestamp")
+				continue
+			}
+			updatedAt, err := time.Parse(time.RFC3339, node.UpdatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid updatedAt timestamp")
+				continue
+			}
 
 			if !lastUpdate.IsZero() && !updatedAt.After(lastUpdate) {
 				continue
@@ -718,8 +752,16 @@ func fetchGistComments(db *sql.DB, username string) error {
 		}
 
 		for _, node := range response.Data.User.GistComments.Nodes {
-			createdAt, _ := time.Parse(time.RFC3339, node.CreatedAt)
-			updatedAt, _ := time.Parse(time.RFC3339, node.UpdatedAt)
+			createdAt, err := time.Parse(time.RFC3339, node.CreatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid createdAt timestamp")
+				continue
+			}
+			updatedAt, err := time.Parse(time.RFC3339, node.UpdatedAt)
+			if err != nil {
+				log.Warn().Err(err).Str("comment_id", node.ID).Msg("Invalid updatedAt timestamp")
+				continue
+			}
 
 			if !lastUpdate.IsZero() && !updatedAt.After(lastUpdate) {
 				continue
@@ -731,7 +773,8 @@ func fetchGistComments(db *sql.DB, username string) error {
 				repoFullName = fmt.Sprintf("%s/%s", node.Gist.Owner.Login, node.Gist.ID)
 			}
 
-			// Construct gist URL: https://gist.github.com/{owner}/{gist_id}
+			// Construct gist URL (links to gist page, not specific comment)
+			// Note: GitHub GraphQL API doesn't provide direct comment URLs for gists
 			gistURL := fmt.Sprintf("https://gist.github.com/%s/%s", node.Gist.Owner.Login, node.Gist.ID)
 
 			comment := CommentRecord{
