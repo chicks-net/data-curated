@@ -115,17 +115,38 @@ def fetch_detailed_metadata(video_id):
 
 
 def determine_video_type(video_data):
-    """Determine if video is a short or regular video."""
-    # Shorts are typically under 60 seconds and have specific URL patterns
-    duration = video_data.get('duration', 0)
-    url = video_data.get('webpage_url', '')
+    """Determine if video is a short or regular video.
 
-    if duration is not None and 0 < duration <= 60:
+    Detection priority:
+    1. URL pattern (/shorts/) - most definitive
+    2. Aspect ratio (vertical video: height > width)
+    3. Duration (<= 60 seconds) combined with aspect ratio
+    """
+    url = video_data.get('webpage_url', '')
+    duration = video_data.get('duration', 0)
+    width = video_data.get('width')
+    height = video_data.get('height')
+
+    # Check URL pattern first - this is the most reliable indicator
+    if url and '/shorts/' in url:
         return 'short'
-    elif '/shorts/' in url:
+
+    # Calculate aspect ratio if dimensions are available
+    is_vertical = False
+    if width and height and width > 0:
+        aspect_ratio = height / width
+        # Vertical videos have aspect ratio > 1.0 (height > width)
+        # Shorts are typically 9:16 (1.78) but allow some flexibility
+        is_vertical = aspect_ratio > 1.0
+
+    # If video is vertical and under 60 seconds, it's likely a short
+    # (even if URL doesn't contain /shorts/)
+    if is_vertical and duration and 0 < duration <= 60:
         return 'short'
-    else:
-        return 'video'
+
+    # If only duration check passes but not vertical, it's a regular short video
+    # (not a YouTube Short format)
+    return 'video'
 
 
 def store_videos(videos):
