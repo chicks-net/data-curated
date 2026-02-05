@@ -30,6 +30,12 @@ contributions <- dbGetQuery(con, "
   )
   ORDER BY date
 ")
+
+# Get the latest database update timestamp
+last_updated <- dbGetQuery(con, "SELECT MAX(fetched_at) as last_updated FROM contributions")$last_updated
+# Parse ISO 8601 format (e.g., "2026-02-05T14:28:07Z")
+last_updated_formatted <- format(as.POSIXct(last_updated, format = "%Y-%m-%dT%H:%M:%SZ", tz = "UTC"), "%Y-%m-%d %H:%M:%S %Z", tz = "UTC")
+
 dbDisconnect(con)
 
 cat("Loaded", nrow(contributions), "records\n\n")
@@ -103,7 +109,8 @@ p <- ggplot(plot_data, aes(x = date)) +
     title = "GitHub Contributions Over Time for chicks-net",
     subtitle = paste("Daily contributions with running averages"),
     x = "Date",
-    y = "Contributions per Day"
+    y = "Contributions per Day",
+    caption = paste("Database last updated:", last_updated_formatted)
   ) +
   theme_minimal() +
   theme(
@@ -215,7 +222,8 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
     title = "GitHub Contributions for chicks-net - All Time",
     subtitle = "Weekly totals with running averages and employment periods (shaded regions)",
     x = "Date",
-    y = "Contributions per Week"
+    y = "Contributions per Week",
+    caption = paste("Database last updated:", last_updated_formatted)
   ) +
   theme_minimal() +
   theme(
