@@ -123,7 +123,7 @@ p <- ggplot(plot_data, aes(x = date)) +
   scale_x_date(date_breaks = "3 months", date_labels = "%b %Y")
 
 # Save the plot
-output_file <- "contributions-timeline.png"
+output_file <- "contributions-last2years.png"
 ggsave(output_file, p, width = 12, height = 6, dpi = 300)
 cat("Saved:", output_file, "\n")
 
