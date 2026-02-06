@@ -38,7 +38,11 @@
       "Bash(just youtube-status:*)",
       "Bash(just fetch-comments:*)",
       "Bash(just comment-stats:*)",
-      "Bash(just db-status:*)"
+      "Bash(just db-status:*)",
+      "Bash(ccusage daily:*)",
+      "Bash(ccusage session:*)",
+      "Bash(just fetch-ccusage:*)",
+      "Bash(just ccusage-stats:*)"
     ],
     "deny": [],
     "ask": []
