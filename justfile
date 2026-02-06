@@ -906,6 +906,12 @@ ccusage-stats:
 	ORDER BY total_cost DESC
 	LIMIT 5;"
 
+# Analyze Claude Code usage trends with visualizations
+[working-directory("individuals/chicks/ccusage/usage-analysis")]
+[group('ccusage')]
+analyze-ccusage:
+	Rscript analyze-usage.R
+
 # Check age of all database files in the repository
 [group('Utility')]
 db-status:
