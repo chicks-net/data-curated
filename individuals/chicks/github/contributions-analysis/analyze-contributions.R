@@ -242,4 +242,85 @@ output_file2 <- "contributions-alltime.png"
 ggsave(output_file2, p2, width = 14, height = 6, dpi = 300)
 cat("Saved:", output_file2, "\n\n")
 
+# Create a third visualization showing monthly totals
+cat("Creating monthly contributions graph...\n")
+
+# Aggregate by month
+monthly_data <- contributions %>%
+  mutate(month = floor_date(date, "month")) %>%
+  group_by(month) %>%
+  summarize(
+    contributions = sum(contribution_count),
+    avg_per_day = mean(contribution_count),
+    active_days = sum(contribution_count > 0),
+    .groups = "drop"
+  ) %>%
+  arrange(month) %>%
+  mutate(
+    avg_3month = rollmean(contributions, k=3, fill=NA, align="right"),
+    avg_6month = rollmean(contributions, k=6, fill=NA, align="right"),
+    avg_12month = rollmean(contributions, k=12, fill=NA, align="right")
+  )
+
+p3 <- ggplot(monthly_data, aes(x = month)) +
+  # Employment periods - drawn first, behind everything else
+  geom_rect(data = jobs_filtered,
+            aes(xmin = start_date, xmax = end_date,
+                ymin = -Inf, ymax = Inf,
+                fill = fill_color),
+            alpha = 0.20,
+            inherit.aes = FALSE) +
+  scale_fill_identity() +
+  # Company labels
+  geom_text(data = jobs_filtered,
+            aes(x = midpoint,
+                y = max(monthly_data$contributions, na.rm = TRUE) * 0.95,
+                label = Company),
+            angle = 90,
+            vjust = 0.5,
+            hjust = 1,
+            size = 2.875,
+            color = "gray30",
+            alpha = 0.6,
+            inherit.aes = FALSE) +
+  # Monthly bars
+  geom_col(aes(y = contributions),
+           alpha = 0.6,
+           fill = "steelblue") +
+  # Running average lines
+  geom_line(aes(y = avg_6month, color = "6-month average"),
+            linewidth = 0.8) +
+  geom_line(aes(y = avg_12month, color = "12-month average"),
+            linewidth = 1.0) +
+  # Color scheme
+  scale_color_manual(
+    name = "Moving Averages",
+    values = c(
+      "6-month average" = "#A23B72",    # Purple
+      "12-month average" = "#F18F01"    # Orange
+    )
+  ) +
+  # Labels and theme
+  labs(
+    title = "GitHub Contributions for chicks-net - Monthly Totals",
+    subtitle = "Monthly contribution totals with running averages and employment periods (shaded regions)",
+    x = "Date",
+    y = "Contributions per Month",
+    caption = paste0("Total contributions: ", format(total_contributions, big.mark = ","), " | Database last updated: ", last_updated_formatted)
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 10, color = "gray40"),
+    legend.position = "top",
+    legend.title = element_text(size = 10, face = "bold"),
+    panel.grid.minor = element_blank()
+  ) +
+  scale_x_date(date_breaks = "1 year", date_labels = "%Y")
+
+# Save the monthly plot
+output_file3 <- "contributions-monthly.png"
+ggsave(output_file3, p3, width = 14, height = 6, dpi = 300)
+cat("Saved:", output_file3, "\n\n")
+
 cat("Analysis complete!\n")

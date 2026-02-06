@@ -33,6 +33,17 @@ the overall activity arc across your entire GitHub history.
 
 ![Contributions All-Time](contributions-alltime.png)
 
+### 3. Monthly Totals
+
+Shows monthly contribution totals with multi-month running averages to
+identify seasonal patterns and long-term trends.
+
+- **Blue bars**: Monthly contribution totals
+- **Purple line**: 6-month running average (semi-annual trend)
+- **Orange line**: 12-month running average (annual trend)
+
+![Contributions Monthly](contributions-monthly.png)
+
 ## Prerequisites
 
 ```bash
@@ -89,6 +100,9 @@ Saved: contributions-last2years.png
 Creating all-time contribution graph...
 Saved: contributions-alltime.png
 
+Creating monthly contributions graph...
+Saved: contributions-monthly.png
+
 Analysis complete!
 ```
 
@@ -100,6 +114,7 @@ Analysis complete!
 - Calculates rolling averages using the `zoo` package
 - Recent view filters to last 730 days for better granularity
 - All-time view aggregates by week for readability across 14+ years
+- Monthly view aggregates by month to show seasonal patterns and yearly trends
 
 ### Running Averages
 
