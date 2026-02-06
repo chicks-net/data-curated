@@ -42,6 +42,11 @@ cat("Loaded", nrow(model_breakdown), "model breakdown records\n")
 cat("Loaded", nrow(session_usage), "session records\n")
 cat("Last updated:", last_updated, "\n\n")
 
+# Validate we have data to analyze
+if (nrow(daily_usage) == 0) {
+  stop("Error: No usage data found in database. Run 'just fetch-ccusage' to populate the database first.")
+}
+
 # Convert date columns
 daily_usage$date <- as.Date(daily_usage$date)
 model_breakdown$date <- as.Date(model_breakdown$date)
@@ -116,12 +121,20 @@ cache_stats <- daily_usage %>%
   summarise(
     cache_creation = sum(cache_creation_tokens, na.rm = TRUE),
     cache_read = sum(cache_read_tokens, na.rm = TRUE),
-    cache_hit_ratio = sum(cache_read_tokens, na.rm = TRUE) / (sum(cache_creation_tokens, na.rm = TRUE) + 1)
+    cache_hit_ratio = ifelse(
+      sum(cache_creation_tokens, na.rm = TRUE) > 0,
+      sum(cache_read_tokens, na.rm = TRUE) / sum(cache_creation_tokens, na.rm = TRUE),
+      NA_real_
+    )
   )
 
 cat("Total cache creation:", format(cache_stats$cache_creation, big.mark = ","), "tokens\n")
 cat("Total cache read:", format(cache_stats$cache_read, big.mark = ","), "tokens\n")
-cat("Cache hit ratio:", round(cache_stats$cache_hit_ratio, 2), "x\n")
+if (is.na(cache_stats$cache_hit_ratio)) {
+  cat("Cache hit ratio: N/A (no cache creation yet)\n")
+} else {
+  cat("Cache hit ratio:", round(cache_stats$cache_hit_ratio, 2), "x\n")
+}
 cat("(Shows how many times cache was read vs created)\n\n")
 
 # Weekly plan usage
