@@ -15,7 +15,7 @@ Shows daily contribution points with three running averages to identify
 short-term, medium-term, and long-term trends.
 
 - **Gray points**: Daily contribution counts
-- **Blue line**: 14-day running average (weekly trend)
+- **Blue line**: 14-day running average (biweekly trend)
 - **Purple line**: 30-day running average (monthly trend)
 - **Orange line**: 90-day running average (quarterly trend)
 
@@ -41,6 +41,9 @@ brew install r
 
 # Install required R packages
 Rscript -e 'install.packages(c("DBI", "RSQLite", "ggplot2", "dplyr", "zoo", "lubridate", "scales"), repos="https://cloud.r-project.org")'
+
+# Or use just to save typing and install required R packages!
+just install-r-deps
 ```
 
 ## Running the Analysis
