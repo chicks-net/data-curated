@@ -40,7 +40,7 @@ cd individuals/chicks/ccusage/usage-analysis
 nano config.R
 
 # Change the WEEKLY_LIMIT value (in USD)
-WEEKLY_LIMIT <- 4.00  # Change this to your plan's weekly limit
+WEEKLY_LIMIT <- 20.00  # Change this to your plan's weekly limit
 ```
 
 The weekly limit is used to calculate what percentage of your plan you're

@@ -16,8 +16,8 @@ config_path <- "config.R"
 if (file.exists(config_path)) {
   source(config_path)
 } else {
-  cat("Warning: config.R not found, using default weekly limit of $4.00\n")
-  WEEKLY_LIMIT <- 4.00
+  cat("Warning: config.R not found, using default weekly limit of $20.00\n")
+  WEEKLY_LIMIT <- 20.00
 }
 
 # Database path (relative to script location)
