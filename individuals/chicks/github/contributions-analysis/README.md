@@ -58,7 +58,7 @@ Average per day: 10.97
 Active days: 91
 
 Creating contribution graph...
-Saved: contributions-timeline.png
+Saved: contributions-last2years.png
 
 Creating all-time contribution graph...
 Saved: contributions-alltime.png
@@ -78,7 +78,7 @@ short-term, medium-term, and long-term trends.
 - **Purple line**: 30-day running average (monthly trend)
 - **Orange line**: 90-day running average (quarterly trend)
 
-![Contributions Timeline](contributions-timeline.png)
+![Contributions Timeline](contributions-last2years.png)
 
 ### 2. All-Time History (2011-Present)
 
