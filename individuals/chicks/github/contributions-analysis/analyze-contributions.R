@@ -59,7 +59,8 @@ cat("=== SUMMARY STATISTICS ===\n\n")
 
 cat("Date range:", min(contributions$date), "to", max(contributions$date), "\n")
 cat("Total days:", nrow(contributions), "\n")
-cat("Total contributions:", sum(contributions$contribution_count), "\n")
+total_contributions <- sum(contributions$contribution_count)
+cat("Total contributions:", total_contributions, "\n")
 cat("Average contributions per day:", round(mean(contributions$contribution_count), 2), "\n")
 cat("Median contributions per day:", median(contributions$contribution_count), "\n")
 cat("Max contributions in a day:", max(contributions$contribution_count), "\n")
@@ -81,6 +82,7 @@ cat("Creating contribution graph...\n")
 # Determine a reasonable date range for plotting (last 2 years by default)
 plot_start <- max(min(contributions$date), Sys.Date() - 730)  # 2 years
 plot_data <- contributions %>% filter(date >= plot_start)
+plot_total_contributions <- sum(plot_data$contribution_count)
 
 p <- ggplot(plot_data, aes(x = date)) +
   # Daily points - smaller and semi-transparent
@@ -110,7 +112,7 @@ p <- ggplot(plot_data, aes(x = date)) +
     subtitle = paste("Daily contributions with running averages"),
     x = "Date",
     y = "Contributions per Day",
-    caption = paste("Database last updated:", last_updated_formatted)
+    caption = paste0("Total contributions (last 2 years): ", format(plot_total_contributions, big.mark = ","), " | Database last updated: ", last_updated_formatted)
   ) +
   theme_minimal() +
   theme(
@@ -223,7 +225,7 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
     subtitle = "Weekly totals with running averages and employment periods (shaded regions)",
     x = "Date",
     y = "Contributions per Week",
-    caption = paste("Database last updated:", last_updated_formatted)
+    caption = paste0("Total contributions: ", format(total_contributions, big.mark = ","), " | Database last updated: ", last_updated_formatted)
   ) +
   theme_minimal() +
   theme(
