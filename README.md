@@ -14,6 +14,17 @@ practice with tools like [Datasette](https://datasette.io/) and [SQLite](https:/
 
 Each directory could be something interesting....
 
+## Datasets
+
+- [**duolingo/**](duolingo/) - Spanish learning character data in TOML format with build scripts
+- [**good-sites/**](good-sites/) - Curated list of useful websites and learning resources
+- [**individuals/**](individuals/) - Personal data collections and projects
+- [**lottery/**](lottery/) - NY lottery winning numbers (CSV) and CA jackpot tracker (Go/SQLite)
+- [**us-cities/**](us-cities/) - US city data from Census Bureau with coordinates and population (2010-2020)
+- [**us-presidents/**](us-presidents/) - US president data with terms of office and birth states
+- [**us-restaurants/**](us-restaurants/) - Restaurant establishment counts and density analysis using Census data
+- [**us-states/**](us-states/) - US state data in CSV, TSV, and SQLite formats
+
 ## Contributing
 
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
