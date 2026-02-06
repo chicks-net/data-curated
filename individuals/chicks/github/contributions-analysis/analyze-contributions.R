@@ -257,7 +257,6 @@ monthly_data <- contributions %>%
   ) %>%
   arrange(month) %>%
   mutate(
-    avg_3month = rollmean(contributions, k=3, fill=NA, align="right"),
     avg_6month = rollmean(contributions, k=6, fill=NA, align="right"),
     avg_12month = rollmean(contributions, k=12, fill=NA, align="right")
   )
