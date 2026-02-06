@@ -96,6 +96,7 @@ imports modules from `.just/` directory:
 - `just fetch-ccusage` - Fetch Claude Code token usage data (daily and by session)
 - `just ccusage-db` - Open usage.db in Datasette browser
 - `just ccusage-stats` - Show usage statistics summary
+- `just analyze-ccusage` - Analyze usage trends with visualizations (requires R)
 
 ### Other commands
 
@@ -223,6 +224,12 @@ The repository contains R scripts for statistical analysis and visualization.
   - Run with: `just analyze-contributions`
   - Uses `contributions.db` (populated by `just fetch-contributions`)
   - Generates 2 visualizations: recent timeline and all-time weekly trends with running averages
+- `individuals/chicks/ccusage/usage-analysis/analyze-usage.R` - Analyzes Claude Code token usage and costs
+  - Run with: `just analyze-ccusage`
+  - Uses `usage.db` (populated by `just fetch-ccusage`)
+  - Generates 6 visualizations: token trends, cost trends, model breakdown, cache efficiency, top sessions, weekly plan usage
+  - Weekly spending limit configurable in `config.R` (default: $4/week)
+  - See individuals/chicks/ccusage/usage-analysis/README.md for details
 
 ## Data Formats
 

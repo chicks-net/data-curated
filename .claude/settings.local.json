@@ -42,7 +42,8 @@
       "Bash(ccusage daily:*)",
       "Bash(ccusage session:*)",
       "Bash(just fetch-ccusage:*)",
-      "Bash(just ccusage-stats:*)"
+      "Bash(just ccusage-stats:*)",
+      "Bash(just analyze-ccusage:*)"
     ],
     "deny": [],
     "ask": []
