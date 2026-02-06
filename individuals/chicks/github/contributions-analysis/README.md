@@ -1,14 +1,37 @@
 # GitHub Contributions Analysis
 
-This directory contains R scripts for analyzing GitHub contribution data
-from the `contributions.db` SQLite database.
-
 ## Overview
 
-The analysis visualizes GitHub contribution patterns over time using daily
-contribution counts with running averages to show trends. Two visualizations
-are generated: a detailed 2-year view and a complete historical view since
-account creation.
+This directory contains R scripts for analyzing GitHub contribution data from
+the `contributions.db` SQLite database.  The analysis visualizes GitHub
+contribution patterns over time using daily contribution counts with running
+averages to show trends.
+
+## Visualizations
+
+### 1. Recent Activity (Last 2 Years)
+
+Shows daily contribution points with three running averages to identify
+short-term, medium-term, and long-term trends.
+
+- **Gray points**: Daily contribution counts
+- **Blue line**: 14-day running average (weekly trend)
+- **Purple line**: 30-day running average (monthly trend)
+- **Orange line**: 90-day running average (quarterly trend)
+
+![Contributions Timeline](contributions-last2years.png)
+
+### 2. All-Time History (2011-Present)
+
+Shows weekly aggregated contributions with running averages scaled to show
+the overall activity arc across your entire GitHub history.
+
+- **Gray bars**: Weekly contribution totals
+- **Blue line**: 4-week running average (~1 month)
+- **Purple line**: 13-week running average (~1 quarter)
+- **Orange line**: 26-week running average (~6 months)
+
+![Contributions All-Time](contributions-alltime.png)
 
 ## Prerequisites
 
@@ -65,32 +88,6 @@ Saved: contributions-alltime.png
 
 Analysis complete!
 ```
-
-## Visualizations
-
-### 1. Recent Activity (Last 2 Years)
-
-Shows daily contribution points with three running averages to identify
-short-term, medium-term, and long-term trends.
-
-- **Gray points**: Daily contribution counts
-- **Blue line**: 14-day running average (weekly trend)
-- **Purple line**: 30-day running average (monthly trend)
-- **Orange line**: 90-day running average (quarterly trend)
-
-![Contributions Timeline](contributions-last2years.png)
-
-### 2. All-Time History (2011-Present)
-
-Shows weekly aggregated contributions with running averages scaled to show
-the overall activity arc across your entire GitHub history.
-
-- **Gray bars**: Weekly contribution totals
-- **Blue line**: 4-week running average (~1 month)
-- **Purple line**: 13-week running average (~1 quarter)
-- **Orange line**: 26-week running average (~6 months)
-
-![Contributions All-Time](contributions-alltime.png)
 
 ## Analysis Details
 
