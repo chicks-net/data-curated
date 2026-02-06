@@ -810,6 +810,102 @@ youtube-status:
 		echo "{{RED}}No fetch history found{{NORMAL}}"
 	fi
 
+# Fetch Claude Code usage data and create/update database
+[working-directory("individuals/chicks/ccusage")]
+[group('ccusage')]
+fetch-ccusage:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if ccusage is installed
+	if ! command -v ccusage &> /dev/null; then
+		echo "{{RED}}Error: ccusage is not installed{{NORMAL}}"
+		echo ""
+		echo "ccusage is provided by Claude Code"
+		exit 1
+	fi
+
+	echo "{{GREEN}}Fetching Claude Code usage data...{{NORMAL}}"
+	go run fetch-usage.go
+
+# View Claude Code usage database in Datasette
+[group('ccusage')]
+ccusage-db:
+	just datasette individuals/chicks/ccusage/usage.db
+
+# Show Claude Code usage statistics
+[working-directory("individuals/chicks/ccusage")]
+[group('ccusage')]
+ccusage-stats:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	DB_FILE="usage.db"
+
+	if [ ! -f "$DB_FILE" ]; then
+		echo "{{RED}}Error: Database file not found: $DB_FILE{{NORMAL}}"
+		echo "Run 'just fetch-ccusage' to create it."
+		exit 1
+	fi
+
+	echo "{{GREEN}}Claude Code Usage Statistics{{NORMAL}}"
+	echo ""
+
+	# Show database file age
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	else
+		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
+		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+	fi
+
+	# Show date range
+	echo ""
+	echo "{{BLUE}}Date range:{{NORMAL}}"
+	sqlite3 "$DB_FILE" "SELECT
+	  MIN(date) as first_date,
+	  MAX(date) as last_date,
+	  COUNT(*) as total_days
+	FROM daily_usage;"
+
+	# Show overall totals
+	echo ""
+	echo "{{BLUE}}Overall totals:{{NORMAL}}"
+	sqlite3 -header -column "$DB_FILE" "SELECT
+	  SUM(input_tokens) as input_tokens,
+	  SUM(output_tokens) as output_tokens,
+	  SUM(cache_creation_tokens) as cache_creation,
+	  SUM(cache_read_tokens) as cache_read,
+	  SUM(total_tokens) as total_tokens,
+	  printf('\$%.2f', SUM(total_cost)) as total_cost
+	FROM daily_usage;"
+
+	# Show last 7 days
+	echo ""
+	echo "{{BLUE}}Last 7 days:{{NORMAL}}"
+	sqlite3 -header -column "$DB_FILE" "SELECT
+	  date,
+	  total_tokens,
+	  printf('\$%.2f', total_cost) as cost
+	FROM daily_usage
+	ORDER BY date DESC
+	LIMIT 7;"
+
+	# Show top sessions by cost
+	echo ""
+	echo "{{BLUE}}Top 5 sessions by cost:{{NORMAL}}"
+	sqlite3 -header -column "$DB_FILE" "SELECT
+	  CASE
+	    WHEN LENGTH(session_id) > 40 THEN SUBSTR(session_id, 1, 37) || '...'
+	    ELSE session_id
+	  END as session,
+	  printf('\$%.2f', total_cost) as cost,
+	  total_tokens
+	FROM session_usage
+	ORDER BY total_cost DESC
+	LIMIT 5;"
+
 # Check age of all database files in the repository
 [group('Utility')]
 db-status:

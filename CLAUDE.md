@@ -91,6 +91,12 @@ imports modules from `.just/` directory:
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
+### Claude Code usage commands
+
+- `just fetch-ccusage` - Fetch Claude Code token usage data (daily and by session)
+- `just ccusage-db` - Open usage.db in Datasette browser
+- `just ccusage-stats` - Show usage statistics summary
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
@@ -162,6 +168,12 @@ The repository contains several Go programs:
   - Filters and marks chicks-net/fini-net organization comments
   - Supports incremental updates
   - See individuals/chicks/github/README.md for full documentation
+- `individuals/chicks/ccusage/fetch-usage.go` - Fetches Claude Code token usage data
+  - Run with: `just fetch-ccusage` (preferred) or `cd individuals/chicks/ccusage && go run fetch-usage.go`
+  - Stores data in `individuals/chicks/ccusage/usage.db` SQLite database
+  - Captures daily usage, per-model breakdowns, and session-level data
+  - Tracks input/output tokens, cache tokens (creation and read), and costs
+  - See individuals/chicks/ccusage/README.md for full documentation
 
 ### Python programs
 
