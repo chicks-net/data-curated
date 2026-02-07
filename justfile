@@ -825,6 +825,50 @@ youtube-status:
 		echo "{{RED}}No fetch history found{{NORMAL}}"
 	fi
 
+# Link YouTube videos to blog posts by searching GitHub repo
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+link-youtube-blog-posts DRY_RUN="--dry-run":
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if go is installed
+	if ! command -v go &> /dev/null; then
+		echo "{{RED}}Error: go is not installed{{NORMAL}}"
+		echo ""
+		echo "Install with:"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "  brew install go"
+		else
+			echo "  https://go.dev/doc/install"
+		fi
+		exit 1
+	fi
+
+	# Check if gh CLI is installed (preferred for API access)
+	if ! command -v gh &> /dev/null; then
+		echo "{{YELLOW}}Warning: gh CLI is not installed{{NORMAL}}"
+		echo "Using direct API calls (subject to rate limits)"
+		echo ""
+		echo "For better performance, install gh CLI:"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "  brew install gh"
+		else
+			echo "  https://cli.github.com/manual/installation"
+		fi
+		echo ""
+	fi
+
+	# Check if database exists
+	if [ ! -f "videos.db" ]; then
+		echo "{{RED}}Error: videos.db not found{{NORMAL}}"
+		echo "Run 'just fetch-youtube-videos' first."
+		exit 1
+	fi
+
+	echo "{{GREEN}}Linking YouTube videos to blog posts...{{NORMAL}}"
+	go run link-blog-posts.go {{DRY_RUN}}
+
 # Fetch Claude Code usage data and create/update database
 [working-directory("individuals/chicks/ccusage")]
 [group('ccusage')]

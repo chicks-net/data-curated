@@ -88,6 +88,7 @@ imports modules from `.just/` directory:
 ### YouTube commands
 
 - `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
+- `just link-youtube-blog-posts [DRY_RUN]` - Link videos to blog posts (defaults to --dry-run, pass "" to update)
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
@@ -175,6 +176,12 @@ The repository contains several Go programs:
   - Captures daily usage, per-model breakdowns, and session-level data
   - Tracks input/output tokens, cache tokens (creation and read), and costs
   - See individuals/chicks/ccusage/README.md for full documentation
+- `individuals/chicks/youtube/link-blog-posts.go` - Links YouTube videos to blog posts on chicks.net
+  - Run with: `just link-youtube-blog-posts` (preferred) or `cd individuals/chicks/youtube && go run link-blog-posts.go --dry-run`
+  - Clones www-chicks-net repo and searches for videos in blog posts
+  - Updates `blog_url` field in `videos.db` when matches are found
+  - Fast local search (processes 370 blog posts in seconds)
+  - See individuals/chicks/youtube/README.md for full documentation
 
 ### Python programs
 
@@ -183,8 +190,9 @@ The repository contains Python programs for data fetching and processing:
 - `individuals/chicks/youtube/fetch-videos.py` - Fetches YouTube video metadata using yt-dlp
   - Run with: `just fetch-youtube-videos` (preferred) or `cd individuals/chicks/youtube && python3 fetch-videos.py`
   - Stores video metadata in `individuals/chicks/youtube/videos.db` SQLite database
-  - Collects: title, description, upload date, duration, view count, like count, comment count, tags, etc.
+  - Collects: title, description, upload date, duration, view count, like count, comment count, tags, blog_url, etc.
   - No YouTube API key required (uses yt-dlp scraping)
+  - Companion Go program `link-blog-posts.go` links videos to blog posts on chicks.net
   - See individuals/chicks/youtube/README.md for full documentation
 
 ### R analysis scripts
