@@ -262,6 +262,20 @@ analyze-powerball:
 analyze-jackpots:
 	Rscript analyze-jackpots.R
 
+# Show the age of the jackpots database and when data was last updated
+[working-directory("lottery")]
+[group('lottery')]
+lottery-update-all: _check_lottery_deps _on_a_branch
+	just jackpot-status
+	just download-lottery-numbers
+	just analyze-megamillions
+	just analyze-powerball
+	just check-jackpots
+	just analyze-jackpots
+	just jackpot-status
+	git add lottery
+	git stp
+
 # Install all R packages used in this repository
 [group('Utility')]
 install-r-deps:
