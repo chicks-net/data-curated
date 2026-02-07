@@ -4,7 +4,9 @@ import (
 	"database/sql"
 	"flag"
 	"fmt"
+	"io"
 	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -22,11 +24,12 @@ var (
 )
 
 type Video struct {
-	VideoID     string
-	Title       string
-	Description string
-	UploadDate  string
-	URL         string
+	VideoID      string
+	Title        string
+	Description  string
+	UploadDate   string
+	URL          string
+	ThumbnailURL string
 }
 
 func main() {
@@ -45,7 +48,7 @@ func main() {
 
 	// Query for videos without blog posts that are at least 6 months old
 	query := `
-		SELECT video_id, title, description, upload_date, url
+		SELECT video_id, title, description, upload_date, url, thumbnail_url
 		FROM videos
 		WHERE (blog_url IS NULL OR blog_url = '')
 		AND upload_date <= ?
@@ -61,7 +64,7 @@ func main() {
 	var videos []Video
 	for rows.Next() {
 		var v Video
-		err := rows.Scan(&v.VideoID, &v.Title, &v.Description, &v.UploadDate, &v.URL)
+		err := rows.Scan(&v.VideoID, &v.Title, &v.Description, &v.UploadDate, &v.URL, &v.ThumbnailURL)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -129,22 +132,38 @@ func main() {
 		content = strings.ReplaceAll(content, "${KEYWORDS_LIST}", keywords)
 
 		outputPath := filepath.Join(outputDir, filename+".md")
+		imagePath := filepath.Join(outputDir, filename+".jpg")
 
 		fmt.Printf("- %s (%s)\n", video.Title, video.UploadDate)
 		fmt.Printf("  → %s\n", outputPath)
+		fmt.Printf("  → %s\n", imagePath)
 
 		if *dryRun {
 			fmt.Println("  [DRY RUN] Would create file with content:")
 			fmt.Println("  ---")
 			fmt.Println(indent(content, "  "))
 			fmt.Println("  ---")
+			fmt.Printf("  [DRY RUN] Would download thumbnail from: %s\n", video.ThumbnailURL)
 			fmt.Println()
 		} else {
+			// Write markdown file
 			if err := os.WriteFile(outputPath, []byte(content), 0644); err != nil {
 				log.Printf("Error writing %s: %v", outputPath, err)
 			} else {
-				fmt.Printf("  ✓ Created %s\n\n", outputPath)
+				fmt.Printf("  ✓ Created %s\n", outputPath)
 			}
+
+			// Download thumbnail
+			if video.ThumbnailURL != "" {
+				if err := downloadThumbnail(video.ThumbnailURL, imagePath); err != nil {
+					log.Printf("Error downloading thumbnail: %v", err)
+				} else {
+					fmt.Printf("  ✓ Downloaded cover image to %s\n", imagePath)
+				}
+			} else {
+				log.Printf("Warning: No thumbnail URL for video %s", video.VideoID)
+			}
+			fmt.Println()
 		}
 	}
 
@@ -205,4 +224,33 @@ func indent(text, prefix string) string {
 		lines[i] = prefix + line
 	}
 	return strings.Join(lines, "\n")
+}
+
+// downloadThumbnail downloads a thumbnail from a URL and saves it to the specified path
+func downloadThumbnail(url, outputPath string) error {
+	// Create HTTP GET request
+	resp, err := http.Get(url)
+	if err != nil {
+		return fmt.Errorf("failed to download thumbnail: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("bad status: %s", resp.Status)
+	}
+
+	// Create output file
+	out, err := os.Create(outputPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer out.Close()
+
+	// Copy data
+	_, err = io.Copy(out, resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to write file: %w", err)
+	}
+
+	return nil
 }
