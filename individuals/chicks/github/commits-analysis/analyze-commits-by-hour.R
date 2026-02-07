@@ -82,7 +82,9 @@ p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
   scale_y_continuous(labels = comma_format()) +
   labs(
     title = "GitHub Commits by Hour of Day (Local Time)",
-    subtitle = paste("Analysis of", comma_format()(nrow(commits)), "commits in authors' local time"),
+    subtitle = paste("Analysis of", comma_format()(nrow(commits)), "commits in authors' local time |",
+                     format(min(commits$author_datetime), "%Y-%m-%d"), "to",
+                     format(max(commits$author_datetime), "%Y-%m-%d")),
     x = "Hour of Day (Local Time)",
     y = "Number of Commits"
   ) +
@@ -113,12 +115,14 @@ print(time_periods %>% mutate(percentage = round(percentage, 1)))
 # Time period visualization
 p3 <- ggplot(time_periods, aes(x = reorder(time_period, n), y = n, fill = time_period)) +
   geom_col(alpha = 0.8) +
-  geom_text(aes(label = paste0(comma_format()(n), "\n", percent(percentage/100))), 
+  geom_text(aes(label = paste0(comma_format()(n), "\n", percent(percentage/100))),
             hjust = 0.5, vjust = -0.5, size = 3) +
   scale_y_continuous(labels = comma_format()) +
   labs(
     title = "Commits by Time Period (Local Time)",
-    subtitle = "Distribution across local time periods",
+    subtitle = paste("Distribution across local time periods |",
+                     format(min(commits$author_datetime), "%Y-%m-%d"), "to",
+                     format(max(commits$author_datetime), "%Y-%m-%d")),
     x = NULL,
     y = "Number of Commits"
   ) +
