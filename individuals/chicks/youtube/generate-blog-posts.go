@@ -117,10 +117,11 @@ func main() {
 		keywords := extractKeywords(video.Description)
 
 		// Fill in template
+		// Note: Escape single quotes for TOML single-quoted strings
 		content := template
-		content = strings.ReplaceAll(content, "${TITLE}", video.Title)
+		content = strings.ReplaceAll(content, "${TITLE}", escapeTOMLString(video.Title))
 		content = strings.ReplaceAll(content, "${POST_DATE_ISO}", dateISO)
-		content = strings.ReplaceAll(content, "${SOMETHING_FUNNY}", funnyDescription)
+		content = strings.ReplaceAll(content, "${SOMETHING_FUNNY}", escapeTOMLString(funnyDescription))
 		content = strings.ReplaceAll(content, "${YOUTUBE_URL}", video.URL)
 		content = strings.ReplaceAll(content, "${FILENAME}", filename)
 		content = strings.ReplaceAll(content, "${YOUTUBE_DESCRIPTION}", video.Description)
@@ -152,6 +153,12 @@ func main() {
 	} else {
 		fmt.Printf("Generated %d blog post(s) in %s/\n", len(videos), outputDir)
 	}
+}
+
+// escapeTOMLString escapes single quotes for TOML single-quoted strings
+// In TOML, single quotes inside a single-quoted string are escaped as ''
+func escapeTOMLString(s string) string {
+	return strings.ReplaceAll(s, "'", "''")
 }
 
 // createFilename converts a title to a safe filename
