@@ -1,6 +1,6 @@
 +++
 title = '${TITLE}'
-date = ${POST_DATA_ISO}
+date = ${POST_DATE_ISO}
 draft = false
 description = '${SOMETHING_FUNNY}'
 canonicalURL = '${YOUTUBE_URL}'
