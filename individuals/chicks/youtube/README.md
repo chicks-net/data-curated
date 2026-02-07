@@ -13,6 +13,10 @@ just fetch-youtube-videos
 just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
 just link-youtube-blog-posts ""     # Actually update the database
 
+# Generate blog posts for videos without posts (6+ months old)
+just generate-blog-posts            # Dry-run mode (shows what would be generated)
+just generate-blog-posts ""         # Actually generate files
+
 # View database in browser
 just youtube-db
 
@@ -143,7 +147,8 @@ The program is fast and efficient, processing hundreds of blog posts in seconds 
 with a local git clone rather than making individual API requests.
 
 Example output:
-```
+
+```ShellOutput
 ✓ Found match for 'Baby shark at bakery'
   Video ID: Vyn-ayBwmrw
   Blog post: 2024-07-22-first-youtube-short.md
@@ -160,6 +165,49 @@ Videos without blog posts (10):
 ...
 ```
 
+## Blog Post Generation
+
+The `generate-blog-posts.go` program automatically creates draft blog posts for YouTube
+videos that don't have blog posts yet (and are at least 6 months old):
+
+```bash
+# Run in dry-run mode to see what would be generated
+just generate-blog-posts
+
+# Actually generate the blog post files
+just generate-blog-posts ""
+```
+
+How it works:
+
+1. Queries the database for videos without `blog_url` that are at least 6 months old
+2. Reads the `template.md` file for blog post structure
+3. Fills in template variables with video metadata:
+   - `${TITLE}` → Video title
+   - `${POST_DATA_ISO}` → Upload date in ISO 8601 format
+   - `${SOMETHING_FUNNY}` → Auto-generated description
+   - `${YOUTUBE_URL}` → Full YouTube URL
+   - `${FILENAME}` → Sanitized filename from title
+   - `${YOUTUBE_DESCRIPTION}` → Video description
+   - `${YOUTUBE_ID}` → YouTube video ID
+4. Generates markdown files in `individuals/chicks/youtube/generated/` directory
+5. Creates filenames from titles (lowercase, alphanumeric, hyphen-separated)
+
+The generated files are excluded from git (see `.gitignore`) and can be manually reviewed
+and copied to the blog repository as needed.
+
+Example output:
+
+```ShellOutput
+Found 1 video(s) without blog posts from at least 6 months ago:
+
+- Before the flower market (20250116)
+  → generated/before-the-flower-market.md
+  ✓ Created generated/before-the-flower-market.md
+
+Generated 1 blog post(s) in generated/
+```
+
 ## Updates
 
 Re-run `just fetch-youtube-videos` to update the database with latest metrics
@@ -172,7 +220,10 @@ current data.
 
 - `fetch-videos.py` - Main script to fetch and store video metadata
 - `link-blog-posts.go` - Go program to link videos to blog posts
+- `generate-blog-posts.go` - Go program to generate blog posts from template
+- `template.md` - Blog post template with variable placeholders
 - `videos.db` - SQLite database (created after first run)
+- `generated/` - Directory for generated blog posts (excluded from git)
 - `go.mod`, `go.sum` - Go module dependencies
 - `README.md` - This file
 

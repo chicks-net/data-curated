@@ -45,7 +45,8 @@
       "Bash(just ccusage-stats:*)",
       "Bash(just analyze-ccusage:*)",
       "Bash(just analyze-commits:*)",
-      "Bash(just link-youtube-blog-posts:*)"
+      "Bash(just link-youtube-blog-posts:*)",
+      "Bash(just generate-blog-posts:*)"
     ],
     "deny": [],
     "ask": []
