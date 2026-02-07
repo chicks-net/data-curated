@@ -89,6 +89,7 @@ imports modules from `.just/` directory:
 
 - `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
 - `just link-youtube-blog-posts [DRY_RUN]` - Link videos to blog posts (defaults to --dry-run, pass "" to update)
+- `just generate-blog-posts [DRY_RUN]` - Generate blog posts for videos without posts (6+ months old, defaults to --dry-run, pass "" to generate)
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
@@ -182,6 +183,12 @@ The repository contains several Go programs:
   - Updates `blog_url` field in `videos.db` when matches are found
   - Fast local search (processes 370 blog posts in seconds)
   - See individuals/chicks/youtube/README.md for full documentation
+- `individuals/chicks/youtube/generate-blog-posts.go` - Generates blog posts for YouTube videos missing posts
+  - Run with: `just generate-blog-posts` (preferred) or `cd individuals/chicks/youtube && go run generate-blog-posts.go --dry-run`
+  - Finds videos without blog posts that are at least 6 months old
+  - Uses template.md to generate markdown blog posts
+  - Outputs generated files to `individuals/chicks/youtube/generated/` directory
+  - Defaults to dry-run mode (pass empty string to actually generate)
 
 ### Python programs
 

@@ -869,6 +869,42 @@ link-youtube-blog-posts DRY_RUN="--dry-run":
 	echo "{{GREEN}}Linking YouTube videos to blog posts...{{NORMAL}}"
 	go run link-blog-posts.go {{DRY_RUN}}
 
+# Generate blog posts for YouTube videos missing blog posts (6+ months old)
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+generate-blog-posts DRY_RUN="--dry-run":
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if go is installed
+	if ! command -v go &> /dev/null; then
+		echo "{{RED}}Error: go is not installed{{NORMAL}}"
+		echo ""
+		echo "Install with:"
+		if [[ "$OSTYPE" == "darwin"* ]]; then
+			echo "  brew install go"
+		else
+			echo "  https://go.dev/doc/install"
+		fi
+		exit 1
+	fi
+
+	# Check if database exists
+	if [ ! -f "videos.db" ]; then
+		echo "{{RED}}Error: videos.db not found{{NORMAL}}"
+		echo "Run 'just fetch-youtube-videos' first."
+		exit 1
+	fi
+
+	# Check if template exists
+	if [ ! -f "template.md" ]; then
+		echo "{{RED}}Error: template.md not found{{NORMAL}}"
+		exit 1
+	fi
+
+	echo "{{GREEN}}Generating blog posts for YouTube videos...{{NORMAL}}"
+	go run generate-blog-posts.go {{DRY_RUN}}
+
 # Fetch Claude Code usage data and create/update database
 [working-directory("individuals/chicks/ccusage")]
 [group('ccusage')]
