@@ -147,7 +147,8 @@ The program is fast and efficient, processing hundreds of blog posts in seconds 
 with a local git clone rather than making individual API requests.
 
 Example output:
-```
+
+```ShellOutput
 ✓ Found match for 'Baby shark at bakery'
   Video ID: Vyn-ayBwmrw
   Blog post: 2024-07-22-first-youtube-short.md
@@ -196,7 +197,8 @@ The generated files are excluded from git (see `.gitignore`) and can be manually
 and copied to the blog repository as needed.
 
 Example output:
-```
+
+```ShellOutput
 Found 1 video(s) without blog posts from at least 6 months ago:
 
 - Before the flower market (20250116)
