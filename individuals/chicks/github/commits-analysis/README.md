@@ -12,7 +12,9 @@ time.
 
 ### Emoji Usage Statistics
 
-- **89.4%** of commits contain emojis (1,116 out of 1,249 commits)
+*Analysis from February 7, 2026:*
+
+- 93.9% of commits had emojis (1,173 commits)
 - **1,612** total emojis used across all commits
 - **556** unique emojis found in commit messages
 - **1.44** average emojis per commit (when emojis are used)
@@ -81,5 +83,5 @@ Rscript analyze-emoji-usage.R
 
 ## Data Source
 
-Analysis uses the `commits.db` SQLite database containing up to 1000 most
+Analysis uses the `commits.db` SQLite database contains over 1000
 recent GitHub commits, fetched via the GitHub Search API.

@@ -13,7 +13,7 @@ conn <- dbConnect(RSQLite::SQLite(), "../commits.db")
 
 # Load commits data
 commits <- dbGetQuery(conn, "
-  SELECT message, author_date, author_name, repo_full_name
+  SELECT sha, message, author_date, author_name, repo_full_name
   FROM commits
   WHERE message IS NOT NULL
 ")
@@ -36,16 +36,16 @@ extract_emojis <- function(text) {
 cat("Extracting emojis from commit messages...\n")
 all_emojis <- commits %>%
   mutate(emojis = map(message, extract_emojis)) %>%
-  select(message, emojis, author_date, author_name, repo_full_name) %>%
+  select(sha, message, emojis, author_date, author_name, repo_full_name) %>%
   unnest(emojis)
 
 # Basic statistics
 cat("\nTotal commits analyzed:", nrow(commits), "\n")
-cat("Commits with emojis:", n_distinct(all_emojis$message), "\n")
+cat("Commits with emojis:", n_distinct(all_emojis$sha), "\n")
 cat("Total emojis found:", nrow(all_emojis), "\n")
 cat("Unique emojis:", n_distinct(all_emojis$emojis), "\n")
 
-emoji_percentage <- (n_distinct(all_emojis$message) / nrow(commits)) * 100
+emoji_percentage <- (n_distinct(all_emojis$sha) / nrow(commits)) * 100
 cat(sprintf("Percentage of commits with emojis: %.1f%%\n", emoji_percentage))
 
 # Count emoji frequencies
@@ -66,12 +66,15 @@ print(top_20)
 emoji_counts <- emoji_counts %>%
   mutate(cumulative_pct = cumsum(percentage))
 
-# Find how many emojis account for 80% of usage
-top_80 <- emoji_counts %>%
-  filter(cumulative_pct <= 80) %>%
-  nrow()
+# Find how many emojis are needed to reach at least 80% of usage
+top_80_index <- which(emoji_counts$cumulative_pct >= 80)[1]
+if (is.na(top_80_index)) {
+  top_80 <- nrow(emoji_counts)
+} else {
+  top_80 <- top_80_index
+}
 
-cat(sprintf("\nTop %d emojis account for 80%% of all emoji usage\n", top_80))
+cat(sprintf("\nTop %d emojis account for at least 80%% of all emoji usage\n", top_80))
 
 # Create visualization of top emojis
 top_n_emojis <- 20
@@ -108,7 +111,7 @@ if (nrow(all_emojis) > 0) {
     group_by(month) %>%
     summarize(
       emoji_count = n(),
-      commit_count = n_distinct(message),
+      commit_count = n_distinct(sha),
       .groups = "drop"
     ) %>%
     mutate(
@@ -142,7 +145,7 @@ emoji_by_repo <- all_emojis %>%
   group_by(repo_full_name) %>%
   summarize(
     emoji_count = n(),
-    commit_count = n_distinct(message),
+    commit_count = n_distinct(sha),
     unique_emojis = n_distinct(emojis),
     .groups = "drop"
   ) %>%
@@ -210,11 +213,11 @@ summary_stats <- tibble(
   ),
   value = c(
     nrow(commits),
-    n_distinct(all_emojis$message),
+    n_distinct(all_emojis$sha),
     nrow(all_emojis),
     n_distinct(all_emojis$emojis),
     round(emoji_percentage, 1),
-    round(nrow(all_emojis) / n_distinct(all_emojis$message), 2),
+    round(nrow(all_emojis) / n_distinct(all_emojis$sha), 2),
     emoji_counts$emojis[1],
     emoji_counts$n[1]
   )
