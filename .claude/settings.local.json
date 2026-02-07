@@ -43,7 +43,8 @@
       "Bash(ccusage session:*)",
       "Bash(just fetch-ccusage:*)",
       "Bash(just ccusage-stats:*)",
-      "Bash(just analyze-ccusage:*)"
+      "Bash(just analyze-ccusage:*)",
+      "Bash(just analyze-commits:*)"
     ],
     "deny": [],
     "ask": []
