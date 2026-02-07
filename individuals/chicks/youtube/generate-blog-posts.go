@@ -14,6 +14,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+var (
+	// Regex for filename sanitization
+	filenameRegex = regexp.MustCompile(`[^a-z0-9]+`)
+)
+
 type Video struct {
 	VideoID     string
 	Title       string
@@ -60,6 +65,9 @@ func main() {
 		}
 		videos = append(videos, v)
 	}
+	if err := rows.Err(); err != nil {
+		log.Fatal(err)
+	}
 
 	if len(videos) == 0 {
 		fmt.Println("No videos found that need blog posts.")
@@ -92,8 +100,8 @@ func main() {
 			continue
 		}
 
-		// Format date as ISO 8601
-		dateISO := uploadTime.Format("2006-01-02T15:04:05-07:00")
+		// Format date as ISO 8601 (date only, since upload_date is date-only)
+		dateISO := uploadTime.Format("2006-01-02")
 
 		// Create filename with date prefix (YYYY-MM-DD-title)
 		datePrefix := uploadTime.Format("2006-01-02")
@@ -146,8 +154,7 @@ func createFilename(title string) string {
 	filename := strings.ToLower(title)
 
 	// Replace spaces and special chars with hyphens
-	reg := regexp.MustCompile(`[^a-z0-9]+`)
-	filename = reg.ReplaceAllString(filename, "-")
+	filename = filenameRegex.ReplaceAllString(filename, "-")
 
 	// Remove leading/trailing hyphens
 	filename = strings.Trim(filename, "-")
