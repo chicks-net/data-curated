@@ -92,11 +92,13 @@ func main() {
 			continue
 		}
 
-		// Create filename from title (lowercase, alphanumeric and hyphens only)
-		filename := createFilename(video.Title)
-
 		// Format date as ISO 8601
 		dateISO := uploadTime.Format("2006-01-02T15:04:05-07:00")
+
+		// Create filename with date prefix (YYYY-MM-DD-title)
+		datePrefix := uploadTime.Format("2006-01-02")
+		titleSlug := createFilename(video.Title)
+		filename := datePrefix + "-" + titleSlug
 
 		// Generate a simple description
 		funnyDescription := fmt.Sprintf("A video about %s", strings.ToLower(video.Title))
@@ -104,7 +106,7 @@ func main() {
 		// Fill in template
 		content := template
 		content = strings.ReplaceAll(content, "${TITLE}", video.Title)
-		content = strings.ReplaceAll(content, "${POST_DATA_ISO}", dateISO)
+		content = strings.ReplaceAll(content, "${POST_DATE_ISO}", dateISO)
 		content = strings.ReplaceAll(content, "${SOMETHING_FUNNY}", funnyDescription)
 		content = strings.ReplaceAll(content, "${YOUTUBE_URL}", video.URL)
 		content = strings.ReplaceAll(content, "${FILENAME}", filename)
