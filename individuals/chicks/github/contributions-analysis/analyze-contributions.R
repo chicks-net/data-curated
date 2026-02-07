@@ -261,6 +261,42 @@ monthly_data <- contributions %>%
     avg_12month = rollmean(contributions, k=12, fill=NA, align="right")
   )
 
+# Calculate projection for current (incomplete) month
+current_month <- floor_date(Sys.Date(), "month")
+if (current_month %in% monthly_data$month) {
+  # Get days elapsed in current month
+  days_in_current_month <- day(Sys.Date())
+  total_days_in_month <- days_in_month(current_month)
+
+  # Get actual contributions so far this month
+  actual_contributions <- monthly_data %>%
+    filter(month == current_month) %>%
+    pull(contributions)
+
+  # Project full month total
+  projected_total <- actual_contributions * (total_days_in_month / days_in_current_month)
+  projected_additional <- projected_total - actual_contributions
+
+  # Calculate bar width (approximately one month in days)
+  bar_width <- 25
+
+  # Create projection data frame for geom_rect
+  monthly_projection <- data.frame(
+    xmin = current_month - bar_width / 2,
+    xmax = current_month + bar_width / 2,
+    ymin = actual_contributions,
+    ymax = projected_total
+  )
+} else {
+  # No projection needed if current month not in data
+  monthly_projection <- data.frame(
+    xmin = as.Date(character()),
+    xmax = as.Date(character()),
+    ymin = numeric(),
+    ymax = numeric()
+  )
+}
+
 p3 <- ggplot(monthly_data, aes(x = month)) +
   # Employment periods - drawn first, behind everything else
   geom_rect(data = jobs_filtered,
@@ -286,6 +322,13 @@ p3 <- ggplot(monthly_data, aes(x = month)) +
   geom_col(aes(y = contributions),
            alpha = 0.6,
            fill = "steelblue") +
+  # Projected portion for current month (greyed out)
+  geom_rect(data = monthly_projection,
+            aes(xmin = xmin, xmax = xmax,
+                ymin = ymin, ymax = ymax),
+            alpha = 0.3,
+            fill = "gray60",
+            inherit.aes = FALSE) +
   # Running average lines
   geom_line(aes(y = avg_6month, color = "6-month average"),
             linewidth = 0.8) +
