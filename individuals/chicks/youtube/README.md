@@ -9,6 +9,10 @@ Database of public videos and shorts from the
 # Fetch video metadata and create/update database
 just fetch-youtube-videos
 
+# Link videos to blog posts on chicks.net
+just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
+just link-youtube-blog-posts ""     # Actually update the database
+
 # View database in browser
 just youtube-db
 
@@ -21,6 +25,8 @@ just youtube-status
 - Python 3.x
 - yt-dlp: `pip install yt-dlp` or `brew install yt-dlp`
 - SQLite3 (usually pre-installed)
+- Go (for blog post linking): `brew install go` or see <https://go.dev/doc/install>
+- Git (for blog post linking, usually pre-installed)
 
 ## Database Schema
 
@@ -45,6 +51,7 @@ just youtube-status
 | width | INTEGER | Video width in pixels |
 | height | INTEGER | Video height in pixels |
 | fps | REAL | Frames per second |
+| blog_url | TEXT | Corresponding blog post URL on chicks.net (if exists) |
 
 ### fetch_history table
 
@@ -110,6 +117,49 @@ Video type classification:
 - **short**: Videos ≤60 seconds or with `/shorts/` in URL
 - **video**: All other videos
 
+## Blog Post Linking
+
+The `link-blog-posts.go` program automatically finds and links YouTube videos to their
+corresponding blog posts on <https://www.chicks.net>:
+
+```bash
+# Run in dry-run mode to see what would be updated
+just link-youtube-blog-posts
+
+# Actually update the database
+just link-youtube-blog-posts ""
+```
+
+How it works:
+
+1. Clones/updates the <https://github.com/chicks-net/www-chicks-net> repository to `/tmp`
+2. Searches all blog posts for YouTube video IDs in the content
+3. Matches videos to blog posts by detecting YouTube URLs (watch, shorts, youtu.be)
+4. Converts blog post filenames to proper URLs (e.g., `2024-07-22-first-youtube-short.md` → `https://www.chicks.net/2024/07/22/first-youtube-short/`)
+5. Updates the `blog_url` field in the database
+6. Lists all unmatched videos with their dates, titles, and YouTube URLs
+
+The program is fast and efficient, processing hundreds of blog posts in seconds by working
+with a local git clone rather than making individual API requests.
+
+Example output:
+```
+✓ Found match for 'Baby shark at bakery'
+  Video ID: Vyn-ayBwmrw
+  Blog post: 2024-07-22-first-youtube-short.md
+  URL: https://www.chicks.net/2024/07/22/first-youtube-short/
+
+==================================================
+Summary: Matched 7 out of 17 videos
+
+==================================================
+Videos without blog posts (10):
+
+2025-12-30  Goat Cabinet Shop                     https://www.youtube.com/watch?v=MCl1Jf_WoyQ
+2025-12-08  Gary with a Fez On!                   https://www.youtube.com/watch?v=2I_tEb-y5aQ
+...
+```
+
 ## Updates
 
 Re-run `just fetch-youtube-videos` to update the database with latest metrics
@@ -121,7 +171,9 @@ current data.
 ## Files
 
 - `fetch-videos.py` - Main script to fetch and store video metadata
+- `link-blog-posts.go` - Go program to link videos to blog posts
 - `videos.db` - SQLite database (created after first run)
+- `go.mod`, `go.sum` - Go module dependencies
 - `README.md` - This file
 
 ## Notes

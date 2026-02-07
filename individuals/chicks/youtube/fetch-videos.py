@@ -46,7 +46,8 @@ def create_database() -> None:
                 fetched_at TEXT,
                 width INTEGER,
                 height INTEGER,
-                fps REAL
+                fps REAL,
+                blog_url TEXT
             )
         """)
 
@@ -263,8 +264,8 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
                     video_id, title, description, upload_date, duration,
                     view_count, like_count, comment_count, video_type,
                     url, thumbnail_url, tags, categories, fetched_at,
-                    width, height, fps
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    width, height, fps, blog_url
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 video_id,
                 detailed.get('title'),
@@ -282,7 +283,8 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
                 fetched_at,
                 detailed.get('width'),
                 detailed.get('height'),
-                detailed.get('fps')
+                detailed.get('fps'),
+                None  # blog_url - to be populated manually later
             ))
 
             stored_count += 1
