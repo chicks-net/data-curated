@@ -7,7 +7,7 @@ canonicalURL = '${YOUTUBE_URL}'
 ShowCanonicalLink = true
 cover.image = '/posts/${FILENAME}.jpg'
 cover.hidden = false
-keywords = []
+keywords = [${KEYWORDS_LIST}]
 tags = ["youtube", "art"]
 ShowToc = true
 +++

@@ -17,6 +17,8 @@ import (
 var (
 	// Regex for filename sanitization
 	filenameRegex = regexp.MustCompile(`[^a-z0-9]+`)
+	// Regex for extracting hashtags
+	hashtagRegex = regexp.MustCompile(`#\w+`)
 )
 
 type Video struct {
@@ -111,6 +113,9 @@ func main() {
 		// Generate a simple description
 		funnyDescription := fmt.Sprintf("A video about %s", strings.ToLower(video.Title))
 
+		// Extract keywords from hashtags in description
+		keywords := extractKeywords(video.Description)
+
 		// Fill in template
 		content := template
 		content = strings.ReplaceAll(content, "${TITLE}", video.Title)
@@ -120,6 +125,7 @@ func main() {
 		content = strings.ReplaceAll(content, "${FILENAME}", filename)
 		content = strings.ReplaceAll(content, "${YOUTUBE_DESCRIPTION}", video.Description)
 		content = strings.ReplaceAll(content, "${YOUTUBE_ID}", video.VideoID)
+		content = strings.ReplaceAll(content, "${KEYWORDS_LIST}", keywords)
 
 		outputPath := filepath.Join(outputDir, filename+".md")
 
@@ -166,6 +172,23 @@ func createFilename(title string) string {
 	}
 
 	return filename
+}
+
+// extractKeywords extracts hashtags from text and returns them as a quoted list
+func extractKeywords(text string) string {
+	matches := hashtagRegex.FindAllString(text, -1)
+	if len(matches) == 0 {
+		return ""
+	}
+
+	// Strip # prefix and quote each keyword
+	keywords := make([]string, len(matches))
+	for i, match := range matches {
+		// Remove # prefix and wrap in quotes
+		keywords[i] = fmt.Sprintf(`"%s"`, strings.TrimPrefix(match, "#"))
+	}
+
+	return strings.Join(keywords, ", ")
 }
 
 // indent adds a prefix to each line of text
