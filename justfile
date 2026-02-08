@@ -731,6 +731,7 @@ contribution-streaks LIMIT="10":
 # Github update cycle (once you are on a branch)
 [group('github')]
 github-update-all: _on_a_branch
+	just fetch-comments
 	just fetch-commits
 	just analyze-commits
 	just fetch-contributions
