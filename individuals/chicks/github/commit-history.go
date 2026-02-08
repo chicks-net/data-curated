@@ -258,10 +258,9 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 			}
 
 			// Recursively fetch each sub-period
-
-		// Use separate counters for subdivision results
-		subTotalFetched := 0
-		subNewCommits := 0
+			// Use separate counters for subdivision results
+			subTotalFetched := 0
+			subNewCommits := 0
 			for _, subPeriod := range subPeriods {
 				subFetched, subNew, err := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
 				if err != nil {
