@@ -4,6 +4,110 @@ import? '.just/shellcheck.just'
 import? '.just/compliance.just'
 import? '.just/gh-process.just'
 
+# ============================================================================
+# Helper Functions (hidden recipes for internal use)
+# ============================================================================
+
+# Get file modification time in "YYYY-MM-DD HH:MM:SS" format (cross-platform)
+_file_mod_time FILE:
+	#!/usr/bin/env bash
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" '{{FILE}}'
+	else
+		stat -c "%y" '{{FILE}}' | cut -d'.' -f1
+	fi
+
+# Get file modification timestamp in seconds since epoch (cross-platform)
+_file_mod_timestamp FILE:
+	#!/usr/bin/env bash
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		stat -f "%m" '{{FILE}}'
+	else
+		stat -c "%Y" '{{FILE}}'
+	fi
+
+# Format seconds as human-readable age (e.g., "5d 3h 42m" or "2h 15m")
+_format_age SECONDS:
+	#!/usr/bin/env bash
+	SECS='{{SECONDS}}'
+	DAYS=$((SECS / 86400))
+	HOURS=$(((SECS % 86400) / 3600))
+	MINUTES=$(((SECS % 3600) / 60))
+	if [ $DAYS -gt 0 ]; then
+		echo "${DAYS}d ${HOURS}h ${MINUTES}m"
+	elif [ $HOURS -gt 0 ]; then
+		echo "${HOURS}h ${MINUTES}m"
+	else
+		echo "${MINUTES}m"
+	fi
+
+# Check if command exists, exit with error message if not
+_require_command CMD INSTALL_MSG:
+	#!/usr/bin/env bash
+	CMD_NAME='{{CMD}}'
+	if ! command -v "$CMD_NAME" &> /dev/null; then
+		echo "{{RED}}Error: $CMD_NAME is not installed{{NORMAL}}"
+		echo ""
+		echo "{{INSTALL_MSG}}"
+		exit 1
+	fi
+
+# Get platform-specific install command for a package
+_get_install_cmd PKG_BREW PKG_APT="":
+	#!/usr/bin/env bash
+	BREW_PKG='{{PKG_BREW}}'
+	PKG_APT="${2:-$BREW_PKG}"
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		echo "brew install $BREW_PKG"
+	elif command -v apt-get &> /dev/null; then
+		echo "sudo apt-get install $PKG_APT"
+	elif command -v yum &> /dev/null; then
+		echo "sudo yum install $PKG_APT"
+	elif command -v dnf &> /dev/null; then
+		echo "sudo dnf install $PKG_APT"
+	else
+		echo "Install $BREW_PKG for your platform"
+	fi
+
+# Find most recent file matching a glob pattern
+_find_most_recent PATTERN ERROR_MSG:
+	#!/usr/bin/env bash
+	RESULT=""
+	# shellcheck disable=SC1083,SC2043
+	# Note: {{PATTERN}} is a just template variable that will be substituted
+	# before the script runs. It must remain unquoted for glob expansion.
+	for f in {{PATTERN}}; do
+		[ -e "$f" ] || continue
+		if [ -z "$RESULT" ] || [ "$f" -nt "$RESULT" ]; then
+			RESULT="$f"
+		fi
+	done
+	if [ -z "$RESULT" ]; then
+		echo "{{ERROR_MSG}}" >&2
+		exit 1
+	fi
+	echo "$RESULT"
+
+# Show database file status (age and last modified time)
+_show_db_age DB_PATH:
+	#!/usr/bin/env bash
+	if [ ! -f '{{DB_PATH}}' ]; then
+		echo "{{RED}}Error: Database file not found: '{{DB_PATH}}'{{NORMAL}}"
+		exit 1
+	fi
+
+	# Show file modification time
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" '{{DB_PATH}}')
+	else
+		FILE_AGE=$(stat -c "%y" '{{DB_PATH}}' | cut -d'.' -f1)
+	fi
+	echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
+
+# ============================================================================
+# User-visible recipes
+# ============================================================================
+
 # list recipes (default works without naming it)
 [group('example')]
 list:
@@ -187,16 +291,9 @@ jackpot-status: _check_lottery_deps
 	echo "{{GREEN}}Jackpot Database Status{{NORMAL}} ($DB_FILE)"
 	echo ""
 
-	# Show database file age
-	if [[ "$OSTYPE" == "darwin"* ]]; then
-		# macOS stat format
-		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	else
-		# Linux stat format
-		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	fi
+	# Show database file age using helper
+	FILE_AGE=$(just _file_mod_time "$DB_FILE")
+	echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
 
 	# Show last database entry
 	LAST_ENTRY=$(sqlite3 "$DB_FILE" "SELECT datetime(checked_at) FROM jackpots ORDER BY checked_at DESC LIMIT 1;")
@@ -205,22 +302,12 @@ jackpot-status: _check_lottery_deps
 		echo "{{YELLOW}}Last jackpot check:{{NORMAL}} $LAST_ENTRY"
 		echo ""
 
-		# Calculate how long ago
+		# Calculate how long ago using helper
 		LAST_TIMESTAMP=$(sqlite3 "$DB_FILE" "SELECT strftime('%s', checked_at) FROM jackpots ORDER BY checked_at DESC LIMIT 1;")
 		NOW=$(date +%s)
 		DIFF=$((NOW - LAST_TIMESTAMP))
-
-		DAYS=$((DIFF / 86400))
-		HOURS=$(((DIFF % 86400) / 3600))
-		MINUTES=$(((DIFF % 3600) / 60))
-
-		if [ $DAYS -gt 0 ]; then
-			echo "{{BLUE}}Time since last check:{{NORMAL}} $DAYS days, $HOURS hours, $MINUTES minutes ago"
-		elif [ $HOURS -gt 0 ]; then
-			echo "{{BLUE}}Time since last check:{{NORMAL}} $HOURS hours, $MINUTES minutes ago"
-		else
-			echo "{{BLUE}}Time since last check:{{NORMAL}} $MINUTES minutes ago"
-		fi
+		AGE_STR=$(just _format_age $DIFF)
+		echo "{{BLUE}}Time since last check:{{NORMAL}} $AGE_STR ago"
 
 		# Show total entries
 		TOTAL_ENTRIES=$(sqlite3 "$DB_FILE" "SELECT COUNT(*) FROM jackpots;")
@@ -316,22 +403,9 @@ install-r-package PACKAGE:
 	#!/usr/bin/env bash
 	set -euo pipefail
 
-	# Check if R is installed
-	if ! command -v R &> /dev/null; then
-		echo "{{RED}}Error: R is not installed{{NORMAL}}"
-		echo ""
-		echo "Install R:"
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "  brew install r"
-		elif command -v apt-get &> /dev/null; then
-			echo "  sudo apt-get install r-base"
-		elif command -v yum &> /dev/null; then
-			echo "  sudo yum install R"
-		elif command -v dnf &> /dev/null; then
-			echo "  sudo dnf install R"
-		fi
-		exit 1
-	fi
+	# Check if R is installed using helper
+	INSTALL_CMD=$(just _get_install_cmd r r-base)
+	just _require_command R "Install R:\n  $INSTALL_CMD"
 
 	echo "{{GREEN}}Checking R package: {{PACKAGE}}{{NORMAL}}"
 	echo ""
@@ -387,11 +461,9 @@ count-posts:
 	echo ""
 	go run post-counter.go
 	echo ""
-	CSV_FILE=$(find . -maxdepth 1 -name 'blog-monthly-*.csv' -type f -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2- | sed 's|^\./||')
-	if [ -n "$CSV_FILE" ] && [ -f "$CSV_FILE" ]; then
-		echo "📊 CSV output: {{BLUE}}$CSV_FILE{{NORMAL}}"
-		echo "Total rows: {{BLUE}}$(tail -n +2 "$CSV_FILE" | wc -l | tr -d ' '){{NORMAL}}"
-	fi
+	CSV_FILE=$(just _find_most_recent "blog-monthly-*.csv" "No CSV files found")
+	echo "📊 CSV output: {{BLUE}}$CSV_FILE{{NORMAL}}"
+	echo "Total rows: {{BLUE}}$(tail -n +2 "$CSV_FILE" | wc -l | tr -d ' '){{NORMAL}}"
 
 # Generate graph from blog post CSV data
 [working-directory("individuals/chicks/blog")]
@@ -402,17 +474,7 @@ graph-posts CSV="":
 	CSV_FILE="{{CSV}}"
 	# If no CSV specified, find the most recent one
 	if [ -z "$CSV_FILE" ]; then
-		# Find most recent CSV file using portable bash approach
-		for f in blog-monthly-*.csv; do
-			[ -e "$f" ] || continue
-			if [ -z "$CSV_FILE" ] || [ "$f" -nt "$CSV_FILE" ]; then
-				CSV_FILE="$f"
-			fi
-		done
-		if [ -z "$CSV_FILE" ]; then
-			echo "Error: No CSV file found. Run 'just count-posts' first."
-			exit 1
-		fi
+		CSV_FILE=$(just _find_most_recent "blog-monthly-*.csv" "Error: No CSV file found. Run 'just count-posts' first.")
 		echo "{{GREEN}}Generating graph from $CSV_FILE{{NORMAL}}"
 	else
 		if [ ! -f "$CSV_FILE" ]; then
@@ -430,18 +492,7 @@ graph-posts CSV="":
 graph-posts-36:
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
-	# Find most recent CSV file using portable bash approach
-	CSV_FILE=""
-	for f in blog-monthly-*.csv; do
-		[ -e "$f" ] || continue
-		if [ -z "$CSV_FILE" ] || [ "$f" -nt "$CSV_FILE" ]; then
-			CSV_FILE="$f"
-		fi
-	done
-	if [ -z "$CSV_FILE" ]; then
-		echo "Error: No CSV file found. Run 'just count-posts' first."
-		exit 1
-	fi
+	CSV_FILE=$(just _find_most_recent "blog-monthly-*.csv" "Error: No CSV file found. Run 'just count-posts' first.")
 	echo "{{GREEN}}Generating graph for last 36 months from $CSV_FILE{{NORMAL}}"
 	echo ""
 	Rscript graph-generator.R "$CSV_FILE" 36
@@ -472,12 +523,8 @@ datasette DB:
 		exit 1
 	fi
 
-	# Check if datasette is installed
-	if ! command -v datasette &> /dev/null; then
-		echo "{{RED}}Error: datasette command not found{{NORMAL}}"
-		echo "Install with: pip install datasette"
-		exit 1
-	fi
+	# Check if datasette is installed using helper
+	just _require_command datasette "Install with: pip install datasette"
 
 	echo "{{GREEN}}Opening {{DB}} in Datasette...{{NORMAL}}"
 	datasette "{{DB}}" -o
@@ -744,27 +791,12 @@ fetch-youtube-videos:
 	#!/usr/bin/env bash
 	set -euo pipefail
 
-	# Check if yt-dlp is installed
-	if ! command -v yt-dlp &> /dev/null; then
-		echo "{{RED}}Error: yt-dlp is not installed{{NORMAL}}"
-		echo ""
-		echo "Install with:"
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "  brew install yt-dlp"
-		else
-			echo "  pip install yt-dlp"
-		fi
-		exit 1
-	fi
+	# Check if yt-dlp is installed using helper
+	INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
+	just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
 
-	# Check if uv is installed
-	if ! command -v uv &> /dev/null; then
-		echo "{{RED}}Error: uv is not installed{{NORMAL}}"
-		echo ""
-		echo "Install with:"
-		echo "  curl -LsSf https://astral.sh/uv/install.sh | sh"
-		exit 1
-	fi
+	# Check if uv is installed using helper
+	just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
 
 	echo "{{GREEN}}Fetching YouTube videos...{{NORMAL}}"
 	uv run fetch-videos.py
@@ -792,14 +824,8 @@ youtube-status:
 	echo "{{GREEN}}YouTube Video Database Status{{NORMAL}}"
 	echo ""
 
-	# Show database file age
-	if [[ "$OSTYPE" == "darwin"* ]]; then
-		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	else
-		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	fi
+	# Show database file age using helper
+	just _show_db_age "$DB_FILE"
 
 	# Show last fetch time
 	LAST_FETCH=$(sqlite3 "$DB_FILE" "SELECT fetched_at FROM fetch_history ORDER BY id DESC LIMIT 1;" 2>/dev/null || echo "")
@@ -832,30 +858,18 @@ link-youtube-blog-posts DRY_RUN="--dry-run":
 	#!/usr/bin/env bash
 	set -euo pipefail
 
-	# Check if go is installed
-	if ! command -v go &> /dev/null; then
-		echo "{{RED}}Error: go is not installed{{NORMAL}}"
-		echo ""
-		echo "Install with:"
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "  brew install go"
-		else
-			echo "  https://go.dev/doc/install"
-		fi
-		exit 1
-	fi
+	# Check if go is installed using helper
+	INSTALL_CMD=$(just _get_install_cmd go golang-go)
+	just _require_command go "Install with:\n  $INSTALL_CMD\n  Or see: https://go.dev/doc/install"
 
 	# Check if gh CLI is installed (preferred for API access)
 	if ! command -v gh &> /dev/null; then
+		INSTALL_CMD=$(just _get_install_cmd gh gh)
 		echo "{{YELLOW}}Warning: gh CLI is not installed{{NORMAL}}"
 		echo "Using direct API calls (subject to rate limits)"
 		echo ""
 		echo "For better performance, install gh CLI:"
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "  brew install gh"
-		else
-			echo "  https://cli.github.com/manual/installation"
-		fi
+		echo "  $INSTALL_CMD"
 		echo ""
 	fi
 
@@ -876,18 +890,9 @@ generate-blog-posts DRY_RUN="--dry-run":
 	#!/usr/bin/env bash
 	set -euo pipefail
 
-	# Check if go is installed
-	if ! command -v go &> /dev/null; then
-		echo "{{RED}}Error: go is not installed{{NORMAL}}"
-		echo ""
-		echo "Install with:"
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			echo "  brew install go"
-		else
-			echo "  https://go.dev/doc/install"
-		fi
-		exit 1
-	fi
+	# Check if go is installed using helper
+	INSTALL_CMD=$(just _get_install_cmd go golang-go)
+	just _require_command go "Install with:\n  $INSTALL_CMD\n  Or see: https://go.dev/doc/install"
 
 	# Check if database exists
 	if [ ! -f "videos.db" ]; then
@@ -946,14 +951,8 @@ ccusage-stats:
 	echo "{{GREEN}}Claude Code Usage Statistics{{NORMAL}}"
 	echo ""
 
-	# Show database file age
-	if [[ "$OSTYPE" == "darwin"* ]]; then
-		FILE_AGE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M:%S" "$DB_FILE")
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	else
-		FILE_AGE=$(stat -c "%y" "$DB_FILE" | cut -d'.' -f1)
-		echo "{{YELLOW}}Database file modified:{{NORMAL}} $FILE_AGE"
-	fi
+	# Show database file age using helper
+	just _show_db_age "$DB_FILE"
 
 	# Show date range
 	echo ""
@@ -1032,33 +1031,13 @@ db-status:
 
 	# Process each database file
 	find . -name "*.db" -type f | sort | while IFS= read -r db; do
-		# Get file modification time
-		if [[ "$OSTYPE" == "darwin"* ]]; then
-			# macOS
-			MOD_TIME=$(stat -f "%m" "$db")
-			MOD_DATE=$(stat -f "%Sm" -t "%Y-%m-%d %H:%M" "$db")
-		else
-			# Linux
-			MOD_TIME=$(stat -c "%Y" "$db")
-			MOD_DATE=$(date -r "$db" "+%Y-%m-%d %H:%M")
-		fi
+		# Get file modification time using helper
+		MOD_TIME=$(just _file_mod_timestamp "$db")
+		MOD_DATE=$(just _file_mod_time "$db" | cut -d' ' -f1,2 | sed 's/:..$//')
 
-		# Calculate age in seconds
+		# Calculate age in seconds and format using helper
 		AGE_SECONDS=$((NOW - MOD_TIME))
-
-		# Convert to days/hours/minutes
-		DAYS=$((AGE_SECONDS / 86400))
-		HOURS=$(((AGE_SECONDS % 86400) / 3600))
-		MINUTES=$(((AGE_SECONDS % 3600) / 60))
-
-		# Format age string
-		if [ $DAYS -gt 0 ]; then
-			AGE_STR="${DAYS}d ${HOURS}h ${MINUTES}m"
-		elif [ $HOURS -gt 0 ]; then
-			AGE_STR="${HOURS}h ${MINUTES}m"
-		else
-			AGE_STR="${MINUTES}m"
-		fi
+		AGE_STR=$(just _format_age $AGE_SECONDS)
 
 		# Determine color based on path and age
 		# Blue: us-* databases and individuals/github-contrib/ (static/manual datasets)
