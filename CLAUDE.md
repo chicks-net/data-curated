@@ -47,6 +47,7 @@ imports modules from `.just/` directory:
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
 - `just analyze-powerball` - Analyze Powerball number frequency (requires R)
 - `just analyze-jackpots` - Analyze California lottery jackpot trends (requires R)
+- `just lottery-update-all` - Complete lottery update cycle: check status, download data, run all analyses, stage changes (requires being on a branch)
 
 ### Blog analysis commands
 
@@ -72,9 +73,11 @@ imports modules from `.just/` directory:
 - `just contribution-monthly [MONTHS]` - Show monthly contribution totals (default: 24 months)
 - `just contribution-streaks [LIMIT]` - Show longest contribution streaks (default: 10)
 - `just analyze-contributions` - Analyze contribution trends with visualizations (requires R)
+- `just analyze-commits` - Analyze commit patterns (by hour, emoji usage) with visualizations (requires R)
 - `just commits-db` - Open commits.db in Datasette browser
 - `just contributions-db` - Open contributions.db in Datasette browser
 - `just comments-db` - Open comments.db in Datasette browser
+- `just github-update-all` - Complete GitHub update cycle: fetch all data, run analyses, stage changes, show db status (requires being on a branch)
 
 ### R package management
 
