@@ -4,6 +4,11 @@ import? '.just/shellcheck.just'
 import? '.just/compliance.just'
 import? '.just/gh-process.just'
 
+# list recipes (default works without naming it)
+[group('example')]
+list:
+	just --list
+
 # ============================================================================
 # Helper Functions (hidden recipes for internal use)
 # ============================================================================
@@ -107,11 +112,6 @@ _show_db_age DB_PATH:
 # ============================================================================
 # User-visible recipes
 # ============================================================================
-
-# list recipes (default works without naming it)
-[group('example')]
-list:
-	just --list
 
 jackpot_database := "jackpots.db"
 
@@ -349,7 +349,7 @@ analyze-powerball:
 analyze-jackpots:
 	Rscript analyze-jackpots.R
 
-# Show the age of the jackpots database and when data was last updated
+# Lottery update cycle (once you are on a branch)
 [working-directory("lottery")]
 [group('lottery')]
 lottery-update-all: _check_lottery_deps _on_a_branch
@@ -727,6 +727,17 @@ contribution-streaks LIMIT="10":
 	HAVING COUNT(*) > 1
 	ORDER BY days DESC
 	LIMIT {{LIMIT}};"
+
+# Github update cycle (once you are on a branch)
+[group('github')]
+github-update-all: _on_a_branch
+	just fetch-commits
+	just analyze-commits
+	just fetch-contributions
+	just analyze-contributions
+	git add individuals/chicks/github
+	git stp
+	just db-status
 
 # View commits in Datasette
 [group('github')]
