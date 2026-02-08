@@ -576,6 +576,7 @@ gh api '/search/commits?q=author:USERNAME+author-date:2025-01-01..2025-12-31&sor
 ```
 
 The program automatically:
+
 - Divides history into yearly periods (2008-present)
 - Fetches each year sequentially with pagination
 - Subdivides busy years into quarters (4 periods)
