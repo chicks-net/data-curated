@@ -77,7 +77,9 @@ cat("Average per day:", round(mean(recent$contribution_count), 2), "\n")
 cat("Active days:", sum(recent$contribution_count > 0), "\n\n")
 
 # Create visualization
-cat("Creating contribution graph...\n")
+cat("Creating contribution graphs...\n\n")
+cat("Note: You may see warnings about 'Removed N rows containing missing values'.\n")
+cat("      These are expected - running averages need sufficient data points to calculate.\n\n")
 
 # Determine a reasonable date range for plotting (last 2 years by default)
 plot_start <- max(min(contributions$date), Sys.Date() - 730)  # 2 years
@@ -108,7 +110,7 @@ p <- ggplot(plot_data, aes(x = date)) +
   ) +
   # Labels and theme
   labs(
-    title = "GitHub Contributions Over Time for chicks-net",
+    title = "GitHub Contributions Over The Last Two Years For 'chicks-net'",
     subtitle = paste("Daily contributions with running averages"),
     x = "Date",
     y = "Contributions per Day",
