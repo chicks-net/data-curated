@@ -258,18 +258,23 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 			}
 
 			// Recursively fetch each sub-period
+
+		// Use separate counters for subdivision results to avoid double-counting
+		// the commits we fetched before realizing we needed to subdivide
+		subTotalFetched := 0
+		subNewCommits := 0
 			for _, subPeriod := range subPeriods {
 				subFetched, subNew, err := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
 				if err != nil {
 					log.Error().Err(err).Str("sub_period", subPeriod.Label).Msg("Error fetching sub-period")
 					continue
 				}
-				totalFetched += subFetched
-				newCommits += subNew
+				subTotalFetched += subFetched
+				subNewCommits += subNew
 			}
 
 			// Return after processing subdivisions
-			return totalFetched, newCommits, nil
+			return subTotalFetched, subNewCommits, nil
 		}
 
 		page++
