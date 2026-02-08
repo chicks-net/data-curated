@@ -4,6 +4,7 @@ import? '.just/shellcheck.just'
 import? '.just/compliance.just'
 import? '.just/gh-process.just'
 
+# this needs to be first in the file so that it acts as the defualt
 # list recipes (default works without naming it)
 [group('example')]
 list:
