@@ -244,8 +244,8 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 				// Quarter period - subdivide into months
 				log.Info().Str("period", period.Label).Msg(indent + "Subdividing quarter into months")
 				subPeriods = subdivideQuarterIntoMonths(period)
-			} else if len(period.Label) == 4 {
-				// Year period - subdivide into quarters
+			} else if !strings.Contains(period.Label, "-") {
+				// Year period (no dash in label) - subdivide into quarters
 				year := period.Start.Year()
 				log.Info().Str("period", period.Label).Msg(indent + "Subdividing year into quarters")
 				subPeriods = subdivideYearIntoQuarters(year)
@@ -259,8 +259,7 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 
 			// Recursively fetch each sub-period
 
-		// Use separate counters for subdivision results to avoid double-counting
-		// the commits we fetched before realizing we needed to subdivide
+		// Use separate counters for subdivision results
 		subTotalFetched := 0
 		subNewCommits := 0
 			for _, subPeriod := range subPeriods {
@@ -273,8 +272,8 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 				subNewCommits += subNew
 			}
 
-			// Return after processing subdivisions
-			return subTotalFetched, subNewCommits, nil
+			// Return combined totals including commits fetched before subdivision
+			return totalFetched + subTotalFetched, newCommits + subNewCommits, nil
 		}
 
 		page++
