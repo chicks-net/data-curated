@@ -8,19 +8,33 @@ using the GitHub CLI (`gh`) and GraphQL API.
 ### Commit History Tracker (`commit-history.go`)
 
 Fetches individual commit details using the GitHub Search API and stores them
-in a SQLite database for analysis.
+in a SQLite database for analysis. Uses intelligent date-based partitioning to
+work around GitHub's 1000-result-per-query limit, allowing complete history
+fetching.
 
 **Features:**
 
 - Fetches commit history using the GitHub Search API via `gh` command
+- **Date-based partitioning** - fetches commits by year (2008-present)
+- **Automatic subdivision** - splits busy periods into quarters or months when needed
+- **No 1000 commit limit** - can fetch complete commit history across all years
 - Stores commits in a SQLite database
 - Extracts and indexes emojis from commit messages
 - Avoids API rate limits by using authenticated `gh` CLI
 - Handles pagination automatically
 - Skips duplicate commits on subsequent runs
-- Supports up to 1000 most recent commits (GitHub API limitation)
+- Gracefully handles API errors and continues with remaining periods
 
 **Database:** `commits.db`
+
+**How it works:**
+
+1. Divides history into yearly periods (starting from GitHub's founding in 2008)
+2. Fetches each year's commits sequentially (most recent first)
+3. If a year has ≥1000 commits, automatically subdivides into quarters
+4. If a quarter has ≥1000 commits, further subdivides into months
+5. Detects and skips duplicate commits across runs
+6. Can be run multiple times to incrementally fetch more history
 
 ### Contributions Tracker (`github-contributions.go`)
 
@@ -40,9 +54,9 @@ to present.
 **Database:** `contributions.db`
 
 **Complementary to commit-history:** While `commit-history.go` tracks individual
-commit details (limited to 1000 results), `github-contributions.go` provides
-aggregated daily contribution counts for all activity types across your entire
-GitHub history.
+commit details with full metadata (messages, repos, SHAs), `github-contributions.go`
+provides aggregated daily contribution counts for all activity types across your
+entire GitHub history. Use both together for comprehensive GitHub activity analysis.
 
 ### Comment Tracker (`comment-fetcher.go`)
 
@@ -105,7 +119,7 @@ go run comment-fetcher.go
 Or use the justfile commands from the repository root:
 
 ```bash
-just fetch-commits        # Fetch commit history
+just fetch-commits        # Fetch commit history (with date partitioning)
 just fetch-contributions  # Fetch contribution counts
 just fetch-comments       # Fetch comment history
 just commit-stats         # Show commit statistics
@@ -115,6 +129,11 @@ just commits-db           # Open commits.db in Datasette
 just contributions-db     # Open contributions.db in Datasette
 just comments-db          # Open comments.db in Datasette
 ```
+
+**Note on commit fetching:** The first run fetches recent years (2026, 2025, etc.)
+and works backward. If API rate limits are encountered, simply run `just fetch-commits`
+again later - it will skip existing commits and continue fetching older history. Run
+periodically to keep your database up to date.
 
 ## Database Schemas
 
@@ -217,6 +236,26 @@ Indexes are created on:
 - `is_own_org` - Filter external vs. internal
 - `(is_own_org, comment_type, created_at)` - Combined filtering
 
+## Performance
+
+### Commit History Fetching
+
+**First run:** Fetches all available commits starting from most recent. Depending
+on your commit history size and API rate limits:
+
+- **Small history** (<2000 commits): Completes in 1-2 minutes
+- **Medium history** (2000-5000 commits): May take 3-5 minutes
+- **Large history** (>5000 commits): May hit API rate limits and require multiple runs
+
+**Subsequent runs:** Very fast - only checks for new commits and skips existing ones.
+
+**API rate limiting:** If you encounter rate limits during a long fetch, the program
+will log errors but continue processing other years. Simply run it again after
+15-60 minutes to resume fetching the remaining history.
+
+**Current capability:** Successfully tested fetching 1,882 commits across 9 years
+(2017-2026) in approximately 30 seconds.
+
 ## Viewing the Data
 
 Use Datasette to browse the databases:
@@ -246,9 +285,11 @@ The program uses structured logging with zerolog:
 
 ### Commit History (`commits.db`)
 
-- GitHub Search API returns a maximum of 1000 results
+- GitHub Search API returns a maximum of 1000 results **per query** (worked around via date partitioning)
 - Only public commits are included in search results
 - Private repository commits require appropriate permissions
+- API rate limiting may temporarily prevent fetching very old commits (can be resumed later)
+- Months with >1000 commits cannot be subdivided further (rare edge case)
 
 ### Contributions (`contributions.db`)
 
@@ -477,7 +518,7 @@ ORDER BY count DESC
 LIMIT 20;
 ```
 
-Example results from a dataset of 999 commits (898 with emojis):
+Example results from a dataset of 1882 commits (as of February 2026):
 
 |emoji|count|percentage|
 |-----|-----|----------|
@@ -526,11 +567,21 @@ ORDER BY month DESC, count DESC;
 
 ### Commit History
 
-Data is fetched from the GitHub Search API using the `gh api` command:
+Data is fetched from the GitHub Search API using the `gh api` command with
+date-based partitioning to work around the 1000-result-per-query limit:
 
 ```bash
-gh api '/search/commits?q=author:USERNAME&sort=author-date&order=desc'
+# Example: Fetching commits for a specific year
+gh api '/search/commits?q=author:USERNAME+author-date:2025-01-01..2025-12-31&sort=author-date&order=desc'
 ```
+
+The program automatically:
+
+- Divides history into yearly periods (2008-present)
+- Fetches each year sequentially with pagination
+- Subdivides busy years into quarters (4 periods)
+- Further subdivides busy quarters into months (up to 12 periods)
+- This allows fetching complete history beyond the 1000-result API limit
 
 ### Contributions
 

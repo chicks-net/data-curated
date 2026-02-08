@@ -48,7 +48,8 @@
       "Bash(just link-youtube-blog-posts:*)",
       "Bash(just generate-blog-posts:*)",
       "Bash(just _format_age:*)",
-      "Bash(just jackpot-status:*)"
+      "Bash(just jackpot-status:*)",
+      "Bash(just fetch-commits:*)"
     ],
     "deny": [],
     "ask": []

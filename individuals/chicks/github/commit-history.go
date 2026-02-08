@@ -25,7 +25,15 @@ const (
 	DateFormatShort     = "2006-01-02"
 	EnvJSONLogs         = "JSON_LOGS"
 	EnvJSONLogsValue    = "true"
+	GitHubStartYear     = 2008 // Year GitHub was founded
 )
+
+// TimePeriod represents a time range for fetching commits
+type TimePeriod struct {
+	Start time.Time
+	End   time.Time
+	Label string
+}
 
 // CommitSearchResponse represents the GitHub API response for commit search
 type CommitSearchResponse struct {
@@ -74,6 +82,205 @@ type CommitRecord struct {
 	FetchedAt      time.Time
 }
 
+// generateYearlyPeriods creates time periods for each year from start to end
+func generateYearlyPeriods(startYear, endYear int) []TimePeriod {
+	var periods []TimePeriod
+	for year := endYear; year >= startYear; year-- {
+		start := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+		end := time.Date(year, 12, 31, 23, 59, 59, 0, time.UTC)
+		periods = append(periods, TimePeriod{
+			Start: start,
+			End:   end,
+			Label: fmt.Sprintf("%d", year),
+		})
+	}
+	return periods
+}
+
+// subdivideYearIntoQuarters splits a year into 4 quarterly periods
+func subdivideYearIntoQuarters(year int) []TimePeriod {
+	quarters := []TimePeriod{
+		{
+			Start: time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(year, 3, 31, 23, 59, 59, 0, time.UTC),
+			Label: fmt.Sprintf("%d-Q1", year),
+		},
+		{
+			Start: time.Date(year, 4, 1, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(year, 6, 30, 23, 59, 59, 0, time.UTC),
+			Label: fmt.Sprintf("%d-Q2", year),
+		},
+		{
+			Start: time.Date(year, 7, 1, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(year, 9, 30, 23, 59, 59, 0, time.UTC),
+			Label: fmt.Sprintf("%d-Q3", year),
+		},
+		{
+			Start: time.Date(year, 10, 1, 0, 0, 0, 0, time.UTC),
+			End:   time.Date(year, 12, 31, 23, 59, 59, 0, time.UTC),
+			Label: fmt.Sprintf("%d-Q4", year),
+		},
+	}
+	return quarters
+}
+
+// subdivideQuarterIntoMonths splits a quarter into monthly periods
+func subdivideQuarterIntoMonths(period TimePeriod) []TimePeriod {
+	var months []TimePeriod
+	current := period.Start
+	for current.Before(period.End) {
+		year, month, _ := current.Date()
+		start := time.Date(year, month, 1, 0, 0, 0, 0, time.UTC)
+		end := start.AddDate(0, 1, 0).Add(-time.Second)
+		if end.After(period.End) {
+			end = period.End
+		}
+		months = append(months, TimePeriod{
+			Start: start,
+			End:   end,
+			Label: fmt.Sprintf("%d-%02d", year, month),
+		})
+		current = start.AddDate(0, 1, 0)
+	}
+	return months
+}
+
+// fetchCommitsForPeriod fetches all commits for a time period, subdividing if necessary
+func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth int) (int, int, error) {
+	indent := strings.Repeat("  ", depth)
+	log.Info().
+		Str("period", period.Label).
+		Str("start", period.Start.Format(DateFormatShort)).
+		Str("end", period.End.Format(DateFormatShort)).
+		Msg(indent + "Fetching commits for period")
+
+	page := InitialPage
+	perPage := CommitsPerPage
+	totalFetched := 0
+	newCommits := 0
+
+	for {
+		commits, totalCount, err := fetchCommits(username, page, perPage, &period)
+		if err != nil {
+			return totalFetched, newCommits, fmt.Errorf("error fetching commits: %w", err)
+		}
+
+		if len(commits) == 0 {
+			log.Debug().Str("period", period.Label).Msg(indent + "No more commits for period")
+			break
+		}
+
+		// Save commits to database
+		for _, commit := range commits {
+			exists, err := commitExists(db, commit.SHA)
+			if err != nil {
+				log.Error().Err(err).Str("sha", commit.SHA).Msg("Error checking if commit exists")
+				continue
+			}
+
+			if exists {
+				log.Debug().Str("sha", commit.SHA[:SHALogLength]).Msg("Commit already exists, skipping")
+				continue
+			}
+
+			record := &CommitRecord{
+				SHA:            commit.SHA,
+				AuthorName:     commit.Commit.Author.Name,
+				AuthorEmail:    commit.Commit.Author.Email,
+				AuthorDate:     commit.Commit.Author.Date,
+				CommitterName:  commit.Commit.Committer.Name,
+				CommitterEmail: commit.Commit.Committer.Email,
+				CommitterDate:  commit.Commit.Committer.Date,
+				Message:        commit.Commit.Message,
+				Emoji:          extractEmoji(commit.Commit.Message),
+				RepoName:       commit.Repository.Name,
+				RepoFullName:   commit.Repository.FullName,
+				HTMLURL:        commit.HTMLURL,
+				FetchedAt:      time.Now().UTC(),
+			}
+
+			if err := saveCommit(db, record); err != nil {
+				log.Error().Err(err).Str("sha", commit.SHA).Msg("Error saving commit")
+			} else {
+				newCommits++
+				log.Debug().
+					Str("sha", commit.SHA[:SHALogLength]).
+					Str("repo", commit.Repository.FullName).
+					Str("date", commit.Commit.Author.Date.Format(DateFormatShort)).
+					Msg("Saved commit")
+			}
+		}
+
+		totalFetched += len(commits)
+		log.Debug().
+			Str("period", period.Label).
+			Int("page", page).
+			Int("fetched", len(commits)).
+			Int("total_fetched", totalFetched).
+			Int("new_commits", newCommits).
+			Int("total_available", totalCount).
+			Msg(indent + "Page processed")
+
+		// Check if we've fetched all commits for this period
+		if totalFetched >= totalCount {
+			log.Info().
+				Str("period", period.Label).
+				Int("total_fetched", totalFetched).
+				Int("new_commits", newCommits).
+				Msg(indent + "All commits fetched for period")
+			break
+		}
+
+		// Check if we're hitting the GitHub search API limit
+		if totalCount >= GitHubAPILimit && totalFetched >= GitHubAPILimit {
+			log.Warn().
+				Str("period", period.Label).
+				Int("limit", GitHubAPILimit).
+				Msg(indent + "Hit GitHub search API limit, need to subdivide")
+
+			// Subdivide based on current period type
+			var subPeriods []TimePeriod
+			if strings.Contains(period.Label, "-Q") {
+				// Quarter period - subdivide into months
+				log.Info().Str("period", period.Label).Msg(indent + "Subdividing quarter into months")
+				subPeriods = subdivideQuarterIntoMonths(period)
+			} else if !strings.Contains(period.Label, "-") {
+				// Year period (no dash in label) - subdivide into quarters
+				year := period.Start.Year()
+				log.Info().Str("period", period.Label).Msg(indent + "Subdividing year into quarters")
+				subPeriods = subdivideYearIntoQuarters(year)
+			} else {
+				// Month period - can't subdivide further
+				log.Warn().
+					Str("period", period.Label).
+					Msg(indent + "Cannot subdivide month further, fetching what we can")
+				break
+			}
+
+			// Recursively fetch each sub-period
+			// Use separate counters for subdivision results
+			subTotalFetched := 0
+			subNewCommits := 0
+			for _, subPeriod := range subPeriods {
+				subFetched, subNew, err := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
+				if err != nil {
+					log.Error().Err(err).Str("sub_period", subPeriod.Label).Msg("Error fetching sub-period")
+					continue
+				}
+				subTotalFetched += subFetched
+				subNewCommits += subNew
+			}
+
+			// Return combined totals including commits fetched before subdivision
+			return totalFetched + subTotalFetched, newCommits + subNewCommits, nil
+		}
+
+		page++
+	}
+
+	return totalFetched, newCommits, nil
+}
+
 func main() {
 	// Configure logging
 	zerolog.TimestampFunc = func() time.Time {
@@ -116,91 +323,35 @@ func main() {
 	}
 	log.Info().Str("username", username).Msg("Retrieved GitHub username")
 
-	// Fetch commits with pagination
-	page := InitialPage
-	perPage := CommitsPerPage
+	// Fetch commits using date-based partitioning
+	currentYear := time.Now().UTC().Year()
+	periods := generateYearlyPeriods(GitHubStartYear, currentYear)
+
 	totalFetched := 0
 	newCommits := 0
 
-	for {
-		log.Info().Int("page", page).Msg("Fetching commits")
+	log.Info().
+		Int("start_year", GitHubStartYear).
+		Int("end_year", currentYear).
+		Int("periods", len(periods)).
+		Msg("Starting date-partitioned fetch")
 
-		commits, totalCount, err := fetchCommits(username, page, perPage)
+	for _, period := range periods {
+		fetched, new, err := fetchCommitsForPeriod(db, username, period, 0)
 		if err != nil {
-			log.Error().Err(err).Int("page", page).Msg("Error fetching commits")
-			break
+			log.Error().Err(err).Str("period", period.Label).Msg("Error fetching period")
+			continue
 		}
+		totalFetched += fetched
+		newCommits += new
 
-		if len(commits) == 0 {
-			log.Info().Msg("No more commits to fetch")
-			break
-		}
-
-		// Save commits to database
-		for _, commit := range commits {
-			exists, err := commitExists(db, commit.SHA)
-			if err != nil {
-				log.Error().Err(err).Str("sha", commit.SHA).Msg("Error checking if commit exists")
-				continue
-			}
-
-			if exists {
-				log.Debug().Str("sha", commit.SHA).Msg("Commit already exists, skipping")
-				continue
-			}
-
-			record := &CommitRecord{
-				SHA:            commit.SHA,
-				AuthorName:     commit.Commit.Author.Name,
-				AuthorEmail:    commit.Commit.Author.Email,
-				AuthorDate:     commit.Commit.Author.Date,
-				CommitterName:  commit.Commit.Committer.Name,
-				CommitterEmail: commit.Commit.Committer.Email,
-				CommitterDate:  commit.Commit.Committer.Date,
-				Message:        commit.Commit.Message,
-				Emoji:          extractEmoji(commit.Commit.Message),
-				RepoName:       commit.Repository.Name,
-				RepoFullName:   commit.Repository.FullName,
-				HTMLURL:        commit.HTMLURL,
-				FetchedAt:      time.Now().UTC(),
-			}
-
-			if err := saveCommit(db, record); err != nil {
-				log.Error().Err(err).Str("sha", commit.SHA).Msg("Error saving commit")
-			} else {
-				newCommits++
-				log.Debug().
-					Str("sha", commit.SHA[:SHALogLength]).
-					Str("repo", commit.Repository.FullName).
-					Str("date", commit.Commit.Author.Date.Format(DateFormatShort)).
-					Msg("Saved commit")
-			}
-		}
-
-		totalFetched += len(commits)
 		log.Info().
-			Int("page", page).
-			Int("fetched", len(commits)).
+			Str("period", period.Label).
+			Int("period_fetched", fetched).
+			Int("period_new", new).
 			Int("total_fetched", totalFetched).
-			Int("new_commits", newCommits).
-			Int("total_available", totalCount).
-			Msg("Page processed")
-
-		// Check if we've fetched all commits
-		if totalFetched >= totalCount {
-			log.Info().Msg("All commits fetched")
-			break
-		}
-
-		// GitHub search API has a limit
-		if totalFetched >= GitHubAPILimit {
-			log.Warn().
-				Int("limit", GitHubAPILimit).
-				Msg("Reached GitHub search API limit")
-			break
-		}
-
-		page++
+			Int("total_new", newCommits).
+			Msg("Period completed")
 	}
 
 	log.Info().
@@ -262,11 +413,26 @@ func getGitHubUsername() (string, error) {
 	return username, nil
 }
 
-func fetchCommits(username string, page, perPage int) ([]CommitResult, int, error) {
+func fetchCommits(username string, page, perPage int, period *TimePeriod) ([]CommitResult, int, error) {
 	// Use gh api to search for commits
 	query := fmt.Sprintf("author:%s", username)
+
+	// Add date range to query if period is specified
+	if period != nil {
+		dateRange := fmt.Sprintf("%s..%s",
+			period.Start.Format(DateFormatShort),
+			period.End.Format(DateFormatShort))
+		// Use + for URL encoding of spaces in query
+		query = fmt.Sprintf("%s+author-date:%s", query, dateRange)
+	}
+
 	apiURL := fmt.Sprintf("/search/commits?q=%s&sort=author-date&order=desc&per_page=%d&page=%d",
 		query, perPage, page)
+
+	log.Debug().
+		Str("query", query).
+		Str("api_url", apiURL).
+		Msg("Making API request")
 
 	cmd := exec.Command("gh", "api", apiURL)
 	output, err := cmd.Output()
