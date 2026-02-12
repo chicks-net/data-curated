@@ -11,6 +11,9 @@ library(dplyr)
 library(zoo)
 library(lubridate)
 library(scales)
+library(png)
+library(jpeg)
+library(grid)
 
 # Database path (relative to script location)
 db_path <- "../contributions.db"
@@ -180,6 +183,26 @@ jobs_filtered <- jobs %>%
     fill_color = ifelse(job_index %% 2 == 0, "#7B9FCC", "#C8BFB0")
   )
 
+# Load logo images for companies that have them
+logos_dir <- "../../jobs/"
+logo_files <- list(
+  "OpenX" = file.path(logos_dir, "openx-logo.png"),
+  "Telmate" = file.path(logos_dir, "telmate-logo-transparent.png"),
+  "Tubi" = file.path(logos_dir, "Tubi_logo_2024_purple.png")
+)
+logos <- list()
+for (company in names(logo_files)) {
+  if (file.exists(logo_files[[company]])) {
+    ext <- tolower(tools::file_ext(logo_files[[company]]))
+    if (ext == "jpg" || ext == "jpeg") {
+      logos[[company]] <- readJPEG(logo_files[[company]])
+    } else if (ext == "png") {
+      logos[[company]] <- readPNG(logo_files[[company]])
+    }
+  }
+}
+jobs_filtered$has_logo <- jobs_filtered$Company %in% names(logos)
+
 p2 <- ggplot(weekly_data, aes(x = week)) +
   # Employment periods - drawn first, behind everything else
   geom_rect(data = jobs_filtered,
@@ -189,8 +212,8 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
             alpha = 0.20,
             inherit.aes = FALSE) +
   scale_fill_identity() +
-  # Company labels (all companies)
-  geom_text(data = jobs_filtered,
+  # Company labels (text for companies without logos)
+  geom_text(data = subset(jobs_filtered, !has_logo),
             aes(x = midpoint,
                 y = max(weekly_data$contributions, na.rm = TRUE) * 0.95,
                 label = Company),
@@ -200,7 +223,43 @@ p2 <- ggplot(weekly_data, aes(x = week)) +
             size = 2.875,
             color = "gray30",
             alpha = 0.6,
-            inherit.aes = FALSE) +
+            inherit.aes = FALSE)
+
+# Add logos to p2
+plot_max_y <- max(weekly_data$contributions, na.rm = TRUE)
+for (company in names(logos)) {
+  job_row <- jobs_filtered[jobs_filtered$Company == company, ]
+  if (nrow(job_row) > 0) {
+    img <- logos[[company]]
+    img_grob <- rasterGrob(img, interpolate = TRUE)
+    x_pos <- job_row$midpoint
+    # Telmate logo is smaller and needs label
+    if (company == "Telmate") {
+      logo_height <- plot_max_y * 0.24
+      logo_y <- plot_max_y * 0.92
+    } else {
+      logo_height <- plot_max_y * 0.60
+      logo_y <- plot_max_y * 0.90
+    }
+    p2 <- p2 + annotation_custom(img_grob,
+                                  xmin = x_pos - 120, xmax = x_pos + 120,
+                                  ymin = logo_y - logo_height, ymax = logo_y)
+  }
+}
+
+# Add Telmate text label to p2
+telmate_row <- jobs_filtered[jobs_filtered$Company == "Telmate", ]
+if (nrow(telmate_row) > 0) {
+  p2 <- p2 + annotate("text",
+                       x = telmate_row$midpoint,
+                       y = plot_max_y * 0.96,
+                       label = "Telmate",
+                       size = 3,
+                       color = "gray30",
+                       alpha = 0.7)
+}
+
+p2 <- p2 +
   # Weekly bars
   geom_col(aes(y = contributions),
            alpha = 0.3,
@@ -308,8 +367,8 @@ p3 <- ggplot(monthly_data, aes(x = month)) +
             alpha = 0.20,
             inherit.aes = FALSE) +
   scale_fill_identity() +
-  # Company labels
-  geom_text(data = jobs_filtered,
+  # Company labels (text for companies without logos)
+  geom_text(data = subset(jobs_filtered, !has_logo),
             aes(x = midpoint,
                 y = max(monthly_data$contributions, na.rm = TRUE) * 0.95,
                 label = Company),
@@ -319,7 +378,43 @@ p3 <- ggplot(monthly_data, aes(x = month)) +
             size = 2.875,
             color = "gray30",
             alpha = 0.6,
-            inherit.aes = FALSE) +
+            inherit.aes = FALSE)
+
+# Add logos to p3
+plot_max_y <- max(monthly_data$contributions, na.rm = TRUE)
+for (company in names(logos)) {
+  job_row <- jobs_filtered[jobs_filtered$Company == company, ]
+  if (nrow(job_row) > 0) {
+    img <- logos[[company]]
+    img_grob <- rasterGrob(img, interpolate = TRUE)
+    x_pos <- job_row$midpoint
+    # Telmate logo is smaller and needs label
+    if (company == "Telmate") {
+      logo_height <- plot_max_y * 0.24
+      logo_y <- plot_max_y * 0.92
+    } else {
+      logo_height <- plot_max_y * 0.60
+      logo_y <- plot_max_y * 0.90
+    }
+    p3 <- p3 + annotation_custom(img_grob,
+                                  xmin = x_pos - 120, xmax = x_pos + 120,
+                                  ymin = logo_y - logo_height, ymax = logo_y)
+  }
+}
+
+# Add Telmate text label to p3
+telmate_row <- jobs_filtered[jobs_filtered$Company == "Telmate", ]
+if (nrow(telmate_row) > 0) {
+  p3 <- p3 + annotate("text",
+                       x = telmate_row$midpoint,
+                       y = plot_max_y * 0.96,
+                       label = "Telmate",
+                       size = 3,
+                       color = "gray30",
+                       alpha = 0.7)
+}
+
+p3 <- p3 +
   # Monthly bars
   geom_col(aes(y = contributions),
            alpha = 0.6,

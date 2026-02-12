@@ -382,6 +382,8 @@ install-r-deps:
 		"lubridate"  # Date handling in jackpots and contributions analysis
 		"scales"     # Number formatting in plots
 		"censusapi"  # Census Bureau API access for restaurant analysis
+		"png"        # PNG image reading for logos in contributions analysis
+		"jpeg"       # JPEG image reading for logos in contributions analysis
 	)
 
 	echo "{{BLUE}}Packages to check/install:{{NORMAL}}"
