@@ -22,23 +22,23 @@ var ownOrgs = []string{"chicks-net", "fini-net"}
 
 // CommentRecord represents a comment from GitHub
 type CommentRecord struct {
-	CommentID      string
-	CommentType    string
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	Body           string
-	BodyText       string
-	RepoFullName   string
-	RepoOwner      string
-	RepoOwnerType  string
-	IssueNumber    *int
-	IssueTitle     *string
-	IsPullRequest  *bool
-	CommitOID      *string
+	CommentID       string
+	CommentType     string
+	CreatedAt       time.Time
+	UpdatedAt       time.Time
+	Body            string
+	BodyText        string
+	RepoFullName    string
+	RepoOwner       string
+	RepoOwnerType   string
+	IssueNumber     *int
+	IssueTitle      *string
+	IsPullRequest   *bool
+	CommitOID       *string
 	DiscussionTitle *string
-	GistID         *string
-	HTMLURL        string
-	IsOwnOrg       bool
+	GistID          *string
+	HTMLURL         string
+	IsOwnOrg        bool
 }
 
 func main() {
@@ -220,7 +220,7 @@ func fetchIssueComments(db *sql.DB, username string) error {
 	query := `
 	query($login: String!, $cursor: String) {
 		user(login: $login) {
-			issueComments(first: 100, after: $cursor, orderBy: {field: UPDATED_AT, direction: ASC}) {
+			issueComments(first: 100, after: $cursor, orderBy: {field: UPDATED_AT, direction: DESC}) {
 				totalCount
 				pageInfo {
 					hasNextPage
@@ -281,15 +281,15 @@ func fetchIssueComments(db *sql.DB, username string) error {
 							EndCursor   string
 						}
 						Nodes []struct {
-							ID        string
-							CreatedAt string
-							UpdatedAt string
-							Body      string
-							BodyText  string
-							URL       string
+							ID         string
+							CreatedAt  string
+							UpdatedAt  string
+							Body       string
+							BodyText   string
+							URL        string
 							Repository struct {
 								NameWithOwner string
-								Owner struct {
+								Owner         struct {
 									Login    string
 									Typename string `json:"__typename"`
 								}
@@ -448,7 +448,7 @@ func fetchCommitComments(db *sql.DB, username string) error {
 							}
 							Repository struct {
 								NameWithOwner string
-								Owner struct {
+								Owner         struct {
 									Login    string
 									Typename string `json:"__typename"`
 								}
@@ -584,17 +584,17 @@ func fetchDiscussionComments(db *sql.DB, username string) error {
 							EndCursor   string
 						}
 						Nodes []struct {
-							ID        string
-							CreatedAt string
-							UpdatedAt string
-							Body      string
-							BodyText  string
-							URL       string
+							ID         string
+							CreatedAt  string
+							UpdatedAt  string
+							Body       string
+							BodyText   string
+							URL        string
 							Discussion struct {
 								Title      string
 								Repository struct {
 									NameWithOwner string
-									Owner struct {
+									Owner         struct {
 										Login    string
 										Typename string `json:"__typename"`
 									}
