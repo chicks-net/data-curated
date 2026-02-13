@@ -15,7 +15,7 @@ fetching.
 **Features:**
 
 - Fetches commit history using the GitHub Search API via `gh` command
-- **Date-based partitioning** - fetches commits by year (2008-present)
+- **Date-based partitioning** - fetches commits by year (2020-present)
 - **Automatic subdivision** - splits busy periods into quarters or months when needed
 - **No 1000 commit limit** - can fetch complete commit history across all years
 - Stores commits in a SQLite database
@@ -29,12 +29,43 @@ fetching.
 
 **How it works:**
 
-1. Divides history into yearly periods (starting from GitHub's founding in 2008)
+1. Divides history into yearly periods (2020-present; Search API limit)
 2. Fetches each year's commits sequentially (most recent first)
 3. If a year has ≥1000 commits, automatically subdivides into quarters
 4. If a quarter has ≥1000 commits, further subdivides into months
 5. Detects and skips duplicate commits across runs
 6. Can be run multiple times to incrementally fetch more history
+
+**Note:** For commits before 2020, use `historical-commits.go` which uses a
+hybrid GraphQL+REST approach to fetch pre-Search-API commits.
+
+### Historical Commits Tracker (`historical-commits.go`)
+
+Fetches commit history from 2008-2019 using a hybrid GraphQL+REST approach. This
+addresses a limitation of the GitHub Search API, which only indexes commits from
+~2017 onwards.
+
+**Features:**
+
+- **GraphQL discovery** - Identifies repositories with commits for each year
+- **REST API fetching** - Retrieves individual commits from each discovered repo
+- Works around GitHub Search API's pre-2020 limitation
+- Stores in the shared `commits.db` database
+- Automatic deduplication by SHA hash
+- Extracts emojis from historical commit messages
+
+**Database:** `commits.db` (shared with `commit-history.go`)
+
+**How it works:**
+
+1. For each year from 2016 down to 2008:
+   - Uses GraphQL `commitContributionsByRepository` to discover repos with commits
+   - Queries REST API `/repos/{owner}/{repo}/commits` for each repo
+   - Stores commits in `commits.db` with deduplication
+
+**Why needed:** The GitHub Search API's `/search/commits` endpoint only provides
+results from approximately 2017 onwards. For pre-2017 commit history, this hybrid
+approach combines GraphQL repo discovery with REST API commit fetching.
 
 ### Contributions Tracker (`github-contributions.go`)
 
@@ -104,6 +135,12 @@ go mod download
 go run commit-history.go
 ```
 
+### Fetch Historical Commits (2008-2016)
+
+```bash
+go run historical-commits.go
+```
+
 ### Fetch Contribution Counts
 
 ```bash
@@ -119,21 +156,22 @@ go run comment-fetcher.go
 Or use the justfile commands from the repository root:
 
 ```bash
-just fetch-commits        # Fetch commit history (with date partitioning)
-just fetch-contributions  # Fetch contribution counts
-just fetch-comments       # Fetch comment history
-just commit-stats         # Show commit statistics
-just contribution-stats   # Show contribution statistics
+just fetch-commits              # Fetch commit history (2020-present)
+just fetch-historical-commits   # Fetch historical commits (2008-2019)
+just fetch-contributions        # Fetch contribution counts
+just fetch-comments             # Fetch comment history
+just commit-stats               # Show commit statistics
+just contribution-stats         # Show contribution statistics
 just comment-stats        # Show comment statistics
 just commits-db           # Open commits.db in Datasette
 just contributions-db     # Open contributions.db in Datasette
 just comments-db          # Open comments.db in Datasette
 ```
 
-**Note on commit fetching:** The first run fetches recent years (2026, 2025, etc.)
-and works backward. If API rate limits are encountered, simply run `just fetch-commits`
-again later - it will skip existing commits and continue fetching older history. Run
-periodically to keep your database up to date.
+**Note on commit fetching:** Run `just fetch-commits` for 2020-present commits
+via Search API, and `just fetch-historical-commits` for 2008-2019 commits via
+GraphQL+REST. Both store in the same `commits.db` with deduplication by SHA.
+Run periodically to keep your database up to date.
 
 ## Database Schemas
 
@@ -286,10 +324,17 @@ The program uses structured logging with zerolog:
 ### Commit History (`commits.db`)
 
 - GitHub Search API returns a maximum of 1000 results **per query** (worked around via date partitioning)
+- GitHub Search API only indexes commits from ~2017 onwards (use `historical-commits.go` for pre-2017)
 - Only public commits are included in search results
 - Private repository commits require appropriate permissions
 - API rate limiting may temporarily prevent fetching very old commits (can be resumed later)
 - Months with >1000 commits cannot be subdivided further (rare edge case)
+
+### Historical Commits (`historical-commits.go`)
+
+- Only fetches commits from repos discovered via GraphQL (should cover all repos you contributed to)
+- Maximum 100 repos per year (extremely unlikely to hit this limit)
+- Only public repositories are accessible via REST API
 
 ### Contributions (`contributions.db`)
 

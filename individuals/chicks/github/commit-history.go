@@ -17,15 +17,15 @@ import (
 
 const (
 	// GitHub API configuration
-	CommitsPerPage      = 100  // Number of commits to fetch per API request
-	GitHubAPILimit      = 1000 // Maximum results returned by GitHub Search API
-	SHALogLength        = 7    // Number of SHA characters to display in logs
-	DatabaseFile        = "./commits.db"
-	InitialPage         = 1 // Starting page number for pagination
-	DateFormatShort     = "2006-01-02"
-	EnvJSONLogs         = "JSON_LOGS"
-	EnvJSONLogsValue    = "true"
-	GitHubStartYear     = 2008 // Year GitHub was founded
+	CommitsPerPage     = 100  // Number of commits to fetch per API request
+	GitHubAPILimit     = 1000 // Maximum results returned by GitHub Search API
+	SHALogLength       = 7    // Number of SHA characters to display in logs
+	DatabaseFile       = "./commits.db"
+	InitialPage        = 1 // Starting page number for pagination
+	DateFormatShort    = "2006-01-02"
+	EnvJSONLogs        = "JSON_LOGS"
+	EnvJSONLogsValue   = "true"
+	SearchAPIStartYear = 2020 // GitHub Search API only indexes commits reliably from ~2017, use historical-commits.go for pre-2020
 )
 
 // TimePeriod represents a time range for fetching commits
@@ -325,16 +325,16 @@ func main() {
 
 	// Fetch commits using date-based partitioning
 	currentYear := time.Now().UTC().Year()
-	periods := generateYearlyPeriods(GitHubStartYear, currentYear)
+	periods := generateYearlyPeriods(SearchAPIStartYear, currentYear)
 
 	totalFetched := 0
 	newCommits := 0
 
 	log.Info().
-		Int("start_year", GitHubStartYear).
+		Int("start_year", SearchAPIStartYear).
 		Int("end_year", currentYear).
 		Int("periods", len(periods)).
-		Msg("Starting date-partitioned fetch")
+		Msg("Starting date-partitioned fetch (use historical-commits.go for pre-2020)")
 
 	for _, period := range periods {
 		fetched, new, err := fetchCommitsForPeriod(db, username, period, 0)
