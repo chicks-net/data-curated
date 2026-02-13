@@ -595,13 +595,13 @@ fetch-commits:
 	echo "Fetching GitHub commit history..."
 	go run commit-history.go
 
-# Fetch historical GitHub commits (2008-2016) via REST API
+# Fetch historical GitHub commits (2008-2019) via REST API
 [working-directory("individuals/chicks/github")]
 [group('github')]
 fetch-historical-commits:
 	#!/usr/bin/env bash
 	set -euo pipefail
-	echo "Fetching historical GitHub commits (2008-2016)..."
+	echo "Fetching historical GitHub commits (2008-2019)..."
 	go run historical-commits.go
 
 [working-directory("individuals/chicks/github/commits-analysis")]

@@ -135,7 +135,7 @@ go mod download
 go run commit-history.go
 ```
 
-### Fetch Historical Commits (2008-2016)
+### Fetch Historical Commits (2008-2019)
 
 ```bash
 go run historical-commits.go
