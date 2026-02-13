@@ -59,6 +59,12 @@ type CommitRecord struct {
 	FetchedAt      time.Time
 }
 
+type FailedRepo struct {
+	Repo string
+	Year int
+	Err  error
+}
+
 func main() {
 	configureLogging()
 
@@ -78,6 +84,7 @@ func main() {
 
 	totalFetched := 0
 	newCommits := 0
+	var failedRepos []FailedRepo
 
 	startYear := GitHubStartYear
 	endYear := 2019 // GitHub Search API works reliably from 2020 onward
@@ -124,6 +131,7 @@ func main() {
 					Str("repo", repo).
 					Int("year", year).
 					Msg("Error fetching repo commits")
+				failedRepos = append(failedRepos, FailedRepo{Repo: repo, Year: year, Err: err})
 				continue
 			}
 			yearFetched += fetched
@@ -142,9 +150,23 @@ func main() {
 			Msg("Year completed")
 	}
 
+	if len(failedRepos) > 0 {
+		log.Warn().
+			Int("failed_count", len(failedRepos)).
+			Msg("Some repos failed to fetch - consider re-running to retry")
+		for _, f := range failedRepos {
+			log.Warn().
+				Str("repo", f.Repo).
+				Int("year", f.Year).
+				Err(f.Err).
+				Msg("Failed repo")
+		}
+	}
+
 	log.Info().
 		Int("total_fetched", totalFetched).
 		Int("new_commits", newCommits).
+		Int("failed_repos", len(failedRepos)).
 		Str("database", DatabaseFile).
 		Msg("Historical commits fetch completed")
 }
