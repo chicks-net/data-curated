@@ -10,3 +10,6 @@ lottery/jackpot-checker.log
 
 # Generated YouTube blog posts
 individuals/chicks/youtube/generated/
+
+# Compiled binaries
+individuals/github-contrib/daily-ranking/daily-ranking
