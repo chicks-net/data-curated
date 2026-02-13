@@ -768,6 +768,28 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
+# Generate daily contributor rankings from a git repository
+[working-directory("individuals/github-contrib/daily-ranking")]
+[group('github')]
+daily-ranking DIR OUTPUT="":
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if go is installed using helper
+	INSTALL_CMD=$(just _get_install_cmd go golang-go)
+	just _require_command go "Install with:\n  $INSTALL_CMD\n  Or see: https://go.dev/doc/install"
+
+	if [ ! -d "{{DIR}}/.git" ]; then
+		echo "{{RED}}Error: {{DIR}} is not a git repository{{NORMAL}}"
+		exit 1
+	fi
+
+	if [ -n "{{OUTPUT}}" ]; then
+		go run daily-ranking.go "{{DIR}}" "{{OUTPUT}}"
+	else
+		go run daily-ranking.go "{{DIR}}"
+	fi
+
 # Fetch GitHub comments on external projects
 [working-directory("individuals/chicks/github")]
 [group('github')]
