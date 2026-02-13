@@ -37,10 +37,9 @@ type ContributorRank struct {
 }
 
 type ContributorCumulative struct {
-	Login    string
-	Email    string
-	Commits  int
-	LastSeen time.Time
+	Login   string
+	Email   string
+	Commits int
 }
 
 func main() {
@@ -147,6 +146,10 @@ func fetchCommits(repoPath string) ([]Commit, error) {
 		})
 	}
 
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("scanner error: %w", err)
+	}
+
 	sort.Slice(commits, func(i, j int) bool {
 		return commits[i].Date.Before(commits[j].Date)
 	})
@@ -178,7 +181,6 @@ func computeDailyRankings(commits []Commit) []DailyStats {
 			}
 		}
 		contributorTotals[key].Commits++
-		contributorTotals[key].LastSeen = c.Date
 	}
 
 	uniqueDates := make([]string, 0, len(dailyCommits))
@@ -248,7 +250,6 @@ func writeJSON(filename string, rankings []DailyStats) error {
 
 	encoder := json.NewEncoder(file)
 	encoder.SetEscapeHTML(false)
-	encoder.SetIndent("", "  ")
 
 	for _, day := range rankings {
 		data, err := json.Marshal(day)
