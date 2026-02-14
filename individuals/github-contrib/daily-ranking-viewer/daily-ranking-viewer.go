@@ -286,16 +286,16 @@ func (m model) View() string {
 	progressBar := m.renderProgressBar(progress)
 
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
-	if tag := m.tagByIndex[m.currentIndex]; tag != "" {
-		b.WriteString("  ")
-		b.WriteString(m.tagStyle.Render(tag))
-	}
 	b.WriteString("\n\n")
 
 	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
 	if stats.Origin != "" {
 		b.WriteString("  ")
 		b.WriteString(m.originStyle.Render(stats.Origin))
+	}
+	if tag := m.tagByIndex[m.currentIndex]; tag != "" {
+		b.WriteString("  ")
+		b.WriteString(m.tagStyle.Render(tag))
 	}
 	b.WriteString("\n")
 
