@@ -253,7 +253,7 @@ _check_lottery_deps:
 # Check California lottery jackpots and show recent results
 [working-directory("lottery")]
 [group('lottery')]
-check-jackpots: _check_lottery_deps
+fetch-jackpots: _check_lottery_deps
 	#!/usr/bin/env bash
 	set -euo pipefail # strict mode
 
