@@ -768,10 +768,19 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
-# Generate daily contributor rankings from a git repository
+# Run tests for just daily-ranking
 [working-directory("individuals/github-contrib/daily-ranking")]
 [group('github')]
-daily-ranking DIR OUTPUT="":
+daily-ranking-tests:
+	just daily-ranking ~/Documents/git/megamap /tmp/megamap.jsonl main
+	just daily-ranking ~/Documents/git/OtherFolks/terraform-provider-digitalocean /tmp/terraform-provider-digitalocean.jsonl main
+	just daily-ranking ~/Documents/git/dnscontrol  /tmp/dnscontrol.jsonl main
+
+# Generate daily contributor rankings from a git repository
+# Use BRANCH="main" to analyze only the main branch (matches GitHub Contributors)
+[working-directory("individuals/github-contrib/daily-ranking")]
+[group('github')]
+daily-ranking DIR OUTPUT="" BRANCH="":
 	#!/usr/bin/env bash
 	set -euo pipefail
 
@@ -784,10 +793,21 @@ daily-ranking DIR OUTPUT="":
 		exit 1
 	fi
 
-	if [ -n "{{OUTPUT}}" ]; then
-		go run daily-ranking.go "{{DIR}}" "{{OUTPUT}}"
+	OUTPUT="{{OUTPUT}}"
+	BRANCH="{{BRANCH}}"
+
+	if [ -n "$BRANCH" ]; then
+		if [ -n "$OUTPUT" ]; then
+			go run daily-ranking.go -branch "$BRANCH" "{{DIR}}" "$OUTPUT"
+		else
+			go run daily-ranking.go -branch "$BRANCH" "{{DIR}}"
+		fi
 	else
-		go run daily-ranking.go "{{DIR}}"
+		if [ -n "$OUTPUT" ]; then
+			go run daily-ranking.go "{{DIR}}" "$OUTPUT"
+		else
+			go run daily-ranking.go "{{DIR}}"
+		fi
 	fi
 
 # View daily contributor rankings with animated TUI (reads JSON from stdin or file)

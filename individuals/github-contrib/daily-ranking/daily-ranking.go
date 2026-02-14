@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"os/exec"
@@ -91,11 +92,15 @@ func main() {
 		log.Logger = log.Output(output)
 	}
 
-	if len(os.Args) < 2 {
-		log.Fatal().Msg("Usage: daily-ranking <git-repo-directory>")
+	branch := flag.String("branch", "", "Branch to analyze (default: all branches)")
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) < 1 {
+		log.Fatal().Msg("Usage: daily-ranking [-branch <name>] <git-repo-directory> [output-file]")
 	}
 
-	repoPath := os.Args[1]
+	repoPath := args[0]
 	absPath, err := filepath.Abs(repoPath)
 	if err != nil {
 		log.Fatal().Err(err).Str("path", repoPath).Msg("Failed to resolve absolute path")
@@ -109,9 +114,9 @@ func main() {
 		log.Fatal().Str("path", absPath).Msg("Not a git repository (no .git directory found)")
 	}
 
-	log.Info().Str("repo", absPath).Msg("Processing git repository")
+	log.Info().Str("repo", absPath).Str("branch", *branch).Msg("Processing git repository")
 
-	commits, err := fetchCommits(absPath)
+	commits, err := fetchCommits(absPath, *branch)
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to fetch commits")
 	}
@@ -126,11 +131,11 @@ func main() {
 
 	dailyRankings := computeDailyRankings(commits, origin)
 
-	if len(os.Args) >= 3 {
-		if err := writeJSON(os.Args[2], dailyRankings); err != nil {
+	if len(args) >= 2 {
+		if err := writeJSON(args[1], dailyRankings); err != nil {
 			log.Fatal().Err(err).Msg("Failed to write output file")
 		}
-		log.Info().Str("file", os.Args[2]).Int("days", len(dailyRankings)).Msg("Wrote daily rankings")
+		log.Info().Str("file", args[1]).Int("days", len(dailyRankings)).Msg("Wrote daily rankings")
 	} else {
 		encoder := json.NewEncoder(os.Stdout)
 		encoder.SetEscapeHTML(false)
@@ -142,12 +147,16 @@ func main() {
 	}
 }
 
-func fetchCommits(repoPath string) ([]Commit, error) {
-	cmd := exec.Command("git", "-C", repoPath, "log",
-		"--all",
-		"--format=%H%x00%an%x00%ae%x00%aI%x00%s",
-		"--date-order",
-	)
+func fetchCommits(repoPath string, branch string) ([]Commit, error) {
+	args := []string{"-C", repoPath, "log"}
+	if branch != "" {
+		args = append(args, branch)
+	} else {
+		args = append(args, "--all")
+	}
+	args = append(args, "--format=%H%x00%an%x00%ae%x00%aI%x00%s", "--date-order")
+
+	cmd := exec.Command("git", args...)
 	output, err := cmd.Output()
 	if err != nil {
 		if exitErr, ok := err.(*exec.ExitError); ok {

@@ -66,8 +66,11 @@ just daily-ranking /path/to/git/repo output.jsonl
 # Build
 go build -o daily-ranking
 
-# Output to stdout
+# Output to stdout (all branches)
 ./daily-ranking /path/to/git/repo
+
+# Analyze a specific branch only (e.g., main)
+./daily-ranking -branch main /path/to/git/repo
 
 # Write to file
 ./daily-ranking /path/to/git/repo output.jsonl
