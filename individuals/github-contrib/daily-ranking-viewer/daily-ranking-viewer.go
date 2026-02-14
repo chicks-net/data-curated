@@ -288,7 +288,7 @@ func (m model) View() string {
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
 	b.WriteString("\n\n")
 
-	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
+	b.WriteString(fmt.Sprintf("Date: %s", m.tagStyle.Render(stats.Date)))
 	if stats.Origin != "" {
 		b.WriteString("  Origin: ")
 		b.WriteString(m.originStyle.Render(stats.Origin))
