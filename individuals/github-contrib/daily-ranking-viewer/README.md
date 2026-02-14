@@ -34,10 +34,11 @@ daily-ranking /path/to/repo rankings.jsonl
 
 ### Options
 
-| Flag    | Default | Description                                       |
-|---------|---------|---------------------------------------------------|
-| `-n`    | 100     | Maximum number of contributors to display         |
-| `-speed`| 500ms   | Animation speed (e.g., `200ms`, `1s`)             |
+| Flag     | Default                           | Description                            |
+|----------|-----------------------------------|----------------------------------------|
+| `-n`     | 100                               | Maximum contributors to display        |
+| `-speed` | 500ms                             | Animation speed (e.g., `200ms`, `1s`)  |
+| `-image` | `~/Pictures/Linux_TuxPenguin.png` | Image in lower right corner            |
 
 ```bash
 # Show top 20 contributors
@@ -48,6 +49,12 @@ daily-ranking /path/to/repo rankings.jsonl
 
 # Fast animation (200ms per frame)
 ./daily-ranking-viewer -speed 200ms rankings.jsonl
+
+# Custom image
+./daily-ranking-viewer -image ~/Pictures/my-logo.png rankings.jsonl
+
+# No image
+./daily-ranking-viewer -image "" rankings.jsonl
 ```
 
 The viewer automatically detects terminal size and adjusts:
@@ -77,6 +84,7 @@ The viewer automatically detects terminal size and adjusts:
 - Adjustable animation speed
 - Full keyboard navigation
 - Automatic terminal size detection for optimal display
+- Optional image overlay in lower right corner (requires Kitty graphics protocol support)
 
 ## Input Format
 
@@ -91,6 +99,26 @@ Expects NDJSON where each line is a JSON object with:
   ]
 }
 ```
+
+## Image Display
+
+The `-image` flag displays an image in the lower right corner using iTerm2's inline image protocol.
+
+### Requirements
+
+- **iTerm2** (or compatible terminal)
+- **tmux users**: Enable passthrough with:
+  ```bash
+  tmux set-option -g allow-passthrough on
+  # Or add to ~/.tmux.conf:
+  # set -g allow-passthrough on
+  ```
+
+### Notes
+
+- Images are automatically scaled to fit (max 12 cells width/height)
+- Pass `-image ""` to disable image display
+- Works with PNG and JPEG formats
 
 ## Dependencies
 

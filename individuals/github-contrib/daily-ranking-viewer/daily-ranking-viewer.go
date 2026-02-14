@@ -2,10 +2,16 @@ package main
 
 import (
 	"bufio"
+	"encoding/base64"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"os"
+	"os/user"
+	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
@@ -54,9 +60,61 @@ type model struct {
 	relaxingStyle  lipgloss.Style
 	highlightRegex *regexp.Regexp
 	lastCommitDate map[string]int
+	imagePath      string
+	imageBase64    string
+	imageSize      int
+	imageWidth     int
+	imageHeight    int
 }
 
-func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
+func expandPath(path string) string {
+	if strings.HasPrefix(path, "~/") {
+		usr, err := user.Current()
+		if err != nil {
+			return path
+		}
+		return filepath.Join(usr.HomeDir, path[2:])
+	}
+	return path
+}
+
+func loadImage(path string) (string, int, int, int, error) {
+	expanded := expandPath(path)
+	file, err := os.Open(expanded)
+	if err != nil {
+		return "", 0, 0, 0, err
+	}
+	defer file.Close()
+
+	img, _, err := image.DecodeConfig(file)
+	if err != nil {
+		return "", 0, 0, 0, err
+	}
+
+	file.Seek(0, 0)
+	stat, err := file.Stat()
+	if err != nil {
+		return "", 0, 0, 0, err
+	}
+	size := int(stat.Size())
+
+	file.Seek(0, 0)
+	data := make([]byte, 0, size)
+	buf := make([]byte, 4096)
+	for {
+		n, err := file.Read(buf)
+		if n > 0 {
+			data = append(data, buf[:n]...)
+		}
+		if err != nil {
+			break
+		}
+	}
+
+	return base64.StdEncoding.EncodeToString(data), size, img.Width, img.Height, nil
+}
+
+func initialModel(stats []DailyStats, topN int, speed time.Duration, imagePath string) model {
 	for i := range stats {
 		sort.Slice(stats[i].Contributors, func(j, k int) bool {
 			return stats[i].Contributors[j].CumulativeCommits > stats[i].Contributors[k].CumulativeCommits
@@ -70,6 +128,12 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 				lastCommitDate[c.Login] = i
 			}
 		}
+	}
+
+	var imageBase64 string
+	var imageSize, imageWidth, imageHeight int
+	if imagePath != "" {
+		imageBase64, imageSize, imageWidth, imageHeight, _ = loadImage(imagePath)
 	}
 
 	m := model{
@@ -95,6 +159,11 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		relaxingStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("245")),
 		highlightRegex: regexp.MustCompile(`[CT]h`),
 		lastCommitDate: lastCommitDate,
+		imagePath:      imagePath,
+		imageBase64:    imageBase64,
+		imageSize:      imageSize,
+		imageWidth:     imageWidth,
+		imageHeight:    imageHeight,
 	}
 	m.calculateLayout()
 	return m
@@ -281,6 +350,10 @@ func (m model) View() string {
 	b.WriteString("\n\n")
 	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [j/k] speed │ [r] restart │ [q] quit"))
 
+	if m.imageBase64 != "" {
+		b.WriteString(m.renderImage())
+	}
+
 	return b.String()
 }
 
@@ -297,6 +370,28 @@ func (m model) renderName(name string) string {
 		return m.highlightStyle.Width(m.nameWidth).Render(name)
 	}
 	return m.nameStyle.Width(m.nameWidth).Render(name)
+}
+
+func (m model) renderImage() string {
+	maxCells := 12
+	aspectRatio := float64(m.imageWidth) / float64(m.imageHeight)
+
+	displayHeight := maxCells
+	displayWidth := int(float64(displayHeight) * aspectRatio)
+	if displayWidth > maxCells {
+		displayWidth = maxCells
+		displayHeight = int(float64(displayWidth) / aspectRatio)
+	}
+
+	rows := m.termHeight - displayHeight
+	cols := m.termWidth - displayWidth
+
+	imgSeq := fmt.Sprintf("\x1b[%d;%dH\x1b]1337;File=inline=1;size=%d;width=%d;height=%d:%s\x07", rows, cols, m.imageSize, displayWidth, displayHeight, m.imageBase64)
+
+	if os.Getenv("TMUX") != "" {
+		return "\x1bPtmux;" + strings.ReplaceAll(imgSeq, "\x1b", "\x1b\x1b") + "\x1b\\"
+	}
+	return imgSeq
 }
 
 func readDailyStats(input string) ([]DailyStats, error) {
@@ -337,6 +432,7 @@ func readDailyStats(input string) ([]DailyStats, error) {
 func main() {
 	topN := flag.Int("n", 100, "maximum number of contributors to display (default fits terminal height)")
 	speed := flag.Duration("speed", 100*time.Millisecond, "animation speed (e.g., 100ms, 500ms, 1s)")
+	image := flag.String("image", "~/Pictures/Linux_TuxPenguin.png", "image to display in lower right corner")
 	flag.Parse()
 
 	args := flag.Args()
@@ -357,7 +453,7 @@ func main() {
 	}
 
 	p := tea.NewProgram(
-		initialModel(stats, *topN, *speed),
+		initialModel(stats, *topN, *speed, *image),
 		tea.WithAltScreen(),
 	)
 
