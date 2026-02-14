@@ -52,6 +52,49 @@ go build -o daily-ranking
 ./daily-ranking /path/to/git/repo output.jsonl
 ```
 
+## Viewer
+
+The `viewer/` directory contains an interactive TUI (Terminal User Interface)
+for visualizing the daily rankings data with animated progress bars.
+
+### Viewer Usage
+
+```bash
+# Build the viewer
+cd viewer && go build -o daily-ranking-viewer
+
+# View from stdin
+./daily-ranking /path/to/repo | ./viewer/daily-ranking-viewer
+
+# View from file
+./daily-ranking /path/to/repo output.jsonl
+./viewer/daily-ranking-viewer output.jsonl
+
+# Options
+./viewer/daily-ranking-viewer -n 20 output.jsonl      # Show top 20 contributors
+./viewer/daily-ranking-viewer -speed 1s output.jsonl  # 1 second per frame
+```
+
+### Viewer Controls
+
+| Key | Action |
+|-----|--------|
+| `space` | Pause/play animation |
+| `h`/`←` | Previous day |
+| `l`/`→` | Next day |
+| `j`/`↓` | Slow down |
+| `k`/`↑` | Speed up |
+| `r` | Restart from beginning |
+| `q` | Quit |
+
+### Viewer Features
+
+- Animated progression through daily rankings
+- Proportional bars showing relative contribution counts
+- Highlights contributors with commits on current day
+- Progress bar showing position in timeline
+- Adjustable animation speed
+
 ## Use Cases
 
 - Generate race chart animations showing contributor leaderboard changes

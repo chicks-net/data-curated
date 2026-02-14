@@ -790,6 +790,23 @@ daily-ranking DIR OUTPUT="":
 		go run daily-ranking.go "{{DIR}}"
 	fi
 
+# View daily contributor rankings with animated TUI (reads JSON from stdin or file)
+# Usage: just daily-ranking DIR | just daily-ranking-viewer
+#        just daily-ranking-viewer rankings.jsonl
+#        just daily-ranking-viewer -n 15 -speed 1s rankings.jsonl
+[group('github')]
+daily-ranking-viewer filename:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check if go is installed
+	INSTALL_CMD=$(just _get_install_cmd go golang-go)
+	just _require_command go "Install with:\n  $INSTALL_CMD\n  Or see: https://go.dev/doc/install"
+
+	cd individuals/github-contrib/daily-ranking/viewer
+	set -x
+	go run . "{{ filename }}"
+
 # Fetch GitHub comments on external projects
 [working-directory("individuals/chicks/github")]
 [group('github')]
