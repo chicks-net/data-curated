@@ -1,17 +1,14 @@
-# GitHub Contributor Data Fetcher
+# Snapshot Contributors
 
-This tool downloads contributor statistics from GitHub repositories and saves
-them to CSV files.
+Downloads contributor statistics from GitHub repositories and saves them to CSV files.
 
 ## Overview
 
-The contributor fetcher uses the GitHub API to retrieve detailed statistics
-about repository contributors, including:
+Fetches detailed statistics about repository contributors using the GitHub API:
 
 - Username and user ID
-- Total commits
-- Total additions and deletions
-- Number of weeks active
+- Total commits, additions, and deletions
+- Weeks active
 - User type and admin status
 - Rankings by commits, additions, and deletions
 
@@ -23,8 +20,6 @@ about repository contributors, including:
   - `github.com/rs/zerolog`
 
 ## Installation
-
-Install the required Go dependencies:
 
 ```bash
 go get github.com/rs/zerolog
@@ -42,65 +37,36 @@ go run contributor-fetcher.go <owner/repo>
 ### Examples
 
 ```bash
-# Fetch contributors for StackExchange/dnscontrol
 go run contributor-fetcher.go StackExchange/dnscontrol
-
-# Fetch contributors for golang/go
 go run contributor-fetcher.go golang/go
 ```
 
 ## Output
 
-The program generates a CSV file with the following naming convention:
+Generates a CSV file with naming convention:
 
 ```text
 <owner>-<repo>-contributors-<YYYYMMDD>.csv
 ```
 
-For example:
+### CSV Columns
 
-```text
-StackExchange-dnscontrol-contributors-20251209.csv
-```
+| Column | Description |
+|--------|-------------|
+| `login` | GitHub username |
+| `user_id` | Numeric user ID |
+| `avatar_url` | URL to user's avatar image |
+| `type` | User type (User, Bot, etc.) |
+| `site_admin` | Whether the user is a GitHub site admin |
+| `total_commits` | Total number of commits |
+| `total_additions` | Total lines added across all commits |
+| `total_deletions` | Total lines deleted across all commits |
+| `weeks_active` | Number of weeks with at least one commit |
+| `rank_by_commits` | Ranking by total commits (1 = most) |
+| `rank_by_additions` | Ranking by total additions (1 = most) |
+| `rank_by_deletions` | Ranking by total deletions (1 = most) |
 
-### CSV Format
-
-The CSV file contains the following columns:
-
-- `login` - GitHub username
-- `user_id` - Numeric user ID
-- `avatar_url` - URL to user's avatar image
-- `type` - User type (User, Bot, etc.)
-- `site_admin` - Whether the user is a GitHub site admin
-- `total_commits` - Total number of commits
-- `total_additions` - Total lines added across all commits
-- `total_deletions` - Total lines deleted across all commits
-- `weeks_active` - Number of weeks with at least one commit
-- `rank_by_commits` - Ranking based on total commits (1 = most commits)
-- `rank_by_additions` - Ranking based on total additions (1 = most additions)
-- `rank_by_deletions` - Ranking based on total deletions (1 = most deletions)
-
-## Logging
-
-The program uses structured logging with `zerolog`. By default, it outputs
-human-readable console logs. To enable JSON logging, set the `JSON_LOGS`
-environment variable:
-
-```bash
-JSON_LOGS=true go run contributor-fetcher.go owner/repo
-```
-
-## GitHub API Notes
-
-This tool uses the GitHub `/repos/{owner}/{repo}/stats/contributors` endpoint.
-Important notes:
-
-- The first request may take time as GitHub computes the statistics
-- If the API returns a 202 status, the data is being computed - try again
-  after a few moments
-- The data is cached by GitHub and refreshed periodically
-
-## Example Output
+### Example Output
 
 ```csv
 login,user_id,avatar_url,type,site_admin,total_commits,total_additions,total_deletions,weeks_active,rank_by_commits,rank_by_additions,rank_by_deletions
@@ -109,71 +75,37 @@ cafferata,1150425,https://avatars.githubusercontent.com/u/1150425,User,false,214
 dependabot[bot],49699333,https://avatars.githubusercontent.com/in/29110,Bot,false,134,697,513,82,3,43,23
 ```
 
-### Ranking Notes
+## Logging
 
-- Rankings are calculated independently for each metric
-- Rank 1 indicates the highest value (most commits, additions, or deletions)
-- Contributors may have different ranks for different metrics
-- For example, a bot might rank high in commits but lower in additions/deletions
+Uses structured logging with `zerolog`. Enable JSON logging:
 
-## Error Handling
+```bash
+JSON_LOGS=true go run contributor-fetcher.go owner/repo
+```
 
-The program will exit with an error message if:
+## GitHub API Notes
 
-- No repository argument is provided
-- The repository format is invalid (must be `owner/repo`)
-- The GitHub API request fails
-- The CSV file cannot be written
+Uses the `/repos/{owner}/{repo}/stats/contributors` endpoint:
+
+- First request may take time as GitHub computes statistics
+- If API returns 202, data is being computed - retry after a few moments
+- Data is cached by GitHub and refreshed periodically
 
 ## Converting CSV to SQLite
 
-Use the provided import script to convert CSV files to SQLite databases:
+Use the provided import script:
 
 ```bash
 ./import-to-sqlite.sh <csv-file>
 ```
 
-### Example
+This creates a SQLite database with properly typed columns and indexes on commonly queried fields.
 
-```bash
-./import-to-sqlite.sh StackExchange-dnscontrol-contributors-20251210.csv
-```
+## Error Handling
 
-This will create a SQLite database file with the same name (`.db` extension instead
-of `.csv`). The script:
+Exits with error if:
 
-- Creates a properly typed table with INTEGER and TEXT columns
-- Imports the CSV data
-- Creates indexes on commonly queried columns (login, rankings, totals)
-- Displays a summary and top contributors
-
-### Database Schema
-
-The SQLite database includes:
-
-- Table: `contributors` with properly typed columns
-- Indexes on: `login`, `rank_by_commits`, `rank_by_additions`, `rank_by_deletions`,
-  `total_commits`, `total_additions`, `total_deletions`
-
-### Querying the Database
-
-```bash
-# Interactive SQL queries
-sqlite3 StackExchange-dnscontrol-contributors-20251210.db
-
-# Example queries
-sqlite3 StackExchange-dnscontrol-contributors-20251210.db \
-  "SELECT login, total_commits FROM contributors ORDER BY rank_by_commits LIMIT 10;"
-
-# Open in datasette for interactive exploration
-datasette StackExchange-dnscontrol-contributors-20251210.db -o
-```
-
-## Data Analysis
-
-The generated CSV and SQLite files can be analyzed using various tools:
-
-- `datasette` - Open in an interactive browser interface
-- SQLite - Query the data with SQL
-- Excel/Google Sheets - Open CSV files and analyze visually
-- Python/R - Load and analyze programmatically
+- No repository argument provided
+- Repository format invalid (must be `owner/repo`)
+- GitHub API request fails
+- CSV file cannot be written
