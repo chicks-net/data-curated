@@ -773,7 +773,7 @@ analyze-contributions:
 [group('github')]
 daily-ranking-tests:
 	just daily-ranking ~/Documents/git/megamap /tmp/megamap.jsonl main
-	just daily-ranking ~/Documents/git/OtherFolks/terraform-provider-digitalocean /tmp/terraform-provider-digitalocean.jsonlmain
+	just daily-ranking ~/Documents/git/OtherFolks/terraform-provider-digitalocean /tmp/terraform-provider-digitalocean.jsonl main
 	just daily-ranking ~/Documents/git/dnscontrol  /tmp/dnscontrol.toml main
 
 # Generate daily contributor rankings from a git repository
