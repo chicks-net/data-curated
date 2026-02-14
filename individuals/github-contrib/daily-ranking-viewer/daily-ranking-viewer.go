@@ -50,7 +50,13 @@ type model struct {
 }
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
-	return model{
+	for i := range stats {
+		sort.Slice(stats[i].Contributors, func(j, k int) bool {
+			return stats[i].Contributors[j].CumulativeCommits > stats[i].Contributors[k].CumulativeCommits
+		})
+	}
+
+	m := model{
 		dailyStats:    stats,
 		currentIndex:  0,
 		topN:          topN,
@@ -69,6 +75,8 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		headerStyle:   lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")),
 		dateStyle:     lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
 	}
+	m.calculateLayout()
+	return m
 }
 
 func (m *model) calculateLayout() {
@@ -173,10 +181,6 @@ func (m model) View() string {
 
 	stats := m.dailyStats[m.currentIndex]
 	contributors := stats.Contributors
-
-	sort.Slice(contributors, func(i, j int) bool {
-		return contributors[i].CumulativeCommits > contributors[j].CumulativeCommits
-	})
 
 	displayCount := m.displayRows
 	if m.topN > 0 && displayCount > m.topN {
