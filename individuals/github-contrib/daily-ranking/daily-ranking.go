@@ -25,6 +25,7 @@ type Commit struct {
 
 type DailyStats struct {
 	Date         string            `json:"date"`
+	Origin       string            `json:"origin"`
 	Contributors []ContributorRank `json:"contributors"`
 }
 
@@ -85,7 +86,13 @@ func main() {
 
 	log.Info().Int("commits", len(commits)).Msg("Retrieved commits")
 
-	dailyRankings := computeDailyRankings(commits)
+	origin, err := getOriginURL(absPath)
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to get origin URL, using empty string")
+		origin = ""
+	}
+
+	dailyRankings := computeDailyRankings(commits, origin)
 
 	if len(os.Args) >= 3 {
 		if err := writeJSON(os.Args[2], dailyRankings); err != nil {
@@ -157,7 +164,16 @@ func fetchCommits(repoPath string) ([]Commit, error) {
 	return commits, nil
 }
 
-func computeDailyRankings(commits []Commit) []DailyStats {
+func getOriginURL(repoPath string) (string, error) {
+	cmd := exec.Command("git", "-C", repoPath, "remote", "get-url", "origin")
+	output, err := cmd.Output()
+	if err != nil {
+		return "", fmt.Errorf("failed to get origin URL: %w", err)
+	}
+	return strings.TrimSpace(string(output)), nil
+}
+
+func computeDailyRankings(commits []Commit, origin string) []DailyStats {
 	if len(commits) == 0 {
 		return nil
 	}
@@ -234,6 +250,7 @@ func computeDailyRankings(commits []Commit) []DailyStats {
 
 		results = append(results, DailyStats{
 			Date:         date,
+			Origin:       origin,
 			Contributors: contributorRanks,
 		})
 	}
