@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -30,23 +31,25 @@ type DailyStats struct {
 type tickMsg time.Time
 
 type model struct {
-	dailyStats    []DailyStats
-	currentIndex  int
-	topN          int
-	barWidth      int
-	nameWidth     int
-	displayRows   int
-	termWidth     int
-	termHeight    int
-	paused        bool
-	done          bool
-	speed         time.Duration
-	progressStyle lipgloss.Style
-	barStyle      lipgloss.Style
-	nameStyle     lipgloss.Style
-	countStyle    lipgloss.Style
-	headerStyle   lipgloss.Style
-	dateStyle     lipgloss.Style
+	dailyStats     []DailyStats
+	currentIndex   int
+	topN           int
+	barWidth       int
+	nameWidth      int
+	displayRows    int
+	termWidth      int
+	termHeight     int
+	paused         bool
+	done           bool
+	speed          time.Duration
+	progressStyle  lipgloss.Style
+	barStyle       lipgloss.Style
+	nameStyle      lipgloss.Style
+	highlightStyle lipgloss.Style
+	countStyle     lipgloss.Style
+	headerStyle    lipgloss.Style
+	dateStyle      lipgloss.Style
+	highlightRegex *regexp.Regexp
 }
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
@@ -57,23 +60,25 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	}
 
 	m := model{
-		dailyStats:    stats,
-		currentIndex:  0,
-		topN:          topN,
-		barWidth:      40,
-		nameWidth:     20,
-		displayRows:   10,
-		termWidth:     80,
-		termHeight:    24,
-		paused:        false,
-		done:          false,
-		speed:         speed,
-		progressStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("36")),
-		barStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("82")),
-		nameStyle:     lipgloss.NewStyle().Foreground(lipgloss.Color("15")),
-		countStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("226")),
-		headerStyle:   lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")),
-		dateStyle:     lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
+		dailyStats:     stats,
+		currentIndex:   0,
+		topN:           topN,
+		barWidth:       40,
+		nameWidth:      20,
+		displayRows:    10,
+		termWidth:      80,
+		termHeight:     24,
+		paused:         false,
+		done:           false,
+		speed:          speed,
+		progressStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("36")),
+		barStyle:       lipgloss.NewStyle().Foreground(lipgloss.Color("82")),
+		nameStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("15")),
+		highlightStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("165")),
+		countStyle:     lipgloss.NewStyle().Foreground(lipgloss.Color("226")),
+		headerStyle:    lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")),
+		dateStyle:      lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
+		highlightRegex: regexp.MustCompile(`[CT]h`),
 	}
 	m.calculateLayout()
 	return m
@@ -198,8 +203,6 @@ func (m model) View() string {
 	progress := float64(m.currentIndex+1) / float64(len(m.dailyStats)) * 100
 	progressBar := m.renderProgressBar(progress)
 
-	nameStyle := m.nameStyle.Width(m.nameWidth)
-
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
 	b.WriteString("\n\n")
 
@@ -240,7 +243,7 @@ func (m model) View() string {
 
 		line := fmt.Sprintf("%2d. %s │%s %s%s\n",
 			i+1,
-			nameStyle.Render(c.Login),
+			m.renderName(c.Login),
 			bar,
 			m.countStyle.Render(fmt.Sprintf("%d", c.CumulativeCommits)),
 			todayStr,
@@ -262,6 +265,13 @@ func (m model) renderProgressBar(progress float64) string {
 
 	bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
 	return fmt.Sprintf("[%s] %.0f%%", m.barStyle.Render(bar), progress)
+}
+
+func (m model) renderName(name string) string {
+	if m.highlightRegex.MatchString(name) {
+		return m.highlightStyle.Width(m.nameWidth).Render(name)
+	}
+	return m.nameStyle.Width(m.nameWidth).Render(name)
 }
 
 func readDailyStats(input string) ([]DailyStats, error) {
