@@ -25,6 +25,7 @@ type ContributorRank struct {
 
 type DailyStats struct {
 	Date         string            `json:"date"`
+	Origin       string            `json:"origin"`
 	Contributors []ContributorRank `json:"contributors"`
 }
 
@@ -49,6 +50,7 @@ type model struct {
 	countStyle     lipgloss.Style
 	headerStyle    lipgloss.Style
 	dateStyle      lipgloss.Style
+	originStyle    lipgloss.Style
 	highlightRegex *regexp.Regexp
 }
 
@@ -78,6 +80,7 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		countStyle:     lipgloss.NewStyle().Foreground(lipgloss.Color("226")),
 		headerStyle:    lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")),
 		dateStyle:      lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
+		originStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("33")),
 		highlightRegex: regexp.MustCompile(`[CT]h`),
 	}
 	m.calculateLayout()
@@ -207,9 +210,13 @@ func (m model) View() string {
 	b.WriteString("\n\n")
 
 	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
+	if stats.Origin != "" {
+		b.WriteString("  ")
+		b.WriteString(m.originStyle.Render(stats.Origin))
+	}
 	b.WriteString("\n")
 
-	speedStr := fmt.Sprintf("%.1fs", m.speed.Seconds())
+	speedStr := fmt.Sprintf("%.3fs", m.speed.Seconds())
 	pauseStr := "Playing"
 	if m.paused {
 		pauseStr = "Paused"
@@ -311,7 +318,7 @@ func readDailyStats(input string) ([]DailyStats, error) {
 
 func main() {
 	topN := flag.Int("n", 100, "maximum number of contributors to display (default fits terminal height)")
-	speed := flag.Duration("speed", 500*time.Millisecond, "animation speed (e.g., 500ms, 1s)")
+	speed := flag.Duration("speed", 100*time.Millisecond, "animation speed (e.g., 100ms, 500ms, 1s)")
 	flag.Parse()
 
 	args := flag.Args()
