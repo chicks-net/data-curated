@@ -12,12 +12,19 @@ all contributors ranked by cumulative commits:
 ```json
 {
   "date": "2017-03-14",
+  "origin": "https://github.com/owner/repo.git",
   "contributors": [
     {"login": "Alice", "email": "alice@example.com", "cumulative_commits": 61, "commits_today": 15, "rank": 1},
     {"login": "Bob", "email": "bob@example.com", "cumulative_commits": 9, "commits_today": 3, "rank": 2}
   ]
 }
 ```
+
+Each day's output includes:
+
+- `date` - The date in YYYY-MM-DD format
+- `origin` - Git remote origin URL (empty string if not available)
+- `contributors` - Array of contributor entries for that day
 
 Each contributor entry includes:
 
