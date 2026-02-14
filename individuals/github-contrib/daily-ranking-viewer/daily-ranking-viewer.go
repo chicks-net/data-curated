@@ -26,6 +26,7 @@ type ContributorRank struct {
 type DailyStats struct {
 	Date         string            `json:"date"`
 	Origin       string            `json:"origin"`
+	Tags         []string          `json:"tags"`
 	Contributors []ContributorRank `json:"contributors"`
 }
 
@@ -52,8 +53,10 @@ type model struct {
 	dateStyle      lipgloss.Style
 	originStyle    lipgloss.Style
 	relaxingStyle  lipgloss.Style
+	tagStyle       lipgloss.Style
 	highlightRegex *regexp.Regexp
 	lastCommitDate map[string]int
+	tagByIndex     map[int]string
 }
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
@@ -70,6 +73,15 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 				lastCommitDate[c.Login] = i
 			}
 		}
+	}
+
+	tagByIndex := make(map[int]string)
+	var latestTag string
+	for i, day := range stats {
+		if len(day.Tags) > 0 {
+			latestTag = day.Tags[0]
+		}
+		tagByIndex[i] = latestTag
 	}
 
 	m := model{
@@ -93,8 +105,10 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		dateStyle:      lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
 		originStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("33")),
 		relaxingStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("245")),
+		tagStyle:       lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("214")),
 		highlightRegex: regexp.MustCompile(`[CT]h`),
 		lastCommitDate: lastCommitDate,
+		tagByIndex:     tagByIndex,
 	}
 	m.calculateLayout()
 	return m
@@ -220,6 +234,10 @@ func (m model) View() string {
 	progressBar := m.renderProgressBar(progress)
 
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
+	if tag := m.tagByIndex[m.currentIndex]; tag != "" {
+		b.WriteString("  ")
+		b.WriteString(m.tagStyle.Render(tag))
+	}
 	b.WriteString("\n\n")
 
 	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))

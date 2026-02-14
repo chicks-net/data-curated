@@ -73,6 +73,7 @@ The viewer automatically detects terminal size and adjusts:
 - Animated progression through daily contributor rankings
 - Proportional bars showing relative commit counts
 - Highlights contributors with commits on the current day
+- Displays the latest git tag in the header (persists across days until a new tag appears)
 - Progress bar showing position in the timeline
 - Adjustable animation speed
 - Full keyboard navigation
@@ -85,6 +86,8 @@ Expects NDJSON where each line is a JSON object with:
 ```json
 {
   "date": "2024-01-15",
+  "origin": "https://github.com/user/repo",
+  "tags": ["v1.2.0"],
   "contributors": [
     {"login": "alice", "email": "alice@example.com", "cumulative_commits": 150, "commits_today": 5, "rank": 1},
     {"login": "bob", "email": "bob@example.com", "cumulative_commits": 89, "commits_today": 0, "rank": 2}
