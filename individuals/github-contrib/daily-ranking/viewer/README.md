@@ -34,10 +34,10 @@ daily-ranking /path/to/repo rankings.jsonl
 
 ### Options
 
-| Flag    | Default | Description                              |
-|---------|---------|------------------------------------------|
-| `-n`    | 10      | Number of top contributors to display    |
-| `-speed`| 500ms   | Animation speed (e.g., `200ms`, `1s`)    |
+| Flag    | Default | Description                                       |
+|---------|---------|---------------------------------------------------|
+| `-n`    | 100     | Maximum number of contributors to display         |
+| `-speed`| 500ms   | Animation speed (e.g., `200ms`, `1s`)             |
 
 ```bash
 # Show top 20 contributors
@@ -49,6 +49,11 @@ daily-ranking /path/to/repo rankings.jsonl
 # Fast animation (200ms per frame)
 ./daily-ranking-viewer -speed 200ms rankings.jsonl
 ```
+
+The viewer automatically detects terminal size and adjusts:
+- Number of rows displayed (based on terminal height)
+- Name column width (up to 40 characters)
+- Bar width (based on available space)
 
 ## Controls
 
@@ -70,6 +75,7 @@ daily-ranking /path/to/repo rankings.jsonl
 - Progress bar showing position in the timeline
 - Adjustable animation speed
 - Full keyboard navigation
+- Automatic terminal size detection for optimal display
 
 ## Input Format
 

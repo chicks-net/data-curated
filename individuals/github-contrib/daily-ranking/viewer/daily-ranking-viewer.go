@@ -296,7 +296,7 @@ func readDailyStats(input string) ([]DailyStats, error) {
 }
 
 func main() {
-	topN := flag.Int("n", 1000, "maximum number of contributors to display (0=unlimited)")
+	topN := flag.Int("n", 100, "maximum number of contributors to display (default fits terminal height)")
 	speed := flag.Duration("speed", 500*time.Millisecond, "animation speed (e.g., 500ms, 1s)")
 	flag.Parse()
 
