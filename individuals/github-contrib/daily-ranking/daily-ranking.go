@@ -223,28 +223,21 @@ func computeDailyRankings(commits []Commit, origin string) []DailyStats {
 			nextID++
 		}
 
-		emailID, emailExists := emailToID[c.Email]
+		emailLower := strings.ToLower(c.Email)
+		emailID, emailExists := emailToID[emailLower]
 		if !emailExists {
 			emailID = nextID
-			emailToID[c.Email] = emailID
+			emailToID[emailLower] = emailID
 			nextID++
 		}
 
 		uf.Union(nameID, emailID)
 	}
 
-	personRoots := make(map[int][]int)
-	for name, id := range nameToID {
-		root := uf.Find(id)
-		personRoots[root] = append(personRoots[root], id)
-		nameToID[name] = id
-	}
-
-	commitToPerson := make(map[int]int)
-	for _, c := range commits {
+	commitToPerson := make([]int, len(commits))
+	for i, c := range commits {
 		nameID := nameToID[c.Author]
-		root := uf.Find(nameID)
-		commitToPerson[len(commitToPerson)] = root
+		commitToPerson[i] = uf.Find(nameID)
 	}
 
 	latestNameForPerson := make(map[int]string)
