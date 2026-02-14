@@ -41,7 +41,7 @@ imports modules from `.just/` directory:
 ### Lottery commands
 
 - `just install-lottery-deps` - Install prerequisites (Go, wget, sqlite3)
-- `just check-jackpots` - Fetch California lottery jackpots, show recent results
+- `just fetch-jackpots` - Fetch California lottery jackpots, show recent results
 - `just jackpot-status` - Show database age and when data was last updated
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
@@ -150,7 +150,7 @@ Most data operations are now integrated into the justfile (see commands above).
 The repository contains several Go programs:
 
 - `lottery/jackpot-checker.go` - Fetches Mega Millions and Powerball jackpots from California Lottery API
-  - Run with: `just check-jackpots` (preferred) or `cd lottery && go run jackpot-checker.go`
+  - Run with: `just fetch-jackpots` (preferred) or `cd lottery && go run jackpot-checker.go`
   - Stores data in `lottery/jackpots.db` SQLite database
   - See lottery/JACKPOT-README.md for full documentation
 - `individuals/chicks/blog/post-counter.go` - Counts blog posts per month from chicks.net
@@ -235,7 +235,7 @@ The repository contains R scripts for statistical analysis and visualization.
   - Generates frequency tables and visualizations
 - `lottery/jackpots-analysis/analyze-jackpots.R` - Analyzes California lottery jackpot trends
   - Run with: `just analyze-jackpots`
-  - Uses `lottery/jackpots.db` (populated by `just check-jackpots`)
+  - Uses `lottery/jackpots.db` (populated by `just fetch-jackpots`)
   - Generates 4 visualizations: trends, cash percentage, distribution, changes
   - See lottery/jackpots-analysis/README.md for details
 - `individuals/chicks/github/contributions-analysis/analyze-contributions.R` - Analyzes GitHub contribution trends
