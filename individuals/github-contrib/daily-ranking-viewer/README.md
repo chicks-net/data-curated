@@ -68,6 +68,8 @@ The viewer automatically detects terminal size and adjusts:
 | `space`        | Pause/play animation                          |
 | `h` or `←`     | Previous day                                  |
 | `l` or `→`     | Next day                                      |
+| `g`            | Go back 100 days                              |
+| `;`            | Go forward 100 days                           |
 | `j` or `↓`     | Slow down animation (step through levels)     |
 | `k` or `↑`     | Speed up animation (step through levels)      |
 | `r`            | Restart from beginning                        |

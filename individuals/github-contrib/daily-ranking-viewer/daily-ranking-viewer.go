@@ -218,6 +218,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.currentIndex > 0 {
 				m.currentIndex--
 			}
+		case ";":
+			m.currentIndex += 100
+			if m.currentIndex >= len(m.dailyStats) {
+				m.currentIndex = len(m.dailyStats) - 1
+			}
+		case "g":
+			m.currentIndex -= 100
+			if m.currentIndex < 0 {
+				m.currentIndex = 0
+			}
 		case "r":
 			m.currentIndex = 0
 		case "up", "k":
@@ -339,7 +349,7 @@ func (m model) View() string {
 	b.WriteString("\n")
 	b.WriteString(progressBar)
 	b.WriteString("\n\n")
-	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [j/k] speed │ [r] restart │ [q] quit"))
+	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"))
 
 	return b.String()
 }
