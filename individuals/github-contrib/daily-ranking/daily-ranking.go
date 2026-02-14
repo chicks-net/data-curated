@@ -27,7 +27,13 @@ type Commit struct {
 type DailyStats struct {
 	Date         string            `json:"date"`
 	Origin       string            `json:"origin"`
+	Tags         []string          `json:"tags"`
 	Contributors []ContributorRank `json:"contributors"`
+}
+
+type Tag struct {
+	Name string
+	Date time.Time
 }
 
 type ContributorRank struct {
@@ -130,7 +136,14 @@ func main() {
 		origin = ""
 	}
 
-	dailyRankings := computeDailyRankings(commits, origin, *topN)
+	tags, err := fetchTags(absPath)
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to fetch tags, continuing without tags")
+		tags = nil
+	}
+	log.Info().Int("tags", len(tags)).Msg("Retrieved tags")
+
+	dailyRankings := computeDailyRankings(commits, origin, tags, *topN)
 
 	if len(args) >= 2 {
 		if err := writeJSON(args[1], dailyRankings); err != nil {
@@ -215,9 +228,79 @@ func getOriginURL(repoPath string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func computeDailyRankings(commits []Commit, origin string, topN int) []DailyStats {
+func fetchTags(repoPath string) ([]Tag, error) {
+	cmd := exec.Command("git", "-C", repoPath, "for-each-ref",
+		"--format=%(refname:short)|%(objecttype)|%(*authordate:iso)|%(authordate:iso)",
+		"refs/tags/")
+	output, err := cmd.Output()
+	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return nil, fmt.Errorf("git for-each-ref failed: %w (stderr: %s)", err, string(exitErr.Stderr))
+		}
+		return nil, fmt.Errorf("git for-each-ref failed: %w", err)
+	}
+
+	var tags []Tag
+	scanner := bufio.NewScanner(strings.NewReader(string(output)))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if line == "" {
+			continue
+		}
+
+		parts := strings.Split(line, "|")
+		if len(parts) < 4 {
+			continue
+		}
+
+		name := parts[0]
+		objectType := parts[1]
+		commitDate := strings.TrimSpace(parts[2])
+		tagDate := strings.TrimSpace(parts[3])
+
+		var dateStr string
+		if objectType == "tag" && tagDate != "" {
+			dateStr = tagDate
+		} else if tagDate != "" {
+			dateStr = tagDate
+		} else if commitDate != "" {
+			dateStr = commitDate
+		} else {
+			continue
+		}
+
+		date, err := time.Parse("2006-01-02 15:04:05 -0700", dateStr)
+		if err != nil {
+			log.Debug().Str("date", dateStr).Err(err).Msg("Failed to parse tag date, skipping")
+			continue
+		}
+
+		tags = append(tags, Tag{
+			Name: name,
+			Date: date,
+		})
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("scanner error: %w", err)
+	}
+
+	sort.Slice(tags, func(i, j int) bool {
+		return tags[i].Date.Before(tags[j].Date)
+	})
+
+	return tags, nil
+}
+
+func computeDailyRankings(commits []Commit, origin string, tags []Tag, topN int) []DailyStats {
 	if len(commits) == 0 {
 		return nil
+	}
+
+	tagsByDate := make(map[string][]string)
+	for _, tag := range tags {
+		dateKey := tag.Date.Format("2006-01-02")
+		tagsByDate[dateKey] = append(tagsByDate[dateKey], tag.Name)
 	}
 
 	uf := NewUnionFind()
@@ -338,9 +421,15 @@ func computeDailyRankings(commits []Commit, origin string, topN int) []DailyStat
 			})
 		}
 
+		dayTags := tagsByDate[date]
+		if dayTags == nil {
+			dayTags = []string{}
+		}
+
 		results = append(results, DailyStats{
 			Date:         date,
 			Origin:       origin,
+			Tags:         dayTags,
 			Contributors: contributorRanks,
 		})
 	}
