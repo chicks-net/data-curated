@@ -25,6 +25,7 @@ type ContributorRank struct {
 
 type DailyStats struct {
 	Date         string            `json:"date"`
+	Origin       string            `json:"origin"`
 	Contributors []ContributorRank `json:"contributors"`
 }
 
@@ -49,7 +50,10 @@ type model struct {
 	countStyle     lipgloss.Style
 	headerStyle    lipgloss.Style
 	dateStyle      lipgloss.Style
+	originStyle    lipgloss.Style
+	relaxingStyle  lipgloss.Style
 	highlightRegex *regexp.Regexp
+	lastCommitDate map[string]int
 }
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
@@ -57,6 +61,15 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		sort.Slice(stats[i].Contributors, func(j, k int) bool {
 			return stats[i].Contributors[j].CumulativeCommits > stats[i].Contributors[k].CumulativeCommits
 		})
+	}
+
+	lastCommitDate := make(map[string]int)
+	for i, day := range stats {
+		for _, c := range day.Contributors {
+			if c.CommitsToday > 0 {
+				lastCommitDate[c.Login] = i
+			}
+		}
 	}
 
 	m := model{
@@ -78,7 +91,10 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		countStyle:     lipgloss.NewStyle().Foreground(lipgloss.Color("226")),
 		headerStyle:    lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")),
 		dateStyle:      lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("213")),
+		originStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("33")),
+		relaxingStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("245")),
 		highlightRegex: regexp.MustCompile(`[CT]h`),
+		lastCommitDate: lastCommitDate,
 	}
 	m.calculateLayout()
 	return m
@@ -207,9 +223,13 @@ func (m model) View() string {
 	b.WriteString("\n\n")
 
 	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
+	if stats.Origin != "" {
+		b.WriteString("  ")
+		b.WriteString(m.originStyle.Render(stats.Origin))
+	}
 	b.WriteString("\n")
 
-	speedStr := fmt.Sprintf("%.1fs", m.speed.Seconds())
+	speedStr := fmt.Sprintf("%.3fs", m.speed.Seconds())
 	pauseStr := "Playing"
 	if m.paused {
 		pauseStr = "Paused"
@@ -239,6 +259,11 @@ func (m model) View() string {
 		todayStr := ""
 		if c.CommitsToday > 0 {
 			todayStr = m.progressStyle.Render(fmt.Sprintf(" (+%d today)", c.CommitsToday))
+		} else if lastIdx, ok := m.lastCommitDate[c.Login]; ok {
+			daysSince := m.currentIndex - lastIdx
+			if daysSince > 100 {
+				todayStr = m.relaxingStyle.Render(fmt.Sprintf(" (relaxing for %d days)", daysSince))
+			}
 		}
 
 		line := fmt.Sprintf("%2d. %s │%s %s%s\n",
@@ -311,7 +336,7 @@ func readDailyStats(input string) ([]DailyStats, error) {
 
 func main() {
 	topN := flag.Int("n", 100, "maximum number of contributors to display (default fits terminal height)")
-	speed := flag.Duration("speed", 500*time.Millisecond, "animation speed (e.g., 500ms, 1s)")
+	speed := flag.Duration("speed", 100*time.Millisecond, "animation speed (e.g., 100ms, 500ms, 1s)")
 	flag.Parse()
 
 	args := flag.Args()
