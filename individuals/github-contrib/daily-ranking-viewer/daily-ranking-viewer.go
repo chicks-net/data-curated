@@ -32,6 +32,20 @@ type DailyStats struct {
 
 type tickMsg time.Time
 
+var speedLevels = []time.Duration{
+	1 * time.Millisecond,
+	5 * time.Millisecond,
+	10 * time.Millisecond,
+	50 * time.Millisecond,
+	100 * time.Millisecond,
+	200 * time.Millisecond,
+	500 * time.Millisecond,
+	750 * time.Millisecond,
+	1 * time.Second,
+	2 * time.Second,
+	5 * time.Second,
+}
+
 type model struct {
 	dailyStats     []DailyStats
 	currentIndex   int
@@ -44,6 +58,7 @@ type model struct {
 	paused         bool
 	done           bool
 	speed          time.Duration
+	speedIndex     int
 	progressStyle  lipgloss.Style
 	barStyle       lipgloss.Style
 	nameStyle      lipgloss.Style
@@ -84,6 +99,8 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		tagByIndex[i] = latestTag
 	}
 
+	speedIndex := findSpeedIndex(speed)
+
 	m := model{
 		dailyStats:     stats,
 		currentIndex:   0,
@@ -95,7 +112,8 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		termHeight:     24,
 		paused:         false,
 		done:           false,
-		speed:          speed,
+		speed:          speedLevels[speedIndex],
+		speedIndex:     speedIndex,
 		progressStyle:  lipgloss.NewStyle().Foreground(lipgloss.Color("36")),
 		barStyle:       lipgloss.NewStyle().Foreground(lipgloss.Color("82")),
 		nameStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("15")),
@@ -112,6 +130,26 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	}
 	m.calculateLayout()
 	return m
+}
+
+func findSpeedIndex(speed time.Duration) int {
+	for i, s := range speedLevels {
+		if speed <= s {
+			return i
+		}
+	}
+	return len(speedLevels) - 1
+}
+
+func formatSpeed(d time.Duration) string {
+	switch {
+	case d < time.Millisecond:
+		return fmt.Sprintf("%dns", d.Nanoseconds())
+	case d < time.Second:
+		return fmt.Sprintf("%dms", d.Milliseconds())
+	default:
+		return fmt.Sprintf("%.1fs", d.Seconds())
+	}
 }
 
 func (m *model) calculateLayout() {
@@ -180,14 +218,28 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.currentIndex > 0 {
 				m.currentIndex--
 			}
+		case ";":
+			m.currentIndex += 100
+			if m.currentIndex >= len(m.dailyStats) {
+				m.currentIndex = len(m.dailyStats) - 1
+			}
+		case "g":
+			m.currentIndex -= 100
+			if m.currentIndex < 0 {
+				m.currentIndex = 0
+			}
 		case "r":
 			m.currentIndex = 0
 		case "up", "k":
-			if m.speed > 100*time.Millisecond {
-				m.speed -= 100 * time.Millisecond
+			if m.speedIndex > 0 {
+				m.speedIndex--
+				m.speed = speedLevels[m.speedIndex]
 			}
 		case "down", "j":
-			m.speed += 100 * time.Millisecond
+			if m.speedIndex < len(speedLevels)-1 {
+				m.speedIndex++
+				m.speed = speedLevels[m.speedIndex]
+			}
 		}
 	case tickMsg:
 		if !m.paused && m.currentIndex < len(m.dailyStats)-1 {
@@ -234,25 +286,25 @@ func (m model) View() string {
 	progressBar := m.renderProgressBar(progress)
 
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
+	b.WriteString("\n\n")
+
+	b.WriteString(fmt.Sprintf("Date: %s", m.tagStyle.Render(stats.Date)))
+	if stats.Origin != "" {
+		b.WriteString("  Origin: ")
+		b.WriteString(m.originStyle.Render(stats.Origin))
+	}
 	if tag := m.tagByIndex[m.currentIndex]; tag != "" {
 		b.WriteString("  ")
 		b.WriteString(m.tagStyle.Render(tag))
 	}
-	b.WriteString("\n\n")
-
-	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
-	if stats.Origin != "" {
-		b.WriteString("  ")
-		b.WriteString(m.originStyle.Render(stats.Origin))
-	}
 	b.WriteString("\n")
 
-	speedStr := fmt.Sprintf("%.3fs", m.speed.Seconds())
+	speedStr := formatSpeed(m.speed)
 	pauseStr := "Playing"
 	if m.paused {
 		pauseStr = "Paused"
 	}
-	b.WriteString(fmt.Sprintf("%s | Speed: %s | Day %d/%d\n\n",
+	b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
 		m.progressStyle.Render(pauseStr),
 		m.progressStyle.Render(speedStr),
 		m.currentIndex+1,
@@ -297,7 +349,7 @@ func (m model) View() string {
 	b.WriteString("\n")
 	b.WriteString(progressBar)
 	b.WriteString("\n\n")
-	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [j/k] speed │ [r] restart │ [q] quit"))
+	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"))
 
 	return b.String()
 }
