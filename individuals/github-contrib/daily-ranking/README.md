@@ -13,6 +13,7 @@ all contributors ranked by cumulative commits:
 {
   "date": "2017-03-14",
   "origin": "https://github.com/owner/repo.git",
+  "tags": ["v1.0.0", "release-2017-03-14"],
   "contributors": [
     {"login": "Alice", "cumulative_commits": 61, "commits_today": 15, "rank": 1},
     {"login": "Bob", "cumulative_commits": 9, "commits_today": 3, "rank": 2}
@@ -24,6 +25,7 @@ Each day's output includes:
 
 - `date` - The date in YYYY-MM-DD format
 - `origin` - Git remote origin URL (empty string if not available)
+- `tags` - Array of git tag names created on this date (empty array if none)
 - `contributors` - Array of contributor entries for that day
 
 Each contributor entry includes:

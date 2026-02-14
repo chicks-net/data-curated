@@ -777,6 +777,7 @@ daily-ranking-tests:
 	just daily-ranking ~/Documents/git/megamap /tmp/megamap.jsonl main
 	just daily-ranking ~/Documents/git/OtherFolks/terraform-provider-digitalocean /tmp/terraform-provider-digitalocean.jsonl main
 	just daily-ranking ~/Documents/git/dnscontrol  /tmp/dnscontrol.jsonl main
+	just daily-ranking ~/Documents/git/OtherFolks/linux /tmp/linux.jsonl master
 
 # Generate daily contributor rankings from a git repository
 # Use BRANCH="main" to analyze only the main branch (matches GitHub Contributors)
