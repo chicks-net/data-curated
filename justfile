@@ -803,7 +803,7 @@ daily-ranking-viewer filename:
 	INSTALL_CMD=$(just _get_install_cmd go golang-go)
 	just _require_command go "Install with:\n  $INSTALL_CMD\n  Or see: https://go.dev/doc/install"
 
-	cd individuals/github-contrib/daily-ranking/viewer
+	cd individuals/github-contrib/daily-ranking-viewer
 	set -x
 	go run . "{{ filename }}"
 
