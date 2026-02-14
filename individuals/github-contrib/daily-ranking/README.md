@@ -72,6 +72,9 @@ go build -o daily-ranking
 # Analyze a specific branch only (e.g., main)
 ./daily-ranking -branch main /path/to/git/repo
 
+# Limit to top 50 contributors (default is 100)
+./daily-ranking -top 50 /path/to/git/repo
+
 # Write to file
 ./daily-ranking /path/to/git/repo output.jsonl
 ```
