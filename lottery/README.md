@@ -23,7 +23,7 @@ Using the project's justfile workflow:
 
 ```bash
 # Check California lottery jackpots (Powerball, Mega Millions)
-just check-jackpots
+just fetch-jackpots
 
 # Download New York lottery winning numbers
 just download-lottery-numbers

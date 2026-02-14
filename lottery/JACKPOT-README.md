@@ -21,7 +21,7 @@ All this gets stored in `jackpots.db` for tracking over time.
 If you're using the project's justfile workflow:
 
 ```bash
-just check-jackpots
+just fetch-jackpots
 ```
 
 This handles the directory navigation and shows recent jackpot history after fetching.
