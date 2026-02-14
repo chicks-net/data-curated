@@ -51,6 +51,7 @@ daily-ranking /path/to/repo rankings.jsonl
 ```
 
 The viewer automatically detects terminal size and adjusts:
+
 - Number of rows displayed (based on terminal height)
 - Name column width (up to 40 characters)
 - Bar width (based on available space)
