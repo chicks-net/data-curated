@@ -262,7 +262,7 @@ func (m model) View() string {
 		} else if lastIdx, ok := m.lastCommitDate[c.Login]; ok {
 			daysSince := m.currentIndex - lastIdx
 			if daysSince > 100 {
-				todayStr = m.relaxingStyle.Render(" (relaxing)")
+				todayStr = m.relaxingStyle.Render(fmt.Sprintf(" (relaxing for %d days)", daysSince))
 			}
 		}
 
