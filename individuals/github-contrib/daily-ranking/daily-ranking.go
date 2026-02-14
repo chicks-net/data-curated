@@ -93,11 +93,12 @@ func main() {
 	}
 
 	branch := flag.String("branch", "", "Branch to analyze (default: all branches)")
+	topN := flag.Int("top", 100, "Limit output to top N contributors (extend for ties)")
 	flag.Parse()
 
 	args := flag.Args()
 	if len(args) < 1 {
-		log.Fatal().Msg("Usage: daily-ranking [-branch <name>] <git-repo-directory> [output-file]")
+		log.Fatal().Msg("Usage: daily-ranking [-branch <name>] [-top N] <git-repo-directory> [output-file]")
 	}
 
 	repoPath := args[0]
@@ -129,7 +130,7 @@ func main() {
 		origin = ""
 	}
 
-	dailyRankings := computeDailyRankings(commits, origin)
+	dailyRankings := computeDailyRankings(commits, origin, *topN)
 
 	if len(args) >= 2 {
 		if err := writeJSON(args[1], dailyRankings); err != nil {
@@ -214,7 +215,7 @@ func getOriginURL(repoPath string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
-func computeDailyRankings(commits []Commit, origin string) []DailyStats {
+func computeDailyRankings(commits []Commit, origin string, topN int) []DailyStats {
 	if len(commits) == 0 {
 		return nil
 	}
@@ -318,7 +319,17 @@ func computeDailyRankings(commits []Commit, origin string) []DailyStats {
 		})
 
 		var contributorRanks []ContributorRank
-		for i, r := range rankedList {
+		cutoff := topN
+		if cutoff > 0 && len(rankedList) > cutoff {
+			cutoffCommits := rankedList[cutoff-1].commits
+			for cutoff < len(rankedList) && rankedList[cutoff].commits == cutoffCommits {
+				cutoff++
+			}
+		} else {
+			cutoff = len(rankedList)
+		}
+		for i := 0; i < cutoff; i++ {
+			r := rankedList[i]
 			contributorRanks = append(contributorRanks, ContributorRank{
 				Login:             r.login,
 				CumulativeCommits: r.commits,
