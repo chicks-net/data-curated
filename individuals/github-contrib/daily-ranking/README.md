@@ -14,8 +14,8 @@ all contributors ranked by cumulative commits:
   "date": "2017-03-14",
   "origin": "https://github.com/owner/repo.git",
   "contributors": [
-    {"login": "Alice", "email": "alice@example.com", "cumulative_commits": 61, "commits_today": 15, "rank": 1},
-    {"login": "Bob", "email": "bob@example.com", "cumulative_commits": 9, "commits_today": 3, "rank": 2}
+    {"login": "Alice", "cumulative_commits": 61, "commits_today": 15, "rank": 1},
+    {"login": "Bob", "cumulative_commits": 9, "commits_today": 3, "rank": 2}
   ]
 }
 ```
@@ -28,11 +28,25 @@ Each day's output includes:
 
 Each contributor entry includes:
 
-- `login` - Author name from git
-- `email` - Author email (used as unique identifier)
+- `login` - Author name from git (uses the most recent name for merged identities)
 - `cumulative_commits` - Total commits up to and including this date
 - `commits_today` - Commits made on this specific date
 - `rank` - Position in the leaderboard (1 = top contributor)
+
+## Identity Resolution
+
+Contributors are identified by merging commits that share either a name OR an
+email address. This handles two common scenarios:
+
+1. **Multiple email addresses**: A contributor using different emails for work
+   and personal commits will be correctly merged into a single identity.
+
+2. **Name changes**: When a contributor changes their name, all commits are
+   merged under a single identity using the most recent name.
+
+For example, if "Alice" commits with `alice@work.com` and later as "Alice Smith"
+with `alice@personal.com`, all commits are merged and displayed under
+"Alice Smith" (the most recent name).
 
 ## Usage
 
@@ -84,15 +98,15 @@ cd viewer && go build -o daily-ranking-viewer
 
 ### Viewer Controls
 
-| Key | Action |
-|-----|--------|
-| `space` | Pause/play animation |
-| `h`/`←` | Previous day |
-| `l`/`→` | Next day |
-| `j`/`↓` | Slow down |
-| `k`/`↑` | Speed up |
-| `r` | Restart from beginning |
-| `q` | Quit |
+| Key      | Action                 |
+|----------|------------------------|
+| `space`  | Pause/play animation   |
+| `h`/`←`  | Previous day           |
+| `l`/`→`  | Next day               |
+| `j`/`↓`  | Slow down              |
+| `k`/`↑`  | Speed up               |
+| `r`      | Restart from beginning |
+| `q`      | Quit                   |
 
 ### Viewer Features
 

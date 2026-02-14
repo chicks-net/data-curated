@@ -31,16 +31,48 @@ type DailyStats struct {
 
 type ContributorRank struct {
 	Login             string `json:"login"`
-	Email             string `json:"email"`
 	CumulativeCommits int    `json:"cumulative_commits"`
 	CommitsToday      int    `json:"commits_today"`
 	Rank              int    `json:"rank"`
 }
 
-type ContributorCumulative struct {
-	Login   string
-	Email   string
-	Commits int
+type UnionFind struct {
+	parent map[int]int
+	rank   map[int]int
+}
+
+func NewUnionFind() *UnionFind {
+	return &UnionFind{
+		parent: make(map[int]int),
+		rank:   make(map[int]int),
+	}
+}
+
+func (uf *UnionFind) Find(x int) int {
+	if _, exists := uf.parent[x]; !exists {
+		uf.parent[x] = x
+		uf.rank[x] = 0
+	}
+	if uf.parent[x] != x {
+		uf.parent[x] = uf.Find(uf.parent[x])
+	}
+	return uf.parent[x]
+}
+
+func (uf *UnionFind) Union(x, y int) {
+	rootX := uf.Find(x)
+	rootY := uf.Find(y)
+	if rootX == rootY {
+		return
+	}
+	if uf.rank[rootX] < uf.rank[rootY] {
+		uf.parent[rootX] = rootY
+	} else if uf.rank[rootX] > uf.rank[rootY] {
+		uf.parent[rootY] = rootX
+	} else {
+		uf.parent[rootY] = rootX
+		uf.rank[rootX]++
+	}
 }
 
 func main() {
@@ -178,55 +210,94 @@ func computeDailyRankings(commits []Commit, origin string) []DailyStats {
 		return nil
 	}
 
-	contributorTotals := make(map[string]*ContributorCumulative)
-	dailyCommits := make(map[string]map[string]int)
+	uf := NewUnionFind()
+	nameToID := make(map[string]int)
+	emailToID := make(map[string]int)
+	nextID := 0
 
 	for _, c := range commits {
-		dateKey := c.Date.Format("2006-01-02")
-		key := c.Email
-
-		if dailyCommits[dateKey] == nil {
-			dailyCommits[dateKey] = make(map[string]int)
+		nameID, nameExists := nameToID[c.Author]
+		if !nameExists {
+			nameID = nextID
+			nameToID[c.Author] = nameID
+			nextID++
 		}
-		dailyCommits[dateKey][key]++
 
-		if contributorTotals[key] == nil {
-			contributorTotals[key] = &ContributorCumulative{
-				Login: c.Author,
-				Email: c.Email,
-			}
+		emailLower := strings.ToLower(c.Email)
+		emailID, emailExists := emailToID[emailLower]
+		if !emailExists {
+			emailID = nextID
+			emailToID[emailLower] = emailID
+			nextID++
 		}
-		contributorTotals[key].Commits++
+
+		uf.Union(nameID, emailID)
 	}
 
-	uniqueDates := make([]string, 0, len(dailyCommits))
-	for date := range dailyCommits {
-		uniqueDates = append(uniqueDates, date)
+	commitToPerson := make([]int, len(commits))
+	for i, c := range commits {
+		nameID := nameToID[c.Author]
+		commitToPerson[i] = uf.Find(nameID)
+	}
+
+	latestNameForPerson := make(map[int]string)
+	latestDateForPerson := make(map[int]time.Time)
+	for i, c := range commits {
+		root := commitToPerson[i]
+		if existing, ok := latestDateForPerson[root]; !ok || c.Date.After(existing) {
+			latestDateForPerson[root] = c.Date
+			latestNameForPerson[root] = c.Author
+		}
+	}
+
+	personCommitsDaily := make(map[int]map[string]int)
+	for i, c := range commits {
+		root := commitToPerson[i]
+		dateKey := c.Date.Format("2006-01-02")
+		if personCommitsDaily[root] == nil {
+			personCommitsDaily[root] = make(map[string]int)
+		}
+		personCommitsDaily[root][dateKey]++
+	}
+
+	uniqueDates := make([]string, 0, len(commits))
+	seenDates := make(map[string]bool)
+	for _, c := range commits {
+		dateKey := c.Date.Format("2006-01-02")
+		if !seenDates[dateKey] {
+			seenDates[dateKey] = true
+			uniqueDates = append(uniqueDates, dateKey)
+		}
 	}
 	sort.Strings(uniqueDates)
 
-	runningTotals := make(map[string]int)
+	runningTotals := make(map[int]int)
+	todayCommits := make(map[int]int)
 	var results []DailyStats
 
 	for _, date := range uniqueDates {
-		for email, count := range dailyCommits[date] {
-			runningTotals[email] += count
+		todayCommits = make(map[int]int)
+		for person, dailyMap := range personCommitsDaily {
+			if count, ok := dailyMap[date]; ok {
+				runningTotals[person] += count
+				todayCommits[person] = count
+			}
 		}
 
 		type ranked struct {
-			email   string
+			person  int
 			login   string
 			commits int
 			today   int
 		}
 
 		var rankedList []ranked
-		for email, total := range runningTotals {
+		for person, total := range runningTotals {
 			rankedList = append(rankedList, ranked{
-				email:   email,
-				login:   contributorTotals[email].Login,
+				person:  person,
+				login:   latestNameForPerson[person],
 				commits: total,
-				today:   dailyCommits[date][email],
+				today:   todayCommits[person],
 			})
 		}
 
@@ -241,7 +312,6 @@ func computeDailyRankings(commits []Commit, origin string) []DailyStats {
 		for i, r := range rankedList {
 			contributorRanks = append(contributorRanks, ContributorRank{
 				Login:             r.login,
-				Email:             r.email,
 				CumulativeCommits: r.commits,
 				CommitsToday:      r.today,
 				Rank:              i + 1,
