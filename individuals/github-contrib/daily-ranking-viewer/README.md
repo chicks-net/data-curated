@@ -37,7 +37,7 @@ daily-ranking /path/to/repo rankings.jsonl
 | Flag    | Default | Description                                       |
 |---------|---------|---------------------------------------------------|
 | `-n`    | 100     | Maximum number of contributors to display         |
-| `-speed`| 500ms   | Animation speed (e.g., `200ms`, `1s`)             |
+| `-speed`| 100ms   | Animation speed (e.g., `1ms`, `5ms`, `10ms`, `100ms`, `1s`) |
 
 ```bash
 # Show top 20 contributors
@@ -46,9 +46,14 @@ daily-ranking /path/to/repo rankings.jsonl
 # Slow animation (1 second per frame)
 ./daily-ranking-viewer -speed 1s rankings.jsonl
 
-# Fast animation (200ms per frame)
-./daily-ranking-viewer -speed 200ms rankings.jsonl
+# Fast animation (10ms per frame)
+./daily-ranking-viewer -speed 10ms rankings.jsonl
+
+# Ultra fast (1ms per frame)
+./daily-ranking-viewer -speed 1ms rankings.jsonl
 ```
+
+**Available speed levels:** 1ms, 5ms, 10ms, 50ms, 100ms, 200ms, 500ms, 750ms, 1s, 2s, 5s
 
 The viewer automatically detects terminal size and adjusts:
 
@@ -58,15 +63,15 @@ The viewer automatically detects terminal size and adjusts:
 
 ## Controls
 
-| Key            | Action                 |
-|----------------|------------------------|
-| `space`        | Pause/play animation   |
-| `h` or `←`     | Previous day           |
-| `l` or `→`     | Next day               |
-| `j` or `↓`     | Slow down animation    |
-| `k` or `↑`     | Speed up animation     |
-| `r`            | Restart from beginning |
-| `q` or `ctrl+c`| Quit                   |
+| Key            | Action                                        |
+|----------------|-----------------------------------------------|
+| `space`        | Pause/play animation                          |
+| `h` or `←`     | Previous day                                  |
+| `l` or `→`     | Next day                                      |
+| `j` or `↓`     | Slow down animation (step through levels)     |
+| `k` or `↑`     | Speed up animation (step through levels)      |
+| `r`            | Restart from beginning                        |
+| `q` or `ctrl+c`| Quit                                          |
 
 ## Features
 
