@@ -15,6 +15,7 @@ list:
 # ============================================================================
 
 # Get file modification time in "YYYY-MM-DD HH:MM:SS" format (cross-platform)
+[no-cd]
 _file_mod_time FILE:
 	#!/usr/bin/env bash
 	if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -283,9 +284,9 @@ jackpot-status: _check_lottery_deps
 
 	DB_FILE="{{ jackpot_database }}"
 
-	if [ ! -f "$DB_FILE" ]; then
+	if [[ ! -f "$DB_FILE" ]]; then
 		echo "{{RED}}Error: Database file not found: $DB_FILE{{NORMAL}}"
-		echo "Run 'just check-jackpots' to create it."
+		echo "Run 'just fetch-jackpots' to create it."
 		exit 1
 	fi
 
@@ -358,9 +359,10 @@ lottery-update-all: _check_lottery_deps _on_a_branch
 	just download-lottery-numbers
 	just analyze-megamillions
 	just analyze-powerball
-	just check-jackpots
+	just fetch-jackpots
 	just analyze-jackpots
 	just jackpot-status
+	just db-status
 	git add lottery
 	git stp
 
