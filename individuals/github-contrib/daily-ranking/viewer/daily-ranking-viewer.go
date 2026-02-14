@@ -35,6 +35,7 @@ type model struct {
 	topN          int
 	barWidth      int
 	nameWidth     int
+	displayRows   int
 	termWidth     int
 	termHeight    int
 	paused        bool
@@ -55,6 +56,7 @@ func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 		topN:          topN,
 		barWidth:      40,
 		nameWidth:     20,
+		displayRows:   10,
 		termWidth:     80,
 		termHeight:    24,
 		paused:        false,
@@ -97,6 +99,20 @@ func (m *model) calculateLayout() {
 	} else if barAvailable >= 60 {
 		m.barWidth = 60
 	}
+
+	// Reserve vertical space for:
+	// - Header: 2 lines (title + blank)
+	// - Date line: 1 line
+	// - Status line: 1 line + blank = 2 lines
+	// - "Top Contributors" header: 2 lines
+	// - Progress bar section: 4 lines (blank + bar + blank + controls)
+	// Total reserved: ~11 lines
+	headerLines := 11
+	availableRows := m.termHeight - headerLines
+	if availableRows < 3 {
+		availableRows = 3
+	}
+	m.displayRows = availableRows
 }
 
 func (m model) Init() tea.Cmd {
@@ -162,8 +178,12 @@ func (m model) View() string {
 		return contributors[i].CumulativeCommits > contributors[j].CumulativeCommits
 	})
 
-	if len(contributors) > m.topN {
-		contributors = contributors[:m.topN]
+	displayCount := m.displayRows
+	if m.topN > 0 && displayCount > m.topN {
+		displayCount = m.topN
+	}
+	if len(contributors) > displayCount {
+		contributors = contributors[:displayCount]
 	}
 
 	maxCommits := 1
@@ -276,7 +296,7 @@ func readDailyStats(input string) ([]DailyStats, error) {
 }
 
 func main() {
-	topN := flag.Int("n", 10, "number of top contributors to display")
+	topN := flag.Int("n", 1000, "maximum number of contributors to display (0=unlimited)")
 	speed := flag.Duration("speed", 500*time.Millisecond, "animation speed (e.g., 500ms, 1s)")
 	flag.Parse()
 
