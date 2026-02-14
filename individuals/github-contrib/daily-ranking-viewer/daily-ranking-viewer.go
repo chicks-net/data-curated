@@ -290,7 +290,7 @@ func (m model) View() string {
 
 	b.WriteString(m.dateStyle.Render(fmt.Sprintf("Date: %s", stats.Date)))
 	if stats.Origin != "" {
-		b.WriteString("  ")
+		b.WriteString("  Origin: ")
 		b.WriteString(m.originStyle.Render(stats.Origin))
 	}
 	if tag := m.tagByIndex[m.currentIndex]; tag != "" {
@@ -304,7 +304,7 @@ func (m model) View() string {
 	if m.paused {
 		pauseStr = "Paused"
 	}
-	b.WriteString(fmt.Sprintf("%s | Speed: %s | Day %d/%d\n\n",
+	b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
 		m.progressStyle.Render(pauseStr),
 		m.progressStyle.Render(speedStr),
 		m.currentIndex+1,
