@@ -61,7 +61,7 @@ jobs:
       - name: Commit changes
         if: steps.changes.outputs.has_changes == 'true'
         run: |
-          git config user.name 'Christopher Hicks[bot]'
+          git config user.name 'Christopher Hicks'
           git config user.email 'chicks@chicks.net'
           git commit -m "Update GitHub data (automated)
 
