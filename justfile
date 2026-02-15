@@ -785,9 +785,13 @@ daily-ranking-test-movie:
 	rm individuals/github-contrib/linux.cast
 	asciinema record -c "just daily-ranking-viewer /tmp/linux.jsonl" individuals/github-contrib/linux.cast
 	agg --speed 4 individuals/github-contrib/linux.cast individuals/github-contrib/linux.gif
+
 	rm individuals/github-contrib/linux.mp4
-	ffmpeg -i individuals/github-contrib/linux.gif -i  ~/Pictures/Linux_TuxPenguin.png -filter_complex "[0:v]scale=3840:2160:flags=lanczos,format=yuv420p[bg];[bg][1:v]overlay=W-w-10:H-h-10" -movflags faststart individuals/github-contrib/linux.mp4
+	ffmpeg -i individuals/github-contrib/linux.gif -i  ~/Pictures/logos/Linux_TuxPenguin.png -filter_complex "[0:v]scale=3840:2160:flags=lanczos,format=yuv420p[bg];[bg][1:v]overlay=W-w-10:H-h-10" -movflags faststart individuals/github-contrib/linux.mp4
 	exiftool individuals/github-contrib/linux.mp4
+
+	rm individuals/github-contrib/linux-from-mp4.gif
+	ffmpeg -i individuals/github-contrib/linux.mp4 -vf "scale=iw/2:ih/2:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" individuals/github-contrib/linux-from-mp4.gif
 
 # Generate daily contributor rankings from a git repository
 # Use BRANCH="main" to analyze only the main branch (matches GitHub Contributors)
