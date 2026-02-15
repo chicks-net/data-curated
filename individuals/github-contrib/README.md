@@ -14,9 +14,7 @@ A collection of Go tools for analyzing GitHub repository contributors.
 
 ![Daily Ranking Viewer Demo](linux.gif)
 
-<!-- markdownlint-disable MD033 -->
-<video src="linux.mp4" controls="controls" style="max-width: 100%;"></video>
-<!-- markdownlint-enable MD033 -->
+![Demo video](linux.mp4)
 
 [Asciinema recording](linux.cast)
 
