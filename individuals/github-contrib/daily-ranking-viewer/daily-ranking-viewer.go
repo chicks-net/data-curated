@@ -58,6 +58,7 @@ type model struct {
 	progressWidth  int
 	paused         bool
 	done           bool
+	countdown      int
 	speed          time.Duration
 	speedIndex     int
 	progressStyle  lipgloss.Style
@@ -76,6 +77,8 @@ type model struct {
 }
 
 const controlsLine = "Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"
+
+const countdownSeconds = 10
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	for i := range stats {
@@ -200,7 +203,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case " ":
-			m.paused = !m.paused
+			if m.done {
+				m.done = false
+				m.countdown = 0
+				m.paused = true
+			} else {
+				m.paused = !m.paused
+			}
 		case "right", "l":
 			if m.currentIndex < len(m.dailyStats)-1 {
 				m.currentIndex++
@@ -208,6 +217,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "left", "h":
 			if m.currentIndex > 0 {
 				m.currentIndex--
+				if m.done && m.currentIndex < len(m.dailyStats)-1 {
+					m.done = false
+					m.countdown = 0
+				}
 			}
 		case ";":
 			m.currentIndex += 100
@@ -219,8 +232,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.currentIndex < 0 {
 				m.currentIndex = 0
 			}
+			if m.done && m.currentIndex < len(m.dailyStats)-1 {
+				m.done = false
+				m.countdown = 0
+			}
 		case "r":
 			m.currentIndex = 0
+			m.done = false
+			m.countdown = 0
 		case "up", "k":
 			if m.speedIndex > 0 {
 				m.speedIndex--
@@ -233,11 +252,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tickMsg:
+		if m.done {
+			if m.countdown > 0 {
+				m.countdown--
+				if m.countdown == 0 {
+					return m, tea.Quit
+				}
+			}
+			return m, tea.Tick(time.Second, func(t time.Time) tea.Msg {
+				return tickMsg(t)
+			})
+		}
 		if !m.paused && m.currentIndex < len(m.dailyStats)-1 {
 			m.currentIndex++
 		}
-		if m.currentIndex >= len(m.dailyStats)-1 {
+		if !m.paused && m.currentIndex >= len(m.dailyStats)-1 && !m.done {
 			m.done = true
+			m.countdown = countdownSeconds
 		}
 		return m, tea.Tick(m.speed, func(t time.Time) tea.Msg {
 			return tickMsg(t)
@@ -277,6 +308,8 @@ func (m model) View() string {
 	progressBar := m.renderProgressBar(progress)
 
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
+	b.WriteString(" ")
+	b.WriteString(m.originStyle.Render("by chicks-net/data-curated"))
 	b.WriteString("\n\n")
 
 	b.WriteString(fmt.Sprintf("Date: %s", m.tagStyle.Render(stats.Date)))
@@ -295,12 +328,22 @@ func (m model) View() string {
 	if m.paused {
 		pauseStr = "Paused"
 	}
-	b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
-		m.progressStyle.Render(pauseStr),
-		m.progressStyle.Render(speedStr),
-		m.currentIndex+1,
-		len(m.dailyStats),
-	))
+	if m.done {
+		b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d | %s\n\n",
+			m.progressStyle.Render(pauseStr),
+			m.progressStyle.Render(speedStr),
+			m.currentIndex+1,
+			len(m.dailyStats),
+			m.headerStyle.Render(fmt.Sprintf("Exiting in %ds", m.countdown)),
+		))
+	} else {
+		b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
+			m.progressStyle.Render(pauseStr),
+			m.progressStyle.Render(speedStr),
+			m.currentIndex+1,
+			len(m.dailyStats),
+		))
+	}
 
 	b.WriteString(m.headerStyle.Render("Top Contributors"))
 	b.WriteString("\n\n")
