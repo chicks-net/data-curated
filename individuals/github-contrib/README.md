@@ -12,11 +12,11 @@ A collection of Go tools for analyzing GitHub repository contributors.
 
 ## Demo
 
-![Daily Ranking Viewer Demo](linux.gif)
+![Daily Ranking Viewer Demo](linux-from-mp4.gif)
 
-![Demo video](linux.mp4)
-
-[Asciinema recording](linux.cast)
+- [Demo video MP4](linux.mp4)
+- [Demo video intermediate animated GIF](linux.gif)
+- [Asciinema recording](linux.cast)
 
 ## Prerequisites
 
