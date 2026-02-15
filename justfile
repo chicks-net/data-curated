@@ -779,6 +779,16 @@ daily-ranking-tests:
 	just daily-ranking ~/Documents/git/dnscontrol  /tmp/dnscontrol.jsonl main
 	just daily-ranking ~/Documents/git/OtherFolks/linux /tmp/linux.jsonl master
 
+# Generate an mp4 based on the Linux repo
+[group('github')]
+daily-ranking-test-movie:
+	rm individuals/github-contrib/linux.cast
+	asciinema record -c "just daily-ranking-viewer /tmp/linux.jsonl" individuals/github-contrib/linux.cast
+	agg --speed 4 individuals/github-contrib/linux.cast individuals/github-contrib/linux.gif
+	rm individuals/github-contrib/linux.mp4
+	ffmpeg -i individuals/github-contrib/linux.gif -i  ~/Pictures/Linux_TuxPenguin.png -filter_complex "[0:v]scale=3840:2160:flags=lanczos,format=yuv420p[bg];[bg][1:v]overlay=W-w-10:H-h-10" -movflags faststart individuals/github-contrib/linux.mp4
+	exiftool individuals/github-contrib/linux.mp4
+
 # Generate daily contributor rankings from a git repository
 # Use BRANCH="main" to analyze only the main branch (matches GitHub Contributors)
 [working-directory("individuals/github-contrib/daily-ranking")]

@@ -5,10 +5,20 @@ A collection of Go tools for analyzing GitHub repository contributors.
 ## Tools
 
 | Tool | Description |
-|------|-------------|
+| ------ | ------------- |
 | [snapshot-contributors](snapshot-contributors/) | Fetch contributor statistics from GitHub API |
 | [daily-ranking](daily-ranking/) | Generate daily rankings from git commit history |
 | [daily-ranking-viewer](daily-ranking-viewer/) | Interactive TUI for visualizing daily rankings |
+
+## Demo
+
+![Daily Ranking Viewer Demo](linux.gif)
+
+<!-- markdownlint-disable MD033 -->
+<video src="linux.mp4" controls="controls" style="max-width: 100%;"></video>
+<!-- markdownlint-enable MD033 -->
+
+[Asciinema recording](linux.cast)
 
 ## Prerequisites
 
@@ -41,4 +51,20 @@ Or open directly in datasette:
 
 ```bash
 datasette data.db -o
+```
+
+## Asciimena notes
+
+- 4k video == 3840 × 2160
+
+```bash
+stty -a          :   48 rows; 170 columns
+Image Width                     : 1650
+Image Height                    : 1096
+```
+
+```bash
+stty -a          :   48 rows; 202 columns
+Image Width                     : 1958
+Image Height                    : 1096
 ```

@@ -55,6 +55,7 @@ type model struct {
 	displayRows    int
 	termWidth      int
 	termHeight     int
+	progressWidth  int
 	paused         bool
 	done           bool
 	speed          time.Duration
@@ -73,6 +74,8 @@ type model struct {
 	lastCommitDate map[string]int
 	tagByIndex     map[int]string
 }
+
+const controlsLine = "Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	for i := range stats {
@@ -153,12 +156,7 @@ func formatSpeed(d time.Duration) string {
 }
 
 func (m *model) calculateLayout() {
-	// Reserve space for:
-	// - Rank number: 4 chars (" 1. ")
-	// - Bar separator: 1 char ("│")
-	// - Bar + space + count + today marker: ~20 chars minimum
-	// - Progress bar at bottom: 60 chars
-	// Available for name: width - 4 - 1 - 20 - some padding
+	m.progressWidth = len(controlsLine) - 7
 
 	reserved := 30
 	availableForName := m.termWidth - reserved
@@ -166,8 +164,8 @@ func (m *model) calculateLayout() {
 	m.nameWidth = 20
 	if availableForName > 20 {
 		m.nameWidth = availableForName
-		if m.nameWidth > 40 {
-			m.nameWidth = 40
+		if m.nameWidth > 30 {
+			m.nameWidth = 30
 		}
 	} else if availableForName < 10 {
 		m.nameWidth = 10
@@ -175,19 +173,12 @@ func (m *model) calculateLayout() {
 
 	barAvailable := m.termWidth - 4 - m.nameWidth - 15
 	m.barWidth = 40
-	if barAvailable > 20 && barAvailable < 60 {
+	if barAvailable > 20 && barAvailable < 120 {
 		m.barWidth = barAvailable
-	} else if barAvailable >= 60 {
-		m.barWidth = 60
+	} else if barAvailable >= 120 {
+		m.barWidth = 120
 	}
 
-	// Reserve vertical space for:
-	// - Header: 2 lines (title + blank)
-	// - Date line: 1 line
-	// - Status line: 1 line + blank = 2 lines
-	// - "Top Contributors" header: 2 lines
-	// - Progress bar section: 4 lines (blank + bar + blank + controls)
-	// Total reserved: ~11 lines
 	headerLines := 11
 	availableRows := m.termHeight - headerLines
 	if availableRows < 3 {
@@ -349,13 +340,13 @@ func (m model) View() string {
 	b.WriteString("\n")
 	b.WriteString(progressBar)
 	b.WriteString("\n\n")
-	b.WriteString(m.progressStyle.Render("Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"))
+	b.WriteString(m.progressStyle.Render(controlsLine))
 
 	return b.String()
 }
 
 func (m model) renderProgressBar(progress float64) string {
-	width := 60
+	width := m.progressWidth
 	filled := int(progress / 100 * float64(width))
 
 	bar := strings.Repeat("█", filled) + strings.Repeat("░", width-filled)
