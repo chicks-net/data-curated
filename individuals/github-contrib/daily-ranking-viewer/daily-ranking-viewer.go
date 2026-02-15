@@ -58,6 +58,7 @@ type model struct {
 	progressWidth  int
 	paused         bool
 	done           bool
+	countdown      int
 	speed          time.Duration
 	speedIndex     int
 	progressStyle  lipgloss.Style
@@ -76,6 +77,8 @@ type model struct {
 }
 
 const controlsLine = "Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"
+
+const countdownSeconds = 10
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	for i := range stats {
@@ -233,11 +236,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tickMsg:
+		if m.done {
+			if m.countdown > 0 {
+				m.countdown--
+				if m.countdown == 0 {
+					return m, tea.Quit
+				}
+			}
+			return m, tea.Tick(time.Second, func(t time.Time) tea.Msg {
+				return tickMsg(t)
+			})
+		}
 		if !m.paused && m.currentIndex < len(m.dailyStats)-1 {
 			m.currentIndex++
 		}
-		if m.currentIndex >= len(m.dailyStats)-1 {
+		if m.currentIndex >= len(m.dailyStats)-1 && !m.done {
 			m.done = true
+			m.countdown = countdownSeconds
 		}
 		return m, tea.Tick(m.speed, func(t time.Time) tea.Msg {
 			return tickMsg(t)
@@ -295,12 +310,22 @@ func (m model) View() string {
 	if m.paused {
 		pauseStr = "Paused"
 	}
-	b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
-		m.progressStyle.Render(pauseStr),
-		m.progressStyle.Render(speedStr),
-		m.currentIndex+1,
-		len(m.dailyStats),
-	))
+	if m.done {
+		b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d | %s\n\n",
+			m.progressStyle.Render(pauseStr),
+			m.progressStyle.Render(speedStr),
+			m.currentIndex+1,
+			len(m.dailyStats),
+			m.headerStyle.Render(fmt.Sprintf("Exiting in %ds", m.countdown)),
+		))
+	} else {
+		b.WriteString(fmt.Sprintf("Mode: %s | Speed: %s | Day %d/%d\n\n",
+			m.progressStyle.Render(pauseStr),
+			m.progressStyle.Render(speedStr),
+			m.currentIndex+1,
+			len(m.dailyStats),
+		))
+	}
 
 	b.WriteString(m.headerStyle.Render("Top Contributors"))
 	b.WriteString("\n\n")
