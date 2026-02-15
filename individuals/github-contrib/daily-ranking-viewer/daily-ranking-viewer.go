@@ -292,6 +292,8 @@ func (m model) View() string {
 	progressBar := m.renderProgressBar(progress)
 
 	b.WriteString(m.headerStyle.Render("Daily Contributor Rankings"))
+	b.WriteString(" ")
+	b.WriteString(m.originStyle.Render("by chicks-net/data-curated"))
 	b.WriteString("\n\n")
 
 	b.WriteString(fmt.Sprintf("Date: %s", m.tagStyle.Render(stats.Date)))
