@@ -203,7 +203,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case " ":
-			m.paused = !m.paused
+			if m.done {
+				m.done = false
+				m.countdown = 0
+				m.paused = true
+			} else {
+				m.paused = !m.paused
+			}
 		case "right", "l":
 			if m.currentIndex < len(m.dailyStats)-1 {
 				m.currentIndex++
@@ -211,6 +217,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "left", "h":
 			if m.currentIndex > 0 {
 				m.currentIndex--
+				if m.done && m.currentIndex < len(m.dailyStats)-1 {
+					m.done = false
+					m.countdown = 0
+				}
 			}
 		case ";":
 			m.currentIndex += 100
@@ -222,8 +232,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.currentIndex < 0 {
 				m.currentIndex = 0
 			}
+			if m.done && m.currentIndex < len(m.dailyStats)-1 {
+				m.done = false
+				m.countdown = 0
+			}
 		case "r":
 			m.currentIndex = 0
+			m.done = false
+			m.countdown = 0
 		case "up", "k":
 			if m.speedIndex > 0 {
 				m.speedIndex--
@@ -250,7 +266,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !m.paused && m.currentIndex < len(m.dailyStats)-1 {
 			m.currentIndex++
 		}
-		if m.currentIndex >= len(m.dailyStats)-1 && !m.done {
+		if !m.paused && m.currentIndex >= len(m.dailyStats)-1 && !m.done {
 			m.done = true
 			m.countdown = countdownSeconds
 		}
