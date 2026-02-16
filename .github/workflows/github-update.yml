@@ -32,17 +32,6 @@ jobs:
         with:
           r-version: '4.4'
 
-      - name: Set R library path
-        run: |
-          echo "R_LIBS_USER=$HOME/R/library" >> "$GITHUB_ENV"
-          mkdir -p "$HOME/R/library"
-
-      - name: Cache R packages
-        uses: actions/cache@v4
-        with:
-          path: ${{ env.R_LIBS_USER }}
-          key: ${{ runner.os }}-r-4.4-v2
-
       - name: Setup just
         uses: extractions/setup-just@v2
         with:
