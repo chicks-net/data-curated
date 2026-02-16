@@ -416,7 +416,14 @@ install-r-package PACKAGE:
 	echo ""
 
 	# Check if package is already installed and get version
-	INSTALLED_VERSION=$(R --quiet --no-save -e "if ('{{PACKAGE}}' %in% installed.packages()[,'Package']) { cat(as.character(packageVersion('{{PACKAGE}}'))) } else { cat('NOT_INSTALLED') }" 2>/dev/null | tail -1)
+	INSTALLED_VERSION=$(R --quiet --no-save -e "
+	tryCatch({
+	  library('{{PACKAGE}}', character.only = TRUE)
+	  cat(as.character(packageVersion('{{PACKAGE}}')))
+	}, error = function(e) {
+	  cat('NOT_INSTALLED')
+	})
+	" 2>/dev/null | tail -1)
 
 	if [ "$INSTALLED_VERSION" != "NOT_INSTALLED" ]; then
 		echo "{{YELLOW}}Package {{PACKAGE}} is already installed (version $INSTALLED_VERSION){{NORMAL}}"
