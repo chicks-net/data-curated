@@ -756,6 +756,7 @@ github-update-all: _on_a_branch
 
 # Github update for CI (skips branch check)
 _github-update-ci:
+	gh api user # for debugging
 	just fetch-comments
 	just fetch-commits
 	just analyze-commits
