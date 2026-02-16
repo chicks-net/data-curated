@@ -1,0 +1,105 @@
+---
+name: GitHub Update
+on:
+  schedule:
+    - cron: '0 12 * * *'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.23'
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+        with:
+          r-version: '4.4'
+
+      - name: Set R library path
+        run: |
+          echo "R_LIBS_USER=$HOME/R/library" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/R/library"
+
+      - name: Cache R packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.R_LIBS_USER }}
+          key: ${{ runner.os }}-r-4.4
+
+      - name: Setup just
+        uses: extractions/setup-just@v2
+        with:
+          just-version: '1'
+
+      - name: Install R packages
+        run: "just install-r-deps"
+
+      - name: Create update branch
+        id: branch
+        run: |
+          BRANCH_NAME="automation/$(date -u +%Y-%m-%d)-github-update"
+          git checkout -b "$BRANCH_NAME"
+          echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Run GitHub update
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: just _github-update-ci
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Commit changes
+        if: steps.changes.outputs.has_changes == 'true'
+        run: |
+          git config user.name 'Christopher Hicks'
+          git config user.email 'chicks@chicks.net'
+          git commit -m "Update GitHub data (automated)
+
+          Fetched commits, contributions, and comments.
+          Generated analysis visualizations."
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+        run: |
+          git push -u origin "$BRANCH_NAME"
+          gh pr create \
+            --title "Update GitHub data ($(date -u +%Y-%m-%d))" \
+            --body "## Summary
+
+          Automated daily GitHub data update.
+
+          ### Updated
+
+          - Commit history (commits.db)
+          - Contribution counts (contributions.db)
+          - Comment history (comments.db)
+          - Analysis visualizations
+
+          ## Meta
+
+          Triggered by scheduled workflow." \
+            --base main

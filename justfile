@@ -754,6 +754,16 @@ github-update-all: _on_a_branch
 	git stp
 	just db-status
 
+# Github update for CI (skips branch check)
+_github-update-ci:
+	just fetch-comments
+	just fetch-commits
+	just analyze-commits
+	just fetch-contributions
+	just analyze-contributions
+	git add individuals/chicks/github
+	git status --porcelain
+
 # View commits in Datasette
 [group('github')]
 commits-db:
