@@ -5,14 +5,13 @@ on:
     - cron: '0 12 * * *'
   workflow_dispatch:
 
-permissions: {}
-
 jobs:
   update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
+      metadata: read
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

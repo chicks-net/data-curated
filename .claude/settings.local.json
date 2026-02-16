@@ -49,7 +49,9 @@
       "Bash(just generate-blog-posts:*)",
       "Bash(just _format_age:*)",
       "Bash(just jackpot-status:*)",
-      "Bash(just fetch-commits:*)"
+      "Bash(just fetch-commits:*)",
+      "Bash(gh run list:*)",
+      "Bash(gh run view:*)"
     ],
     "deny": [],
     "ask": []
