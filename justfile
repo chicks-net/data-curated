@@ -762,7 +762,7 @@ _github-update-ci:
 	just fetch-contributions
 	just analyze-contributions
 	git add individuals/chicks/github
-	git stp
+	git status --porcelain
 
 # View commits in Datasette
 [group('github')]
