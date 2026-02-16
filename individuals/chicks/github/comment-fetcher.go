@@ -133,6 +133,12 @@ func initDatabase() (*sql.DB, error) {
 }
 
 func getGitHubUsername() (string, error) {
+	// In CI (GitHub Actions), use GITHUB_ACTOR environment variable
+	if actor := os.Getenv("GITHUB_ACTOR"); actor != "" {
+		return actor, nil
+	}
+
+	// Fall back to gh CLI for local development
 	cmd := exec.Command("gh", "api", "user", "--jq", ".login")
 	output, err := cmd.Output()
 	if err != nil {
