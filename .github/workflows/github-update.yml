@@ -23,6 +23,16 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
+          cache-dependency-path: |
+            lottery/go.sum
+            individuals/chicks/github/go.sum
+            individuals/chicks/youtube/go.sum
+            individuals/chicks/ccusage/go.sum
+
+      - name: Setup gh CLI auth
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${GH_TOKEN}" | gh auth login --with-token
 
       - name: Setup R
         uses: r-lib/actions/setup-r@v2
