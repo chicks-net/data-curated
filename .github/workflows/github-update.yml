@@ -68,24 +68,29 @@ jobs:
             echo "has_changes=true" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Select random emoji
+        id: emoji
+        run: |
+          EMOJIS=("🚀" "📊" "🔄" "✨" "📈" "🤖" "📝" "🎯" "💡" "🔥")
+          RANDOM_EMOJI=${EMOJIS[$((RANDOM % ${#EMOJIS[@]}))]}
+          echo "emoji=$RANDOM_EMOJI" >> "$GITHUB_OUTPUT"
+
       - name: Commit changes
         if: steps.changes.outputs.has_changes == 'true'
+        env:
+          RANDOM_EMOJI: ${{ steps.emoji.outputs.emoji }}
         run: |
           git config user.name 'Christopher Hicks'
           git config user.email 'chicks@chicks.net'
-          git commit -m "Update GitHub data (automated)
-
-          Fetched commits, contributions, and comments.
-          Generated analysis visualizations."
+          git commit -m "$RANDOM_EMOJI [github] Update GitHub data ($(date -u +%Y-%m-%d))"
 
       - name: Create Pull Request
         if: steps.changes.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
+          RANDOM_EMOJI: ${{ steps.emoji.outputs.emoji }}
         run: |
-          EMOJIS=("🚀" "📊" "🔄" "✨" "📈" "🤖" "📝" "🎯" "💡" "🔥")
-          RANDOM_EMOJI=${EMOJIS[$((RANDOM % ${#EMOJIS[@]}))]}
           git push -u origin "$BRANCH_NAME"
           gh pr create \
             --title "$RANDOM_EMOJI [github] Update GitHub data ($(date -u +%Y-%m-%d))" \
