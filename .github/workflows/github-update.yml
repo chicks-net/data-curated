@@ -84,9 +84,11 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
         run: |
+          EMOJIS=("🚀" "📊" "🔄" "✨" "📈" "🤖" "📝" "🎯" "💡" "🔥")
+          RANDOM_EMOJI=${EMOJIS[$((RANDOM % ${#EMOJIS[@]}))]}
           git push -u origin "$BRANCH_NAME"
           gh pr create \
-            --title "Update GitHub data ($(date -u +%Y-%m-%d))" \
+            --title "$RANDOM_EMOJI [github] Update GitHub data ($(date -u +%Y-%m-%d))" \
             --body "## Summary
 
           Automated daily GitHub data update.
