@@ -1,5 +1,5 @@
-# checkov:skip=CKV2_GHA_1:Write permissions needed to create branches and PRs
 ---
+# checkov:skip=CKV2_GHA_1:Write permissions needed to create branches and PRs
 name: GitHub Update
 on:
   schedule:
