@@ -49,7 +49,7 @@ jobs:
       - name: Create update branch
         id: branch
         run: |
-          BRANCH_NAME="automation/$(date -u +%Y-%m-%d)-github-update"
+          BRANCH_NAME="automation/$(date -u +%Y-%m-%d)-github-update-${GITHUB_RUN_NUMBER}"
           git checkout -b "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
