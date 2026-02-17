@@ -5,6 +5,9 @@ on:
     - cron: '0 12 * * *'
   workflow_dispatch:
 
+# global permissions
+permissions: {}
+
 jobs:
   update:
     runs-on: ubuntu-latest
