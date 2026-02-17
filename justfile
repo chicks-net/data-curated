@@ -415,15 +415,21 @@ install-r-package PACKAGE:
 	echo "{{GREEN}}Checking R package: {{PACKAGE}}{{NORMAL}}"
 	echo ""
 
-	# Check if package is already installed and get version
-	INSTALLED_VERSION=$(R --quiet --no-save -e "
+	# Check if package is already installed and get version.
+	# Use Rscript (not 'R') to avoid R's interactive '> ' prompt appearing
+	# as the last line of output, which tail -1 would capture instead of version.
+	INSTALLED_VERSION=$(Rscript -e "
 	tryCatch({
-	  library('{{PACKAGE}}', character.only = TRUE)
+	  library('{{PACKAGE}}', character.only = TRUE, warn.conflicts = FALSE)
 	  cat(as.character(packageVersion('{{PACKAGE}}')))
 	}, error = function(e) {
 	  cat('NOT_INSTALLED')
-	})
-	" 2>/dev/null | tail -1)
+	})" 2>/dev/null | tail -1)
+
+	# Validate we got a real version number (not an R prompt artifact like '>')
+	if [[ ! "$INSTALLED_VERSION" =~ ^[0-9]+\.[0-9]+ ]]; then
+		INSTALLED_VERSION="NOT_INSTALLED"
+	fi
 
 	if [ "$INSTALLED_VERSION" != "NOT_INSTALLED" ]; then
 		echo "{{YELLOW}}Package {{PACKAGE}} is already installed (version $INSTALLED_VERSION){{NORMAL}}"
@@ -431,7 +437,7 @@ install-r-package PACKAGE:
 
 		# Check for updates
 		echo "{{BLUE}}Checking for updates...{{NORMAL}}"
-		UPDATE_INFO=$(R --quiet --no-save -e "
+		UPDATE_INFO=$(Rscript -e "
 		old <- old.packages(repos='https://cloud.r-project.org')
 		if ('{{PACKAGE}}' %in% rownames(old)) {
 		  cat('UPDATE_AVAILABLE:', old['{{PACKAGE}}', 'ReposVer'])
@@ -458,7 +464,7 @@ install-r-package PACKAGE:
 		R --quiet --no-save -e "install.packages('{{PACKAGE}}', repos='https://cloud.r-project.org')"
 
 		# Get the installed version
-		NEW_VERSION=$(R --quiet --no-save -e "cat(as.character(packageVersion('{{PACKAGE}}')))" 2>/dev/null | tail -1)
+		NEW_VERSION=$(Rscript -e "cat(as.character(packageVersion('{{PACKAGE}}')))" 2>/dev/null | tail -1)
 		echo ""
 		echo "{{GREEN}}✓ Package {{PACKAGE}} installed successfully (version $NEW_VERSION){{NORMAL}}"
 	fi
