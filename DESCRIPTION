@@ -4,7 +4,7 @@ Title: Data Curated - R Package Dependencies
 Version: 0.0.1
 Description: R package dependencies for data-curated repository analysis scripts.
 Authors@R: person("Christopher", "Hicks", role = c("aut", "cre"))
-License: GPL (= 2)
+License: GPL-2
 SystemRequirements: libcurl-dev, libxml2-dev, libfontconfig1-dev, libfreetype6-dev, libpng-dev, libjpeg-dev
 Imports:
     tidyverse,
