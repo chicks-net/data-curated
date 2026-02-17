@@ -1,5 +1,6 @@
 ---
 name: GitHub Update
+# checkov:skip=CKV2_GHA_1:Write permissions needed to create branches and PRs
 on:
   schedule:
     - cron: '0 12 * * *'
