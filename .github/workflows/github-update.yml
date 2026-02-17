@@ -32,10 +32,8 @@ jobs:
         with:
           r-version: '4.4'
 
-      - name: Setup just
-        uses: extractions/setup-just@v2
-        with:
-          just-version: '1'
+      - name: Install R package dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
 
       - name: Install R packages
         run: "just install-r-deps"
