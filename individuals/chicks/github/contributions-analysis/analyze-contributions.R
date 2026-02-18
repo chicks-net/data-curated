@@ -134,8 +134,8 @@ output_file <- "contributions-last2years.png"
 ggsave(output_file, p, width = 12, height = 6, dpi = 300)
 cat("Saved:", output_file, "\n")
 
-# Create a second visualization showing all-time data with better aggregation
-cat("\nCreating all-time contribution graph...\n")
+# Create a second visualization showing weekly totals
+cat("\nCreating weekly contribution graph...\n")
 
 # For all-time view, aggregate by week to make it more readable
 weekly_data <- contributions %>%
@@ -282,7 +282,7 @@ p2 <- p2 +
   ) +
   # Labels and theme
   labs(
-    title = "GitHub Contributions for chicks-net - All Time",
+    title = "GitHub Contributions for chicks-net - Weekly Totals",
     subtitle = "Weekly totals with running averages and employment periods (shaded regions)",
     x = "Date",
     y = "Contributions per Week",
@@ -298,8 +298,8 @@ p2 <- p2 +
   ) +
   scale_x_date(date_breaks = "1 year", date_labels = "%Y")
 
-# Save the all-time plot
-output_file2 <- "contributions-alltime.png"
+# Save the weekly totals plot
+output_file2 <- "contributions-weekly.png"
 ggsave(output_file2, p2, width = 14, height = 6, dpi = 300)
 cat("Saved:", output_file2, "\n\n")
 
