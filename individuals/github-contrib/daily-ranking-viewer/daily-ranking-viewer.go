@@ -78,7 +78,7 @@ type model struct {
 
 const controlsLine = "Controls: [space] pause/play │ [h/l] prev/next │ [g/;] ±100 days │ [j/k] speed │ [r] restart │ [q] quit"
 
-const countdownSeconds = 10
+const countdownSeconds = 60
 
 func initialModel(stats []DailyStats, topN int, speed time.Duration) model {
 	for i := range stats {
