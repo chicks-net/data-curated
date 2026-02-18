@@ -793,28 +793,70 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
-# Run tests for just daily-ranking
-[working-directory("individuals/github-contrib/daily-ranking")]
-[group('github')]
-daily-ranking-tests:
-	just daily-ranking ~/Documents/git/megamap /tmp/megamap.jsonl main
-	just daily-ranking ~/Documents/git/OtherFolks/terraform-provider-digitalocean /tmp/terraform-provider-digitalocean.jsonl main
-	just daily-ranking ~/Documents/git/dnscontrol  /tmp/dnscontrol.jsonl main
-	just daily-ranking ~/Documents/git/OtherFolks/linux /tmp/linux.jsonl master
-
 # Generate an mp4 based on the Linux repo
 [group('github')]
-daily-ranking-test-movie:
-	rm individuals/github-contrib/linux.cast
-	asciinema record -c "just daily-ranking-viewer /tmp/linux.jsonl" individuals/github-contrib/linux.cast
-	agg --speed 4 individuals/github-contrib/linux.cast individuals/github-contrib/linux.gif
+repo-to-movie repo logo:
+	#!/usr/bin/env bash
+	set -euo pipefail
 
-	rm individuals/github-contrib/linux.mp4
-	ffmpeg -i individuals/github-contrib/linux.gif -i  ~/Pictures/logos/Linux_TuxPenguin.png -filter_complex "[0:v]scale=3840:2160:flags=lanczos,format=yuv420p[bg];[bg][1:v]overlay=W-w-10:H-h-10" -movflags faststart individuals/github-contrib/linux.mp4
-	exiftool individuals/github-contrib/linux.mp4
+	cd ~/Documents/git/OtherFolks
 
-	rm individuals/github-contrib/linux-from-mp4.gif
-	ffmpeg -i individuals/github-contrib/linux.mp4 -vf "scale=iw/2:ih/2:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" individuals/github-contrib/linux-from-mp4.gif
+	repo_basename=$(basename "{{ repo }}" | sed -e 's/[.]git$//')
+
+	if [[ -d "$repo_basename" ]]; then
+		echo "{{BLUE}}repo exists, pull the latest{{NORMAL}}"
+		cd "$repo_basename"
+		git pull
+	else
+		git clone "{{ repo }}"
+		cd "$repo_basename"
+	fi
+
+	echo "{{BLUE}}fetch tags...{{NORMAL}}"
+	git fetch --tags
+	echo "$(pwd) $(du -shx .)"
+	repo_dir=$(pwd)
+	repo_branch=$(git rev-parse --abbrev-ref HEAD)
+	cd ~/Documents/git/data-curated
+
+	echo "{{BLUE}}calculate daily rankings...{{NORMAL}}"
+	ranking_json="/tmp/${repo_basename}.jsonl"
+	time just daily-ranking "$repo_dir" "$ranking_json" "$repo_branch"
+
+	echo "{{BLUE}}generate first animated GIF...{{NORMAL}}"
+	cast_filename="/tmp/${repo_basename}.cast"
+	gif1_filename="/tmp/${repo_basename}.gif"
+
+	if [[ -e "$cast_filename" ]]; then
+		rm "$cast_filename"
+	fi
+	if [[ -e "$gif1_filename" ]]; then
+		rm "$gif1_filename"
+	fi
+	asciinema record -c "just daily-ranking-viewer $ranking_json" "$cast_filename"
+	agg --speed 4 "$cast_filename" "$gif1_filename"
+
+	echo "{{BLUE}}generate mp4...{{NORMAL}}"
+	mp4_filename="/tmp/${repo_basename}.mp4"
+	gif2_filename="/tmp/${repo_basename}-from-mp4.gif"
+
+	if [[ -e "$mp4_filename" ]]; then
+		rm "$mp4_filename"
+	fi
+	ffmpeg -i "$gif1_filename" -i "{{ logo }}" -filter_complex "[0:v]scale=3840:2160:flags=lanczos,format=yuv420p[bg];[bg][1:v]overlay=W-w-10:H-h-10" -movflags faststart "$mp4_filename"
+	exiftool "$mp4_filename"
+
+	echo "{{BLUE}}generate second animated GIF...{{NORMAL}}"
+	if [[ -e "$gif2_filename" ]]; then
+		rm "$gif2_filename"
+	fi
+	ffmpeg -i "$mp4_filename" -vf "scale=iw/2:ih/2:flags=lanczos,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse" "$gif2_filename"
+
+	echo "{{BLUE}}Done!{{NORMAL}}"
+
+[group('Utility')]
+add_sound_to_movie input_video input_audio:
+	ffmpeg -i "{{ input_video }}" -i "{{ input_audio }}" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{{ input_video }}-withsound.mp4"
 
 # Generate daily contributor rankings from a git repository
 # Use BRANCH="main" to analyze only the main branch (matches GitHub Contributors)
