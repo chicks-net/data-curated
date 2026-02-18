@@ -21,7 +21,7 @@ short-term, medium-term, and long-term trends.
 
 ![Contributions Timeline](contributions-last2years.png)
 
-### 2. All-Time History (2011-Present)
+### 2. Weekly Totals (2011-Present)
 
 Shows weekly aggregated contributions with running averages scaled to show
 the overall activity arc across your entire GitHub history.
@@ -31,7 +31,7 @@ the overall activity arc across your entire GitHub history.
 - **Purple line**: 13-week running average (~1 quarter)
 - **Orange line**: 26-week running average (~6 months)
 
-![Contributions All-Time](contributions-alltime.png)
+![Contributions Weekly](contributions-weekly.png)
 
 ### 3. Monthly Totals
 
@@ -97,8 +97,8 @@ Active days: 91
 Creating contribution graph...
 Saved: contributions-last2years.png
 
-Creating all-time contribution graph...
-Saved: contributions-alltime.png
+Creating weekly contribution graph...
+Saved: contributions-weekly.png
 
 Creating monthly contributions graph...
 Saved: contributions-monthly.png
