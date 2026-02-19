@@ -263,14 +263,15 @@ fetch-jackpots: _check_lottery_deps
 	go run jackpot-checker.go
 
 	echo ""
-	echo "Recent jackpot checks:"
-	sqlite3 "{{ jackpot_database }}" "SELECT \
-	  game, \
-	  printf('Draw #%d', draw_number) as draw, \
-	  draw_date, \
-	  printf('\$%,d M', jackpot/1000000) as jackpot, \
-	  printf('\$%.1f M', CAST(estimated_cash AS REAL)/1000000) as cash, \
-	  datetime(checked_at) as checked \
+	echo "{{YELLOW}}Recent jackpot checks:{{NORMAL}}"
+	echo ""
+	sqlite3 -header -column "{{ jackpot_database }}" "SELECT \
+	  game as Game, \
+	  printf('Draw #%d', draw_number) as Draw, \
+	  draw_date as 'Draw Date', \
+	  printf('\$%,d M', jackpot/1000000) as Jackpot, \
+	  printf('\$%.1f M', CAST(estimated_cash AS REAL)/1000000) as Cash, \
+	  datetime(checked_at, 'localtime') as Checked \
 	FROM jackpots \
 	ORDER BY checked_at DESC \
 	LIMIT 10;"
@@ -363,7 +364,7 @@ lottery-update-all: _check_lottery_deps _on_a_branch
 	just analyze-jackpots
 	just jackpot-status
 	just db-status
-	git add lottery
+	git add .
 	git stp
 
 # Install all R packages used in this repository
