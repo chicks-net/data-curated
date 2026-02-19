@@ -229,25 +229,25 @@ def determine_video_type(video_data: Dict[str, Any]) -> str:
     return "video"
 
 
-def store_videos(videos: List[Dict[str, Any]]) -> int:
+def store_videos(videos: List[Dict[str, Any]]) -> tuple[int, int]:
     """Store video metadata in SQLite database.
 
     Args:
         videos: List of video metadata dictionaries
 
     Returns:
-        Number of videos successfully stored
+        Tuple of (new_count, updated_count) for videos successfully stored/updated
     """
     if not videos:
         print("No videos to store")
-        return 0
+        return (0, 0)
 
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         fetched_at = datetime.now(timezone.utc).isoformat()
 
         stored_count = 0
-        skipped_count = 0
+        updated_count = 0
         failed_videos = []
         print(f"Processing {len(videos)} videos...")
 
@@ -256,14 +256,12 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
             if not video_id:
                 continue
 
-            # Check if video already exists - skip if so
+            # Check if video already exists
             cursor.execute("SELECT 1 FROM videos WHERE video_id = ?", (video_id,))
-            if cursor.fetchone():
-                skipped_count += 1
-                continue
+            exists = cursor.fetchone() is not None
 
             print(
-                f"[{i}/{len(videos)}] Fetching details for: {video.get('title', video_id)[:50]}..."
+                f"[{i}/{len(videos)}] {'Updating' if exists else 'Fetching'}: {video.get('title', video_id)[:50]}..."
             )
 
             # Get detailed metadata
@@ -283,59 +281,78 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
             categories = json.dumps(detailed.get("categories", []))
             video_type = determine_video_type(detailed)
 
-            # Using parameterized queries to prevent SQL injection
-            cursor.execute(
-                """
-                INSERT OR IGNORE INTO videos (
-                    video_id, title, description, upload_date, duration,
-                    view_count, like_count, comment_count, video_type,
-                    url, thumbnail_url, tags, categories, fetched_at,
-                    width, height, fps, blog_url
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-                (
-                    video_id,
-                    detailed.get("title"),
-                    detailed.get("description"),
-                    detailed.get("upload_date"),
-                    detailed.get("duration"),
-                    detailed.get("view_count"),
-                    detailed.get("like_count"),
-                    detailed.get("comment_count"),
-                    video_type,
-                    detailed.get("webpage_url"),
-                    detailed.get("thumbnail"),
-                    tags,
-                    categories,
-                    fetched_at,
-                    detailed.get("width"),
-                    detailed.get("height"),
-                    detailed.get("fps"),
-                    None,  # blog_url - to be populated manually later
-                ),
-            )
-
-            stored_count += 1
+            if exists:
+                # Update only counters for existing videos (preserve blog_url)
+                cursor.execute(
+                    """
+                    UPDATE videos SET
+                        view_count = ?,
+                        like_count = ?,
+                        comment_count = ?,
+                        fetched_at = ?
+                    WHERE video_id = ?
+                """,
+                    (
+                        detailed.get("view_count"),
+                        detailed.get("like_count"),
+                        detailed.get("comment_count"),
+                        fetched_at,
+                        video_id,
+                    ),
+                )
+                updated_count += 1
+            else:
+                # Insert new video
+                cursor.execute(
+                    """
+                    INSERT INTO videos (
+                        video_id, title, description, upload_date, duration,
+                        view_count, like_count, comment_count, video_type,
+                        url, thumbnail_url, tags, categories, fetched_at,
+                        width, height, fps, blog_url
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        video_id,
+                        detailed.get("title"),
+                        detailed.get("description"),
+                        detailed.get("upload_date"),
+                        detailed.get("duration"),
+                        detailed.get("view_count"),
+                        detailed.get("like_count"),
+                        detailed.get("comment_count"),
+                        video_type,
+                        detailed.get("webpage_url"),
+                        detailed.get("thumbnail"),
+                        tags,
+                        categories,
+                        fetched_at,
+                        detailed.get("width"),
+                        detailed.get("height"),
+                        detailed.get("fps"),
+                        None,  # blog_url - to be populated manually later
+                    ),
+                )
+                stored_count += 1
 
             # Commit periodically to prevent data loss on interruption
-            if stored_count % COMMIT_INTERVAL == 0:
+            if (stored_count + updated_count) % COMMIT_INTERVAL == 0:
                 conn.commit()
 
         # Record fetch history
-        # Using parameterized queries to prevent SQL injection
         cursor.execute(
             """
             INSERT INTO fetch_history (fetched_at, videos_count, success)
             VALUES (?, ?, 1)
         """,
-            (fetched_at, stored_count),
+            (fetched_at, stored_count + updated_count),
         )
 
         conn.commit()
 
-        # Report skipped videos
-        if skipped_count > 0:
-            print(f"\nSkipped {skipped_count} video(s) already in database")
+        # Report updated videos
+        if updated_count > 0:
+            print(f"\nUpdated {updated_count} existing video(s)")
 
         # Report failed fetches if any
         if failed_videos:
@@ -345,7 +362,7 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
             if len(failed_videos) > 5:
                 print(f"  ... and {len(failed_videos) - 5} more")
 
-        return stored_count
+        return (stored_count, updated_count)
 
 
 def main() -> None:
@@ -382,10 +399,12 @@ def main() -> None:
         sys.exit(0)
 
     # Store in database
-    count = store_videos(videos)
+    new_count, updated_count = store_videos(videos)
 
     print("\n" + "=" * 50)
-    print(f"Successfully stored {count} videos in {DB_PATH}")
+    print(
+        f"Added {new_count} new videos, updated {updated_count} existing videos in {DB_PATH}"
+    )
     print(f"\nView the database with:")
     print(f"  just youtube-db")
     print(f"  or: datasette {DB_PATH} -o")
