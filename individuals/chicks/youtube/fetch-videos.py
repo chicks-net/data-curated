@@ -61,9 +61,15 @@ def create_database() -> None:
         """)
 
         # Create indexes for common queries
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_upload_date ON videos(upload_date)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_video_type ON videos(video_type)")
-        cursor.execute("CREATE INDEX IF NOT EXISTS idx_view_count ON videos(view_count DESC)")
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_upload_date ON videos(upload_date)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_video_type ON videos(video_type)"
+        )
+        cursor.execute(
+            "CREATE INDEX IF NOT EXISTS idx_view_count ON videos(view_count DESC)"
+        )
 
         conn.commit()
 
@@ -99,7 +105,9 @@ def fetch_video_metadata(channel_url: str) -> Optional[List[Dict[str, Any]]]:
     return all_videos
 
 
-def fetch_from_url(url: str, is_shorts_tab: bool = False) -> Optional[List[Dict[str, Any]]]:
+def fetch_from_url(
+    url: str, is_shorts_tab: bool = False
+) -> Optional[List[Dict[str, Any]]]:
     """Fetch video metadata from a specific URL using yt-dlp.
 
     Args:
@@ -113,20 +121,23 @@ def fetch_from_url(url: str, is_shorts_tab: bool = False) -> Optional[List[Dict[
         "yt-dlp",
         "--dump-json",
         "--flat-playlist",
-        "--extractor-args", "youtube:skip=dash,hls",
-        url
+        "--extractor-args",
+        "youtube:skip=dash,hls",
+        url,
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=60)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=True, timeout=60
+        )
 
         # Parse each line as JSON (yt-dlp outputs one JSON object per line)
         videos = []
-        for line in result.stdout.strip().split('\n'):
+        for line in result.stdout.strip().split("\n"):
             if line:
                 video_data = json.loads(line)
                 # Tag videos with their source endpoint
-                video_data['_from_shorts_tab'] = is_shorts_tab
+                video_data["_from_shorts_tab"] = is_shorts_tab
                 videos.append(video_data)
 
         return videos
@@ -155,13 +166,19 @@ def fetch_detailed_metadata(video_id: str) -> Optional[Dict[str, Any]]:
         "yt-dlp",
         "--dump-json",
         "--no-download",
-        f"https://www.youtube.com/watch?v={video_id}"
+        f"https://www.youtube.com/watch?v={video_id}",
     ]
 
     try:
-        result = subprocess.run(cmd, capture_output=True, text=True, check=True, timeout=30)
+        result = subprocess.run(
+            cmd, capture_output=True, text=True, check=True, timeout=30
+        )
         return json.loads(result.stdout)
-    except (subprocess.CalledProcessError, json.JSONDecodeError, subprocess.TimeoutExpired) as e:
+    except (
+        subprocess.CalledProcessError,
+        json.JSONDecodeError,
+        subprocess.TimeoutExpired,
+    ) as e:
         print(f"Error fetching details for {video_id}: {e}", file=sys.stderr)
         return None
 
@@ -182,17 +199,17 @@ def determine_video_type(video_data: Dict[str, Any]) -> str:
         Either 'short' or 'video'
     """
     # Check if this came from the /shorts endpoint - that's definitive
-    if video_data.get('_from_shorts_tab'):
-        return 'short'
+    if video_data.get("_from_shorts_tab"):
+        return "short"
 
-    url = video_data.get('webpage_url', '')
-    duration = video_data.get('duration', 0)
-    width = video_data.get('width')
-    height = video_data.get('height')
+    url = video_data.get("webpage_url", "")
+    duration = video_data.get("duration", 0)
+    width = video_data.get("width")
+    height = video_data.get("height")
 
     # Check URL pattern - this is the most reliable indicator
-    if url and '/shorts/' in url:
-        return 'short'
+    if url and "/shorts/" in url:
+        return "short"
 
     # Calculate aspect ratio if dimensions are available
     is_vertical = False
@@ -205,102 +222,137 @@ def determine_video_type(video_data: Dict[str, Any]) -> str:
     # If video is vertical and under 60 seconds, it's likely a short
     # (even if URL doesn't contain /shorts/)
     if is_vertical and duration and 0 < duration <= 60:
-        return 'short'
+        return "short"
 
     # If only duration check passes but not vertical, it's a regular short video
     # (not a YouTube Short format)
-    return 'video'
+    return "video"
 
 
-def store_videos(videos: List[Dict[str, Any]]) -> int:
+def store_videos(videos: List[Dict[str, Any]]) -> tuple[int, int]:
     """Store video metadata in SQLite database.
 
     Args:
         videos: List of video metadata dictionaries
 
     Returns:
-        Number of videos successfully stored
+        Tuple of (new_count, updated_count) for videos successfully stored/updated
     """
     if not videos:
         print("No videos to store")
-        return 0
+        return (0, 0)
 
     with sqlite3.connect(DB_PATH) as conn:
         cursor = conn.cursor()
         fetched_at = datetime.now(timezone.utc).isoformat()
 
         stored_count = 0
+        updated_count = 0
         failed_videos = []
         print(f"Processing {len(videos)} videos...")
 
         for i, video in enumerate(videos, 1):
-            video_id = video.get('id')
+            video_id = video.get("id")
             if not video_id:
                 continue
 
-            print(f"[{i}/{len(videos)}] Fetching details for: {video.get('title', video_id)[:50]}...")
+            # Check if video already exists
+            cursor.execute("SELECT 1 FROM videos WHERE video_id = ?", (video_id,))
+            exists = cursor.fetchone() is not None
+
+            print(
+                f"[{i}/{len(videos)}] {'Updating' if exists else 'Fetching'}: {video.get('title', video_id)[:50]}..."
+            )
 
             # Get detailed metadata
             detailed = fetch_detailed_metadata(video_id)
             if not detailed:
                 # Track failed fetches to report at the end
-                failed_videos.append({
-                    'video_id': video_id,
-                    'title': video.get('title', 'Unknown')
-                })
+                failed_videos.append(
+                    {"video_id": video_id, "title": video.get("title", "Unknown")}
+                )
                 continue
 
             # Preserve the source endpoint tag for accurate type detection
-            detailed['_from_shorts_tab'] = video.get('_from_shorts_tab', False)
+            detailed["_from_shorts_tab"] = video.get("_from_shorts_tab", False)
 
             # Extract data
-            tags = json.dumps(detailed.get('tags', []))
-            categories = json.dumps(detailed.get('categories', []))
+            tags = json.dumps(detailed.get("tags", []))
+            categories = json.dumps(detailed.get("categories", []))
             video_type = determine_video_type(detailed)
 
-            # Using parameterized queries to prevent SQL injection
-            cursor.execute("""
-                INSERT OR REPLACE INTO videos (
-                    video_id, title, description, upload_date, duration,
-                    view_count, like_count, comment_count, video_type,
-                    url, thumbnail_url, tags, categories, fetched_at,
-                    width, height, fps, blog_url
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                video_id,
-                detailed.get('title'),
-                detailed.get('description'),
-                detailed.get('upload_date'),
-                detailed.get('duration'),
-                detailed.get('view_count'),
-                detailed.get('like_count'),
-                detailed.get('comment_count'),
-                video_type,
-                detailed.get('webpage_url'),
-                detailed.get('thumbnail'),
-                tags,
-                categories,
-                fetched_at,
-                detailed.get('width'),
-                detailed.get('height'),
-                detailed.get('fps'),
-                None  # blog_url - to be populated manually later
-            ))
-
-            stored_count += 1
+            if exists:
+                # Update only counters for existing videos (preserve blog_url)
+                cursor.execute(
+                    """
+                    UPDATE videos SET
+                        view_count = ?,
+                        like_count = ?,
+                        comment_count = ?,
+                        fetched_at = ?
+                    WHERE video_id = ?
+                """,
+                    (
+                        detailed.get("view_count"),
+                        detailed.get("like_count"),
+                        detailed.get("comment_count"),
+                        fetched_at,
+                        video_id,
+                    ),
+                )
+                updated_count += 1
+            else:
+                # Insert new video
+                cursor.execute(
+                    """
+                    INSERT INTO videos (
+                        video_id, title, description, upload_date, duration,
+                        view_count, like_count, comment_count, video_type,
+                        url, thumbnail_url, tags, categories, fetched_at,
+                        width, height, fps, blog_url
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                    (
+                        video_id,
+                        detailed.get("title"),
+                        detailed.get("description"),
+                        detailed.get("upload_date"),
+                        detailed.get("duration"),
+                        detailed.get("view_count"),
+                        detailed.get("like_count"),
+                        detailed.get("comment_count"),
+                        video_type,
+                        detailed.get("webpage_url"),
+                        detailed.get("thumbnail"),
+                        tags,
+                        categories,
+                        fetched_at,
+                        detailed.get("width"),
+                        detailed.get("height"),
+                        detailed.get("fps"),
+                        None,  # blog_url - to be populated manually later
+                    ),
+                )
+                stored_count += 1
 
             # Commit periodically to prevent data loss on interruption
-            if stored_count % COMMIT_INTERVAL == 0:
+            if (stored_count + updated_count) % COMMIT_INTERVAL == 0:
                 conn.commit()
 
         # Record fetch history
-        # Using parameterized queries to prevent SQL injection
-        cursor.execute("""
+        cursor.execute(
+            """
             INSERT INTO fetch_history (fetched_at, videos_count, success)
             VALUES (?, ?, 1)
-        """, (fetched_at, stored_count))
+        """,
+            (fetched_at, stored_count + updated_count),
+        )
 
         conn.commit()
+
+        # Report updated videos
+        if updated_count > 0:
+            print(f"\nUpdated {updated_count} existing video(s)")
 
         # Report failed fetches if any
         if failed_videos:
@@ -310,7 +362,7 @@ def store_videos(videos: List[Dict[str, Any]]) -> int:
             if len(failed_videos) > 5:
                 print(f"  ... and {len(failed_videos) - 5} more")
 
-        return stored_count
+        return (stored_count, updated_count)
 
 
 def main() -> None:
@@ -321,7 +373,7 @@ def main() -> None:
     parser.add_argument(
         "--channel",
         default=DEFAULT_CHANNEL_URL,
-        help=f"YouTube channel URL (default: {DEFAULT_CHANNEL_URL})"
+        help=f"YouTube channel URL (default: {DEFAULT_CHANNEL_URL})",
     )
     args = parser.parse_args()
 
@@ -347,10 +399,12 @@ def main() -> None:
         sys.exit(0)
 
     # Store in database
-    count = store_videos(videos)
+    new_count, updated_count = store_videos(videos)
 
     print("\n" + "=" * 50)
-    print(f"Successfully stored {count} videos in {DB_PATH}")
+    print(
+        f"Added {new_count} new videos, updated {updated_count} existing videos in {DB_PATH}"
+    )
     print(f"\nView the database with:")
     print(f"  just youtube-db")
     print(f"  or: datasette {DB_PATH} -o")

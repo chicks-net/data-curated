@@ -966,6 +966,8 @@ fetch-youtube-videos:
 	echo "{{GREEN}}Fetching YouTube videos...{{NORMAL}}"
 	uv run fetch-videos.py
 
+	just link-youtube-blog-posts ""
+
 # View YouTube video database in Datasette
 [group('youtube')]
 youtube-db:
