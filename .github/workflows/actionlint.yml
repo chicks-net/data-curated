@@ -1,13 +1,13 @@
 name: Lint GitHub Actions workflows
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches: ["main"]
+  workflow_run:
+    workflows: ["GitHub Update"]
+    types: [completed]
   workflow_dispatch:
 
 # global permissions
@@ -15,6 +15,7 @@ permissions: {}
 
 jobs:
   actionlint:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read

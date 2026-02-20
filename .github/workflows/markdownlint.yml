@@ -5,12 +5,16 @@ on:
     branches:
       - main
   pull_request:
+  workflow_run:
+    workflows: ["GitHub Update"]
+    types: [completed]
 
 # global permissions
 permissions: {}
 
 jobs:
   lint:
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: read
