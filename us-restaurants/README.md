@@ -3,6 +3,10 @@
 Analysis of restaurant establishment counts and density (restaurants per capita)
 using US Census Bureau data.
 
+## Mapped results
+
+![map of the US showing restaurants per 10000 residents](https://github.com/chicks-net/data-curated/blob/main/us-restaurants/restaurant-density-map.png?raw=true)
+
 ## Overview
 
 This analysis combines two Census Bureau datasets to calculate restaurant
@@ -207,12 +211,14 @@ Rscript map-restaurants.R restaurant-density-map.png
 ```
 
 This generates a PNG map with:
+
 - Color-coded counties showing restaurants per 10,000 residents
 - White state borders for clarity
 - Plasma color scale with 98th percentile cap to handle outliers
 - Counties with population < 1,000 shown in grey
 
 The map reveals regional patterns:
+
 - Tourist destinations (beach towns, ski resorts) show high density
 - Rural agricultural areas tend to have lower density
 - Independent cities in Virginia appear separately from surrounding counties
