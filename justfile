@@ -950,6 +950,12 @@ comments-db:
 analyze-restaurants:
 	Rscript analyze-restaurants.R
 
+# Generate restaurant density map by county
+[working-directory("us-restaurants")]
+[group('restaurants')]
+map-restaurants *args:
+	Rscript map-restaurants.R {{ args }}
+
 # Fetch YouTube video metadata and create/update database
 [working-directory("individuals/chicks/youtube")]
 [group('youtube')]
