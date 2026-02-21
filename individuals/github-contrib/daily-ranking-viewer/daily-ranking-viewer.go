@@ -361,18 +361,20 @@ func (m model) View() string {
 		bar = m.barStyle.Render(bar)
 
 		todayStr := ""
+		relaxing := false
 		if c.CommitsToday > 0 {
 			todayStr = m.progressStyle.Render(fmt.Sprintf(" (+%d today)", c.CommitsToday))
 		} else if lastIdx, ok := m.lastCommitDate[c.Login]; ok {
 			daysSince := m.currentIndex - lastIdx
 			if daysSince > 100 {
 				todayStr = m.relaxingStyle.Render(fmt.Sprintf(" (relaxing for %d days)", daysSince))
+				relaxing = true
 			}
 		}
 
 		line := fmt.Sprintf("%2d. %s │%s %s%s\n",
 			i+1,
-			m.renderName(c.Login),
+			m.renderName(c.Login, relaxing),
 			bar,
 			m.countStyle.Render(fmt.Sprintf("%d", c.CumulativeCommits)),
 			todayStr,
@@ -396,7 +398,10 @@ func (m model) renderProgressBar(progress float64) string {
 	return fmt.Sprintf("[%s] %.0f%%", m.barStyle.Render(bar), progress)
 }
 
-func (m model) renderName(name string) string {
+func (m model) renderName(name string, relaxing bool) string {
+	if relaxing {
+		return m.relaxingStyle.Width(m.nameWidth).Render(name)
+	}
 	if m.highlightRegex.MatchString(name) {
 		return m.highlightStyle.Width(m.nameWidth).Render(name)
 	}
