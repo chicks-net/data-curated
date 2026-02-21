@@ -87,6 +87,7 @@ imports modules from `.just/` directory:
 ### Restaurant data commands
 
 - `just analyze-restaurants` - Analyze US restaurant density by county (requires Census API key)
+- `just map-restaurants [filename]` - Generate restaurant density map by county (requires Census API key)
 
 ### YouTube commands
 

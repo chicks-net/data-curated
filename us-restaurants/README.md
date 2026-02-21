@@ -128,9 +128,22 @@ The default analysis uses NAICS 722 to include all restaurant types.
 
 ### R Packages
 
+For the text analysis:
+
 ```r
 install.packages("censusapi")
 install.packages("dplyr")
+```
+
+For the map visualization (additional):
+
+```r
+install.packages("ggplot2")
+install.packages("maps")
+install.packages("mapproj")
+install.packages("tidyr")
+install.packages("stringr")
+install.packages("viridis")
 ```
 
 ### Census API Key
@@ -183,6 +196,26 @@ Run the R script directly to see top 20 counties by restaurant density:
 cd us-restaurants
 Rscript analyze-restaurants.R
 ```
+
+### Generate Density Map
+
+Create a choropleth map showing restaurant density across all US counties:
+
+```bash
+cd us-restaurants
+Rscript map-restaurants.R restaurant-density-map.png
+```
+
+This generates a PNG map with:
+- Color-coded counties showing restaurants per 10,000 residents
+- White state borders for clarity
+- Plasma color scale with 98th percentile cap to handle outliers
+- Counties with population < 1,000 shown in grey
+
+The map reveals regional patterns:
+- Tourist destinations (beach towns, ski resorts) show high density
+- Rural agricultural areas tend to have lower density
+- Independent cities in Virginia appear separately from surrounding counties
 
 ### Use as Library
 
