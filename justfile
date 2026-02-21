@@ -855,6 +855,7 @@ repo-to-movie repo logo:
 
 	echo "{{BLUE}}Done!{{NORMAL}}"
 
+# add sound to movie
 [group('Utility')]
 add_sound_to_movie input_video input_audio:
 	ffmpeg -i "{{ input_video }}" -i "{{ input_audio }}" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{{ input_video }}-withsound.mp4"

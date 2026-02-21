@@ -18,6 +18,12 @@ A collection of Go tools for analyzing GitHub repository contributors.
 - [Demo video intermediate animated GIF](linux.gif)
 - [Asciinema recording](linux.cast)
 
+## Watch on YouTube
+
+- [Linux kernel](https://youtu.be/eVn4suxlQnc)
+- [Nixpkgs](https://youtu.be/zSiPkI6ybJ0)
+- [Rust](https://youtu.be/VpNbSJWqakc)
+
 ## Prerequisites
 
 All tools require:
