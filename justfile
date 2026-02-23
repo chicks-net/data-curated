@@ -796,6 +796,38 @@ analyze-contributions:
 
 # Generate an mp4 based on the Linux repo
 [group('github')]
+repo-preview repo:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	cd ~/Documents/git/OtherFolks
+
+	repo_basename=$(basename "{{ repo }}" | sed -e 's/[.]git$//')
+
+	if [[ -d "$repo_basename" ]]; then
+		echo "{{BLUE}}repo exists, pull the latest{{NORMAL}}"
+		cd "$repo_basename"
+		git pull
+	else
+		git clone "{{ repo }}"
+		cd "$repo_basename"
+	fi
+
+	echo "{{BLUE}}fetch tags...{{NORMAL}}"
+	git fetch --tags
+	echo "$(pwd) $(du -shx .)"
+	repo_dir=$(pwd)
+	repo_branch=$(git rev-parse --abbrev-ref HEAD)
+	cd ~/Documents/git/data-curated
+
+	echo "{{BLUE}}calculate daily rankings...{{NORMAL}}"
+	ranking_json="/tmp/${repo_basename}.jsonl"
+	time just daily-ranking "$repo_dir" "$ranking_json" "$repo_branch"
+
+	just daily-ranking-viewer "$ranking_json" 
+
+# Generate an mp4 based on the Linux repo
+[group('github')]
 repo-to-movie repo logo:
 	#!/usr/bin/env bash
 	set -euo pipefail
