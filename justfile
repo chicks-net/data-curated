@@ -667,7 +667,7 @@ contribution-monthly MONTHS="24":
 	echo "Monthly Contribution Summary (last {{MONTHS}} months)"
 	echo ""
 	sqlite3 -header -column contributions.db "WITH latest_contributions AS (
-	  SELECT 
+	  SELECT
 	    date,
 	    MAX(contribution_count) as contribution_count
 	  FROM contributions
@@ -681,9 +681,9 @@ contribution-monthly MONTHS="24":
 	    MAX(contribution_count) as peak_day,
 	    COUNT(DISTINCT CASE WHEN contribution_count > 0 THEN date END) as active_days,
 	    -- Only count inactive days up to today for current month
-	    COUNT(DISTINCT CASE 
+	    COUNT(DISTINCT CASE
 	      WHEN contribution_count = 0 AND date < date('now')
-	      THEN date 
+	      THEN date
 	    END) as inactive_days
 	  FROM latest_contributions
 	  GROUP BY month
@@ -696,11 +696,11 @@ contribution-monthly MONTHS="24":
 	  active_days,
 	  -- For current month, calculate total days as active_days + inactive_days
 	  -- For past months, use fixed day counts
-	  CASE 
-	    WHEN month = strftime('%Y-%m', 'now') 
+	  CASE
+	    WHEN month = strftime('%Y-%m', 'now')
 	    THEN active_days + COALESCE(inactive_days, 0)
 	    ELSE (
-	      CASE 
+	      CASE
 	        WHEN month = strftime('%Y-%m', date('now', 'start of month', '-1 month'))
 	        THEN strftime('%d', date('now', 'start of month', '-1 day'))
 	        ELSE strftime('%d', date(month || '-01', 'start of month', '+1 month', '-1 day'))
@@ -824,7 +824,7 @@ repo-preview repo:
 	ranking_json="/tmp/${repo_basename}.jsonl"
 	time just daily-ranking "$repo_dir" "$ranking_json" "$repo_branch"
 
-	just daily-ranking-viewer "$ranking_json" 
+	just daily-ranking-viewer "$ranking_json"
 
 # Generate an mp4 based on the Linux repo
 [group('github')]
