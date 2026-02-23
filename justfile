@@ -794,7 +794,7 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
-# Generate an mp4 based on the Linux repo
+# Download a repo and look at the top contributors to see if it is worth making into a movie.
 [group('github')]
 repo-preview repo:
 	#!/usr/bin/env bash
