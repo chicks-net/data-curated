@@ -104,6 +104,10 @@ imports modules from `.just/` directory:
 - `just ccusage-stats` - Show usage statistics summary
 - `just analyze-ccusage` - Analyze usage trends with visualizations (requires R)
 
+### Games commands
+
+- `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
+
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
