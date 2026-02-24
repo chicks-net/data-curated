@@ -1213,6 +1213,12 @@ ccusage-stats:
 analyze-ccusage:
 	Rscript analyze-usage.R
 
+# Analyze The Tower playlog data
+[working-directory("individuals/chicks/games/the-tower/analysis")]
+[group('games')]
+analyze-the-tower:
+	Rscript analyze-playlog.R
+
 # Check age of all database files in the repository
 [group('Utility')]
 db-status:

@@ -12,3 +12,13 @@ trend lines.  Here it is.
 - [The Tower on the Apple App Store](https://apps.apple.com/us/app/the-tower-idle-tower-defense/id1575590830)
 - [Notion wiki for The Tower](https://the-tower.notion.site/)
 - [Tech Tree Games](https://www.techtreegames.com/) build a variety of idle games.
+
+## Analysis
+
+Graphs generated from playlog data:
+
+![Minutes per Billion Coins by Tier](analysis/minutes-per-billion-by-tier.png)
+
+![Billions Earned per Day](analysis/billions-per-day.png)
+
+![Hours Played per Day](analysis/hours-per-day.png)
