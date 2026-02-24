@@ -1,10 +1,10 @@
 # The Tower
 
-This is a game that baffles everyone who see's me playing it.  I'm sure they'd
+This is a game that baffles everyone who sees me playing it. I'm sure they'd
 be even more baffled to discover I've been tracking my matches to discern any
-signs of progress.  I was able to gain some insights from ths spreadsheet
-itself, but I knew I wanted to eventually generated some scatter plots and
-trend lines.  Here it is.
+signs of progress. I was able to gain some insights from this spreadsheet
+itself, but I knew I wanted to eventually generate some scatter plots and
+trend lines. Here it is.
 
 ## Links about the game
 

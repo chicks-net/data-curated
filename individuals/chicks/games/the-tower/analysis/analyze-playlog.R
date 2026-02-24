@@ -4,7 +4,6 @@
 
 library(ggplot2)
 library(dplyr)
-library(tidyr)
 library(scales)
 library(zoo)
 
@@ -31,9 +30,19 @@ df <- df %>%
   ) %>%
   filter(!is.na(Date) & !is.na(Tier) & !is.na(Minutes_Per_Billion))
 
-df <- df %>%
-  filter(Minutes_Per_Billion > 0 & Minutes_Per_Billion < 1000 & Time_Minutes > 0) %>%
-  filter(Tier > 0)
+# Negative tiers represent special event plays (tournaments, etc) that use
+# different mechanics. We filter to positive tiers which are standard gameplay.
+positive_tiers_df <- df %>% filter(Tier > 0)
+
+# Count outliers (Minutes_Per_Billion > 100) before filtering
+outliers_count <- positive_tiers_df %>%
+  filter(Minutes_Per_Billion >= 100) %>%
+  nrow()
+
+# Filter to reasonable values: >0 and <100 minutes per billion
+# Values >=100 are outliers that skew the visualization excessively
+df <- positive_tiers_df %>%
+  filter(Minutes_Per_Billion > 0 & Minutes_Per_Billion < 100 & Time_Minutes > 0)
 
 df$Tier_Factor <- factor(df$Tier)
 
@@ -73,13 +82,13 @@ p <- ggplot(df, aes(x = Date, y = Minutes_Per_Billion, color = Tier_Factor)) +
     drop = FALSE
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
-  scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 220)) +
+  scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 100)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier",
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = "Lower values = faster coin earning"
+    caption = sprintf("Lower values = faster coin earning. %d outlier(s) excluded (>=100 min/billion).", outliers_count)
   ) +
   theme_minimal() +
   theme(
