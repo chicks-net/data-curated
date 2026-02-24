@@ -166,7 +166,59 @@ p3 <- ggplot(daily_summary, aes(x = Date, y = total_hours)) +
 
 ggsave("hours-per-day.png", p3, width = 14, height = 6, dpi = 300)
 
+df_tier10plus <- df %>% filter(Tier >= 10)
+
+tier_labels <- df_tier10plus %>%
+  group_by(Tier, Tier_Factor) %>%
+  arrange(desc(Date)) %>%
+  slice_head(n = 10) %>%
+  summarise(
+    end_date = max(Date),
+    end_hours = mean(Time_Minutes / 60),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    hours = floor(end_hours),
+    minutes = round((end_hours - hours) * 60),
+    label = sprintf("%dh%02dm", hours, minutes)
+  )
+
+p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
+  geom_point(size = 1.5, alpha = 0.7) +
+  geom_smooth(data = df_tier10plus, aes(group = Tier_Factor), 
+              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
+  geom_text(data = tier_labels, aes(x = end_date, y = end_hours, 
+             label = paste0("  ", label)), 
+            hjust = 0, size = 3, fontface = "bold") +
+  scale_color_manual(
+    name = "Tier",
+    values = tier_colors,
+    drop = FALSE
+  ) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
+  scale_y_continuous(labels = comma_format(accuracy = 1)) +
+  labs(
+    title = "The Tower: Time to Finish Levels",
+    subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
+    x = "Date",
+    y = "Time (Hours)",
+    caption = "Trend lines shown for tiers 10+ only. Lower tiers become impractical as they produce fewer coins per time."
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(size = 9, hjust = 0),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave("time-to-finish.png", p4, width = 14, height = 10, dpi = 300)
+
 cat("\nAnalysis complete! Generated visualizations:\n")
 cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
 cat("  - billions-per-day.png: Total billions earned per day\n")
 cat("  - hours-per-day.png: Hours played per day\n")
+cat("  - time-to-finish.png: Scatter plot of time to finish levels\n")
