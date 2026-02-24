@@ -201,12 +201,14 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
     title = "The Tower: Time to Finish Levels",
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
     x = "Date",
-    y = "Time (Hours)"
+    y = "Time (Hours)",
+    caption = "Trend lines shown for tiers 10+ only. Lower tiers become impractical as they produce fewer coins per time."
   ) +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
     plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(size = 9, hjust = 0),
     axis.text.x = element_text(angle = 45, hjust = 1),
     legend.position = "right",
     legend.title = element_text(face = "bold"),
