@@ -404,13 +404,14 @@ func (m model) renderProgressBar(progress float64) string {
 }
 
 func truncateName(name string, maxLen int) string {
-	if len(name) <= maxLen {
+	runes := []rune(name)
+	if len(runes) <= maxLen {
 		return name
 	}
 	if maxLen <= 3 {
-		return name[:maxLen]
+		return string(runes[:maxLen])
 	}
-	return name[:maxLen-3] + "..."
+	return string(runes[:maxLen-3]) + "..."
 }
 
 func (m model) renderName(name string, relaxing bool) string {
