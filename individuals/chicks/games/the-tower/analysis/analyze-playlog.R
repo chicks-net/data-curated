@@ -204,7 +204,8 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
     drop = FALSE
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
-  scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 10)) +
+  scale_y_continuous(labels = comma_format(accuracy = 1)) +
+  coord_cartesian(ylim = c(0, 10)) +
   labs(
     title = "The Tower: Time to Finish Levels",
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
