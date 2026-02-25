@@ -113,7 +113,10 @@ daily_summary <- df %>%
     .groups = "drop"
   ) %>%
   arrange(Date) %>%
-  mutate(rolling_avg_14 = rollmean(total_billions, k = 14, fill = NA, align = "right"))
+  mutate(
+    rolling_avg_14 = rollmean(total_billions, k = 14, fill = NA, align = "right"),
+    rolling_avg_hours_14 = rollmean(total_hours, k = 14, fill = NA, align = "right")
+  )
 
 cat("\n=== DAILY SUMMARY ===\n\n")
 print(daily_summary %>% 
@@ -146,11 +149,12 @@ ggsave("billions-per-day.png", p2, width = 14, height = 6, dpi = 300)
 p3 <- ggplot(daily_summary, aes(x = Date, y = total_hours)) +
   geom_hline(yintercept = 24, linetype = "dashed", color = "gray50") +
   geom_col(fill = "#228B22", alpha = 0.8) +
+  geom_line(aes(y = rolling_avg_hours_14), color = "#8B0000", linewidth = 1.2) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
   scale_y_continuous(labels = comma_format(accuracy = 1)) +
   labs(
     title = "The Tower: Hours Played per Day",
-    subtitle = sprintf("%d days of play | Total: %.1f hours", 
+    subtitle = sprintf("%d days of play | Total: %.1f hours | Red line = 14-day rolling avg", 
                        nrow(daily_summary), 
                        sum(daily_summary$total_hours)),
     x = "Date",
