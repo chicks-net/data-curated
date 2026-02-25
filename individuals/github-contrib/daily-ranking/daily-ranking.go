@@ -199,6 +199,12 @@ func fetchCommits(repoPath string, branch string) ([]Commit, error) {
 			continue
 		}
 
+		tomorrow := time.Now().AddDate(0, 0, 1)
+		if date.After(tomorrow) {
+			log.Debug().Str("hash", parts[0]).Time("date", date).Msg("Skipping commit with future date")
+			continue
+		}
+
 		commits = append(commits, Commit{
 			Hash:    parts[0],
 			Author:  parts[1],
