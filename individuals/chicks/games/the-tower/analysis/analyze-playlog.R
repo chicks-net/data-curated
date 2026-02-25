@@ -188,7 +188,7 @@ tier_labels <- df_tier10plus %>%
   mutate(
     hours = floor(end_hours),
     minutes = round((end_hours - hours) * 60),
-    label = sprintf("Tier %d: %dh%02dm", as.integer(Tier_Factor), hours, minutes)
+    label = sprintf("Tier %d: %dh%02dm", Tier, hours, minutes)
   )
 
 p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
