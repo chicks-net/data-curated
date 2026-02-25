@@ -161,25 +161,30 @@ func formatSpeed(d time.Duration) string {
 func (m *model) calculateLayout() {
 	m.progressWidth = len(controlsLine) - 7
 
-	reserved := 30
-	availableForName := m.termWidth - reserved
-
-	m.nameWidth = 20
-	if availableForName > 20 {
-		m.nameWidth = availableForName
-		if m.nameWidth > 30 {
-			m.nameWidth = 30
-		}
-	} else if availableForName < 10 {
-		m.nameWidth = 10
-	}
-
-	barAvailable := m.termWidth - 4 - m.nameWidth - 15
+	barAvailable := m.termWidth - 4 - 20 - 15
 	m.barWidth = 40
 	if barAvailable > 20 && barAvailable < 120 {
 		m.barWidth = barAvailable
 	} else if barAvailable >= 120 {
 		m.barWidth = 120
+	}
+
+	rankWidth := 4
+	separatorWidth := 2
+	countWidth := 7
+	maxTodayStrWidth := 30
+	fixedWidth := rankWidth + separatorWidth + m.barWidth + countWidth + maxTodayStrWidth
+
+	availableForName := m.termWidth - fixedWidth
+	m.nameWidth = 20
+	if availableForName < 10 {
+		m.nameWidth = 10
+	} else if availableForName < 20 {
+		m.nameWidth = availableForName
+	} else if availableForName > 30 {
+		m.nameWidth = 30
+	} else {
+		m.nameWidth = availableForName
 	}
 
 	headerLines := 11
@@ -398,14 +403,26 @@ func (m model) renderProgressBar(progress float64) string {
 	return fmt.Sprintf("[%s] %.0f%%", m.barStyle.Render(bar), progress)
 }
 
+func truncateName(name string, maxLen int) string {
+	runes := []rune(name)
+	if len(runes) <= maxLen {
+		return name
+	}
+	if maxLen <= 3 {
+		return string(runes[:maxLen])
+	}
+	return string(runes[:maxLen-3]) + "..."
+}
+
 func (m model) renderName(name string, relaxing bool) string {
+	truncated := truncateName(name, m.nameWidth)
 	if relaxing {
-		return m.relaxingStyle.Width(m.nameWidth).Render(name)
+		return m.relaxingStyle.Width(m.nameWidth).Render(truncated)
 	}
 	if m.highlightRegex.MatchString(name) {
-		return m.highlightStyle.Width(m.nameWidth).Render(name)
+		return m.highlightStyle.Width(m.nameWidth).Render(truncated)
 	}
-	return m.nameStyle.Width(m.nameWidth).Render(name)
+	return m.nameStyle.Width(m.nameWidth).Render(truncated)
 }
 
 func readDailyStats(input string) ([]DailyStats, error) {
