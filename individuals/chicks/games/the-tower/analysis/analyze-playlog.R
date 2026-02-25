@@ -172,6 +172,10 @@ ggsave("hours-per-day.png", p3, width = 14, height = 6, dpi = 300)
 
 df_tier10plus <- df %>% filter(Tier >= 10)
 
+time_outliers_count <- df %>%
+  filter(Time_Minutes / 60 > 10) %>%
+  nrow()
+
 tier_labels <- df_tier10plus %>%
   group_by(Tier, Tier_Factor) %>%
   arrange(desc(Date)) %>%
@@ -184,7 +188,7 @@ tier_labels <- df_tier10plus %>%
   mutate(
     hours = floor(end_hours),
     minutes = round((end_hours - hours) * 60),
-    label = sprintf("%dh%02dm", hours, minutes)
+    label = sprintf("Tier %d: %dh%02dm", Tier, hours, minutes)
   )
 
 p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
@@ -201,12 +205,13 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_continuous(labels = comma_format(accuracy = 1)) +
+  coord_cartesian(ylim = c(0, 10)) +
   labs(
     title = "The Tower: Time to Finish Levels",
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
     x = "Date",
     y = "Time (Hours)",
-    caption = "Trend lines shown for tiers 10+ only. Lower tiers become impractical as they produce fewer coins per time."
+    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) not shown (>10 hours).", time_outliers_count)
   ) +
   theme_minimal() +
   theme(
