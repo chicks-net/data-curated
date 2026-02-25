@@ -211,7 +211,7 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
     x = "Date",
     y = "Time (Hours)",
-    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) excluded (>10 hours).", time_outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) not shown (>10 hours).", time_outliers_count)
   ) +
   theme_minimal() +
   theme(
