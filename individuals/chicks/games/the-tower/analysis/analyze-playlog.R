@@ -75,21 +75,43 @@ tier_colors <- c(
 present_tiers <- unique(df$Tier_Factor)
 tier_colors <- tier_colors[names(tier_colors) %in% present_tiers]
 
+df_tier10plus_mp <- df %>% 
+  filter(Tier >= 10) %>% 
+  group_by(Tier) %>% 
+  filter(n() >= 20) %>% 
+  ungroup()
+
+tier_labels_mp <- df_tier10plus_mp %>%
+  group_by(Tier) %>%
+  arrange(desc(Date)) %>%
+  slice_head(n = 30) %>%
+  summarise(
+    end_date = max(Date),
+    avg_last_30 = mean(Minutes_Per_Billion, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(label = sprintf("T%d: %.1f", Tier, avg_last_30))
+
 p <- ggplot(df, aes(x = Date, y = Minutes_Per_Billion, color = Tier_Factor)) +
   geom_point(size = 1.5, alpha = 0.7) +
+  geom_smooth(data = df_tier10plus_mp, aes(group = Tier_Factor),
+              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
+  geom_text(data = tier_labels_mp, aes(x = end_date, y = avg_last_30, 
+             label = paste0("  ", label), color = factor(Tier)),
+            hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
     drop = FALSE
   ) +
-  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 100)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier",
     subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = sprintf("Lower values = faster coin earning. %d outlier(s) excluded (>=100 min/billion).", outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ with ≥20 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion).", outliers_count)
   ) +
   theme_minimal() +
   theme(
