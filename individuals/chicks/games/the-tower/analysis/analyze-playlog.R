@@ -234,7 +234,7 @@ p5 <- ggplot(df_tier10plus, aes(x = Tier_Factor, y = Percentage)) +
     title = "The Tower: Percentage Score Distribution by Tier (Tiers 10+)",
     subtitle = sprintf("n = %d plays across %d tiers", nrow(df_tier10plus), length(unique(df_tier10plus$Tier))),
     x = "Tier",
-    y = "Percentage"
+    y = "Percentage of Prior Max Score"
   ) +
   theme_minimal() +
   theme(
