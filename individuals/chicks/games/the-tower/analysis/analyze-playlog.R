@@ -24,6 +24,7 @@ df <- df %>%
   mutate(
     Date = as.Date(Date),
     Tier = as.integer(Tier),
+    Percentage = as.numeric(gsub("[^0-9.]", "", Percentage)),
     Minutes_Per_Billion = as.numeric(gsub("[^0-9.]", "", Minutes_Per_Billion)),
     Time_Minutes = as.numeric(Time_Minutes),
     Total_Coins_B = as.numeric(Total_Coins_B)
@@ -226,8 +227,28 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
 
 ggsave("time-to-finish.png", p4, width = 14, height = 10, dpi = 300)
 
+p5 <- ggplot(df_tier10plus, aes(x = Tier_Factor, y = Percentage)) +
+  geom_boxplot(fill = "#4682B4", alpha = 0.7, outlier.shape = 1) +
+  scale_y_continuous(labels = comma_format(accuracy = 1)) +
+  labs(
+    title = "The Tower: Percentage Score Distribution by Tier (Tiers 10+)",
+    subtitle = sprintf("n = %d plays across %d tiers", nrow(df_tier10plus), length(unique(df_tier10plus$Tier))),
+    x = "Tier",
+    y = "Percentage of Prior Max Score"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    axis.text.x = element_text(size = 11),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave("percentage-by-tier-boxplot.png", p5, width = 10, height = 8, dpi = 300)
+
 cat("\nAnalysis complete! Generated visualizations:\n")
 cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
 cat("  - billions-per-day.png: Total billions earned per day\n")
 cat("  - hours-per-day.png: Hours played per day\n")
 cat("  - time-to-finish.png: Scatter plot of time to finish levels\n")
+cat("  - percentage-by-tier-boxplot.png: Box plots of percentage by tier (tiers 10+)\n")

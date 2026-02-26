@@ -24,3 +24,5 @@ Graphs generated from playlog data:
 ![Billions Earned per Day](analysis/billions-per-day.png)
 
 ![Hours Played per Day](analysis/hours-per-day.png)
+
+![Percentage Score by Tier (Tiers 10+)](analysis/percentage-by-tier-boxplot.png)
