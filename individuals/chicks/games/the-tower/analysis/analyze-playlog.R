@@ -307,13 +307,13 @@ if (nrow(tournament_df) > 0) {
   cat("\n")
   
   tournament_df$Tier_Label <- paste0("T-", tournament_df$Tournament_Tier)
-  tournament_df$Tier_Factor <- factor(tournament_df$Tier_Label)
+  tier_levels <- sort(unique(tournament_df$Tournament_Tier))
+  tournament_df$Tier_Factor <- factor(tournament_df$Tier_Label, levels = paste0("T-", tier_levels))
   
-  tournament_colors <- c(
-    "T-11" = "#16213e", "T-8" = "#e94560"
+  tournament_colors <- setNames(
+    scales::hue_pal()(length(tier_levels)),
+    paste0("T-", tier_levels)
   )
-  present_tiers <- unique(tournament_df$Tier_Label)
-  tournament_colors <- tournament_colors[names(tournament_colors) %in% present_tiers]
   
   p6 <- ggplot(tournament_df, aes(x = Date, y = Finish_Wave, color = Tier_Factor)) +
     geom_point(size = 2, alpha = 0.8) +
