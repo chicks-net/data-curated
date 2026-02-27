@@ -24,16 +24,17 @@ df <- df %>%
   mutate(
     Date = as.Date(Date),
     Tier = as.integer(Tier),
+    Finish_Wave = as.integer(Finish_Wave),
     Percentage = as.numeric(gsub("[^0-9.]", "", Percentage)),
     Minutes_Per_Billion = as.numeric(gsub("[^0-9.]", "", Minutes_Per_Billion)),
     Time_Minutes = as.numeric(Time_Minutes),
     Total_Coins_B = as.numeric(Total_Coins_B)
   ) %>%
-  filter(!is.na(Date) & !is.na(Tier) & !is.na(Minutes_Per_Billion))
+  filter(!is.na(Date) & !is.na(Tier))
 
-# Negative tiers represent special event plays (tournaments, etc) that use
-# different mechanics. We filter to positive tiers which are standard gameplay.
-positive_tiers_df <- df %>% filter(Tier > 0)
+tournament_df_raw <- df %>% filter(Tier < 0)
+
+positive_tiers_df <- df %>% filter(Tier > 0 & !is.na(Minutes_Per_Billion))
 
 # Count outliers (Minutes_Per_Billion > 100) before filtering
 outliers_count <- positive_tiers_df %>%
@@ -268,9 +269,146 @@ p5 <- ggplot(df_tier10plus, aes(x = Tier_Factor, y = Percentage)) +
 
 ggsave("percentage-by-tier-boxplot.png", p5, width = 10, height = 8, dpi = 300)
 
+cat("\n=== TOURNAMENT ANALYSIS ===\n\n")
+
+tournament_df <- tournament_df_raw %>%
+  mutate(Tournament_Tier = abs(Tier)) %>%
+  filter(!is.na(Finish_Wave) & Finish_Wave > 0)
+
+cat("Tournament records found:", nrow(tournament_df), "\n")
+
+tournament_counts <- tournament_df %>%
+  group_by(Tournament_Tier) %>%
+  summarise(count = n(), .groups = "drop")
+
+valid_tiers <- tournament_counts %>% filter(count >= 10) %>% pull(Tournament_Tier)
+excluded_count <- sum(tournament_counts %>% filter(count < 10) %>% pull(count))
+
+cat("Tournament tiers with >= 10 plays:", paste(sort(valid_tiers), collapse = ", "), "\n")
+if (excluded_count > 0) {
+  cat("Excluded", excluded_count, "plays from tiers with < 10 data points\n")
+}
+cat("\n")
+
+tournament_df <- tournament_df %>% filter(Tournament_Tier %in% valid_tiers)
+
+if (nrow(tournament_df) > 0) {
+  tournament_summary <- tournament_df %>%
+    group_by(Tournament_Tier) %>%
+    summarise(
+      count = n(),
+      avg_wave = mean(Finish_Wave, na.rm = TRUE),
+      max_wave = max(Finish_Wave, na.rm = TRUE),
+      avg_coins = mean(Total_Coins_B, na.rm = TRUE),
+      avg_time = mean(Time_Minutes, na.rm = TRUE),
+      .groups = "drop"
+    )
+  print(tournament_summary)
+  cat("\n")
+  
+  tournament_df$Tier_Label <- paste0("T-", tournament_df$Tournament_Tier)
+  tournament_df$Tier_Factor <- factor(tournament_df$Tier_Label)
+  
+  tournament_colors <- c(
+    "T-11" = "#16213e", "T-8" = "#e94560"
+  )
+  present_tiers <- unique(tournament_df$Tier_Label)
+  tournament_colors <- tournament_colors[names(tournament_colors) %in% present_tiers]
+  
+  p6 <- ggplot(tournament_df, aes(x = Date, y = Finish_Wave, color = Tier_Factor)) +
+    geom_point(size = 2, alpha = 0.8) +
+    geom_smooth(aes(group = Tier_Factor), method = "loess", se = FALSE, linewidth = 1) +
+    scale_color_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    scale_y_continuous(labels = comma_format(accuracy = 1)) +
+    labs(
+      title = "The Tower: Tournament Waves Achieved Over Time",
+      subtitle = sprintf("n = %d tournament plays (tiers with >= 10 plays only)", nrow(tournament_df)),
+      x = "Date",
+      y = "Waves Achieved"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 16, face = "bold"),
+      plot.subtitle = element_text(size = 11),
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "right",
+      legend.title = element_text(face = "bold"),
+      panel.grid.minor = element_blank()
+    )
+  
+  ggsave("tournament-waves.png", p6, width = 12, height = 6, dpi = 300)
+  
+  tournament_daily_by_tier <- tournament_df %>%
+    group_by(Date, Tier_Label, Tier_Factor) %>%
+    summarise(
+      total_coins = sum(Total_Coins_B, na.rm = TRUE),
+      total_time = sum(Time_Minutes, na.rm = TRUE),
+      num_plays = n(),
+      .groups = "drop"
+    )
+  
+  p7 <- ggplot(tournament_daily_by_tier, aes(x = Date, y = total_coins, fill = Tier_Factor)) +
+    geom_col(position = "stack", alpha = 0.8) +
+    scale_fill_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    scale_y_continuous(labels = comma_format(accuracy = 1)) +
+    labs(
+      title = "The Tower: Tournament Coins Earned Over Time",
+      subtitle = sprintf("n = %d tournament plays | Total: %.1f billions", 
+                         nrow(tournament_df), sum(tournament_daily_by_tier$total_coins, na.rm = TRUE)),
+      x = "Date",
+      y = "Total Coins (Billions)"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 16, face = "bold"),
+      plot.subtitle = element_text(size = 11),
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "right",
+      legend.title = element_text(face = "bold"),
+      panel.grid.minor = element_blank()
+    )
+  
+  ggsave("tournament-coins.png", p7, width = 12, height = 6, dpi = 300)
+  
+  p8 <- ggplot(tournament_daily_by_tier, aes(x = Date, y = total_time / 60, fill = Tier_Factor)) +
+    geom_col(position = "stack", alpha = 0.8) +
+    scale_fill_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
+    scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
+    scale_y_continuous(labels = comma_format(accuracy = 1)) +
+    labs(
+      title = "The Tower: Tournament Time Played Over Time",
+      subtitle = sprintf("n = %d tournament plays | Total: %.1f hours", 
+                         nrow(tournament_df), sum(tournament_daily_by_tier$total_time, na.rm = TRUE) / 60),
+      x = "Date",
+      y = "Time (Hours)"
+    ) +
+    theme_minimal() +
+    theme(
+      plot.title = element_text(size = 16, face = "bold"),
+      plot.subtitle = element_text(size = 11),
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.position = "right",
+      legend.title = element_text(face = "bold"),
+      panel.grid.minor = element_blank()
+    )
+  
+  ggsave("tournament-time.png", p8, width = 12, height = 6, dpi = 300)
+  
+  cat("Tournament visualizations generated.\n")
+} else {
+  cat("No tournament tiers with >= 10 plays found.\n")
+}
+
 cat("\nAnalysis complete! Generated visualizations:\n")
 cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
 cat("  - billions-per-day.png: Total billions earned per day\n")
 cat("  - hours-per-day.png: Hours played per day\n")
 cat("  - time-to-finish.png: Scatter plot of time to finish levels\n")
 cat("  - percentage-by-tier-boxplot.png: Box plots of percentage by tier (tiers 10+)\n")
+if (nrow(tournament_df) > 0) {
+  cat("  - tournament-waves.png: Tournament waves achieved over time\n")
+  cat("  - tournament-coins.png: Tournament coins earned over time\n")
+  cat("  - tournament-time.png: Tournament time played over time\n")
+}

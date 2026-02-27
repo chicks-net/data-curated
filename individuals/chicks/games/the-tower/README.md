@@ -26,3 +26,13 @@ Graphs generated from playlog data:
 ![Hours Played per Day](analysis/hours-per-day.png)
 
 ![Percentage Score by Tier (Tiers 10+)](analysis/percentage-by-tier-boxplot.png)
+
+### Tournament Analysis
+
+Tournaments are special events tracked as negative tier numbers. Analysis only includes tiers with 10+ plays.
+
+![Tournament Waves Achieved Over Time](analysis/tournament-waves.png)
+
+![Tournament Coins Earned Over Time](analysis/tournament-coins.png)
+
+![Tournament Time Played Over Time](analysis/tournament-time.png)
