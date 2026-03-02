@@ -55,6 +55,7 @@ jobs:
 
       - name: Run GitHub update
         env:
+          GOTOOLCHAIN: auto
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: just _github-update-ci
