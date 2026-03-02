@@ -320,6 +320,11 @@ monthly_data <- contributions %>%
   mutate(
     avg_6month = rollmean(contributions, k=6, fill=NA, align="right"),
     avg_12month = rollmean(contributions, k=12, fill=NA, align="right")
+  ) %>%
+  # Exclude moving averages for the last month (typically incomplete)
+  mutate(
+    avg_6month = ifelse(month == max(month), NA, avg_6month),
+    avg_12month = ifelse(month == max(month), NA, avg_12month)
   )
 
 # Calculate projection for current (incomplete) month
