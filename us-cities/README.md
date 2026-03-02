@@ -22,7 +22,7 @@ This project pulls data from two Census Bureau sources:
 The SQLite database contains a single `cities` table with the following fields:
 
 | Column | Type | Description |
-|--------|------|-------------|
+| ------ | ----- | ----------- |
 | id | INTEGER | Primary key |
 | name | TEXT | City name (e.g., "Los Angeles city") |
 | state_abbrev | TEXT | Two-letter state code (e.g., "CA") |
@@ -129,7 +129,7 @@ LIMIT 20;
 Common state FIPS codes for reference:
 
 | State | FIPS | State | FIPS | State | FIPS |
-|-------|------|-------|------|-------|------|
+| ----- | ---- | ----- | ---- | ----- | ---- |
 | AL | 01 | AK | 02 | AZ | 04 |
 | AR | 05 | CA | 06 | CO | 08 |
 | CT | 09 | DE | 10 | DC | 11 |

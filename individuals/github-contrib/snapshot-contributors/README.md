@@ -52,7 +52,7 @@ Generates a CSV file with naming convention:
 ### CSV Columns
 
 | Column | Description |
-|--------|-------------|
+| ------ | ----------- |
 | `login` | GitHub username |
 | `user_id` | Numeric user ID |
 | `avatar_url` | URL to user's avatar image |
