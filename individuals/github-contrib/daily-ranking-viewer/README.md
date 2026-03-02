@@ -34,10 +34,10 @@ daily-ranking /path/to/repo rankings.jsonl
 
 ### Options
 
-| Flag    | Default | Description                                       |
-|---------|---------|---------------------------------------------------|
-| `-n`    | 100     | Maximum number of contributors to display         |
-| `-speed`| 100ms   | Animation speed (e.g., `1ms`, `5ms`, `10ms`, `100ms`, `1s`) |
+| Flag | Default | Description |
+| ---- | ------- | ----------- |
+| `-n` | 100 | Maximum number of contributors to display |
+| `-speed` | 100ms | Animation speed (step through levels) |
 
 ```bash
 # Show top 20 contributors
@@ -63,17 +63,17 @@ The viewer automatically detects terminal size and adjusts:
 
 ## Controls
 
-| Key            | Action                                        |
-|----------------|-----------------------------------------------|
-| `space`        | Pause/play animation                          |
-| `h` or `←`     | Previous day                                  |
-| `l` or `→`     | Next day                                      |
-| `g`            | Go back 100 days                              |
-| `;`            | Go forward 100 days                           |
-| `j` or `↓`     | Slow down animation (step through levels)     |
-| `k` or `↑`     | Speed up animation (step through levels)      |
-| `r`            | Restart from beginning                        |
-| `q` or `ctrl+c`| Quit                                          |
+| Key | Action |
+| ---- | ------ |
+| `space` | Pause/play animation |
+| `h` or `←` | Previous day |
+| `l` or `→` | Next day |
+| `g` | Go back 100 days |
+| `;` | Go forward 100 days |
+| `j` or `↓` | Slow down animation (step through levels) |
+| `k` or `↑` | Speed up animation (step through levels) |
+| `r` | Restart from beginning |
+| `q` or `ctrl+c` | Quit |
 
 ## Features
 
