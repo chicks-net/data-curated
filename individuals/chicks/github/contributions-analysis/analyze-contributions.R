@@ -132,10 +132,10 @@ p <- ggplot(plot_data, aes(x = date)) +
   geom_vline(xintercept = as.Date("2025-03-10"), linetype = "dashed", color = "red", alpha = 0.6) +
   geom_vline(xintercept = as.Date("2025-08-29"), linetype = "dashed", color = "red", alpha = 0.6) +
   annotate("text", x = as.Date("2025-03-10"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.95,
-           label = "commitment to daily github", angle = 90, hjust = 1, vjust = -0.5,
+           label = "commitment to daily github", angle = 90, hjust = 1, vjust = -1.5,
            size = 3, color = "red", alpha = 0.7) +
   annotate("text", x = as.Date("2025-08-29"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.85,
-           label = "started using Claude Code", angle = 90, hjust = 1, vjust = 1.5,
+           label = "started using Claude Code", angle = 90, hjust = 1, vjust = -1.5,
            size = 3, color = "red", alpha = 0.7)
 
 # Save the plot
