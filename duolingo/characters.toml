@@ -29,6 +29,7 @@ image_file = "images/lily.png"
 ethnicity = "Spanish American"
 role = "Despondent teen"
 show_en = "Lily and Strangers"
+show_es = "Nada Asusta a Lily" # Nothing scares Lily
 
 [Lin]
 image_file = "images/lin.png"
