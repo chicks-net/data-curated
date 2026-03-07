@@ -45,6 +45,7 @@ pr_data$created_at <- as.POSIXct(pr_data$created_at, format = "%Y-%m-%dT%H:%M:%S
 pr_data$month <- floor_date(pr_data$created_at, "month")
 pr_data$has_review <- pr_data$total_reviews > 0
 
+# Exclude data before May 2025, when we started using AI in repos
 pr_data <- pr_data %>%
   filter(created_at >= as.POSIXct("2025-05-01", tz = "UTC"))
 

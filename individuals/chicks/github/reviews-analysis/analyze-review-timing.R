@@ -32,6 +32,7 @@ SELECT
   br.review_type
 FROM pull_requests pr
 INNER JOIN bot_reviews br ON pr.repo_full_name = br.repo_full_name AND pr.pr_number = br.pr_number
+-- Exclude data before May 2025, when we started using AI in repos
 WHERE pr.created_at >= '2025-05-01'
 ORDER BY pr.repo_full_name, pr.pr_number, br.submitted_at
 "
