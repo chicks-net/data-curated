@@ -39,8 +39,6 @@ type PullRequest struct {
 	MergedAt    *time.Time
 	ClosedAt    *time.Time
 	AuthorLogin string
-	HeadRef     string
-	BaseRef     string
 }
 
 type TimelineEvent struct {
@@ -63,9 +61,7 @@ type IssueComment struct {
 	User struct {
 		Login string `json:"login"`
 	} `json:"user"`
-	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
-	HTMLURL   string    `json:"html_url"`
 }
 
 type BotReview struct {
@@ -124,7 +120,9 @@ func main() {
 
 	log.Info().Int("count", len(repos)).Msg("Discovered repositories")
 
-	clearTables(db)
+	if err := clearTables(db); err != nil {
+		log.Fatal().Err(err).Msg("Failed to clear tables")
+	}
 
 	for _, repo := range repos {
 		log.Info().Str("repo", repo.FullName).Msg("Analyzing repository")
@@ -414,8 +412,6 @@ func fetchPullRequests(repoFullName string) ([]PullRequest, error) {
 				MergedAt:    mergedAt,
 				ClosedAt:    closedAt,
 				AuthorLogin: r.User.Login,
-				HeadRef:     r.Head.Ref,
-				BaseRef:     r.Base.Ref,
 			}
 			prs = append(prs, pr)
 		}
@@ -478,16 +474,34 @@ func analyzePR(db *sql.DB, repo Repository, pr PullRequest) error {
 }
 
 func fetchTimeline(repoFullName string, prNumber int) ([]TimelineEvent, error) {
-	url := fmt.Sprintf("repos/%s/issues/%d/timeline", repoFullName, prNumber)
-	cmd := exec.Command("gh", "api", url)
-	output, err := cmd.Output()
-	if err != nil {
-		return nil, fmt.Errorf("failed to fetch timeline: %w", err)
-	}
-
 	var events []TimelineEvent
-	if err := json.Unmarshal(output, &events); err != nil {
-		return nil, fmt.Errorf("failed to parse timeline: %w", err)
+	page := 1
+	perPage := 100
+
+	for {
+		url := fmt.Sprintf("repos/%s/issues/%d/timeline?per_page=%d&page=%d", repoFullName, prNumber, perPage, page)
+		cmd := exec.Command("gh", "api", url)
+		output, err := cmd.Output()
+		if err != nil {
+			return nil, fmt.Errorf("failed to fetch timeline: %w", err)
+		}
+
+		var pageEvents []TimelineEvent
+		if err := json.Unmarshal(output, &pageEvents); err != nil {
+			return nil, fmt.Errorf("failed to parse timeline: %w", err)
+		}
+
+		if len(pageEvents) == 0 {
+			break
+		}
+
+		events = append(events, pageEvents...)
+
+		if len(pageEvents) < perPage {
+			break
+		}
+
+		page++
 	}
 
 	return events, nil
@@ -525,92 +539,122 @@ func storePullRequest(db *sql.DB, repo Repository, pr PullRequest, openedCount, 
 }
 
 func fetchPRReviews(db *sql.DB, repo Repository, pr PullRequest) error {
-	url := fmt.Sprintf("repos/%s/pulls/%d/reviews", repo.FullName, pr.Number)
-	cmd := exec.Command("gh", "api", url)
-	output, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("failed to fetch PR reviews: %w", err)
-	}
+	page := 1
+	perPage := 100
 
-	var reviews []struct {
-		ID   int `json:"id"`
-		User struct {
-			Login string `json:"login"`
-		} `json:"user"`
-		State       string `json:"state"`
-		SubmittedAt string `json:"submitted_at"`
-	}
+	for {
+		url := fmt.Sprintf("repos/%s/pulls/%d/reviews?per_page=%d&page=%d", repo.FullName, pr.Number, perPage, page)
+		cmd := exec.Command("gh", "api", url)
+		output, err := cmd.Output()
+		if err != nil {
+			return fmt.Errorf("failed to fetch PR reviews: %w", err)
+		}
 
-	if err := json.Unmarshal(output, &reviews); err != nil {
-		return fmt.Errorf("failed to parse PR reviews: %w", err)
-	}
+		var reviews []struct {
+			ID   int `json:"id"`
+			User struct {
+				Login string `json:"login"`
+			} `json:"user"`
+			State       string `json:"state"`
+			SubmittedAt string `json:"submitted_at"`
+		}
 
-	for _, review := range reviews {
-		if isBot(review.User.Login) {
-			botType := getBotType(review.User.Login)
-			submittedAt, _ := time.Parse(time.RFC3339, review.SubmittedAt)
-			state := review.State
+		if err := json.Unmarshal(output, &reviews); err != nil {
+			return fmt.Errorf("failed to parse PR reviews: %w", err)
+		}
 
-			_, err := db.Exec(`
-				INSERT OR IGNORE INTO bot_reviews 
-				(repo_full_name, pr_number, bot_type, review_id, review_type, author_login, submitted_at, state, fetched_at)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-			`, repo.FullName, pr.Number, botType, fmt.Sprintf("%d", review.ID), "pr_review",
-				review.User.Login, submittedAt.Format(time.RFC3339), state, time.Now().Format(time.RFC3339))
+		if len(reviews) == 0 {
+			break
+		}
 
-			if err != nil {
-				log.Warn().Err(err).
-					Str("repo", repo.FullName).
-					Int("pr", pr.Number).
-					Int("review_id", review.ID).
-					Msg("Failed to store bot review")
+		for _, review := range reviews {
+			if isBot(review.User.Login) {
+				botType := getBotType(review.User.Login)
+				submittedAt, _ := time.Parse(time.RFC3339, review.SubmittedAt)
+				state := review.State
+
+				_, err := db.Exec(`
+					INSERT OR IGNORE INTO bot_reviews 
+					(repo_full_name, pr_number, bot_type, review_id, review_type, author_login, submitted_at, state, fetched_at)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				`, repo.FullName, pr.Number, botType, fmt.Sprintf("pr_review_%d", review.ID), "pr_review",
+					review.User.Login, submittedAt.Format(time.RFC3339), state, time.Now().Format(time.RFC3339))
+
+				if err != nil {
+					log.Warn().Err(err).
+						Str("repo", repo.FullName).
+						Int("pr", pr.Number).
+						Int("review_id", review.ID).
+						Msg("Failed to store bot review")
+				}
 			}
 		}
+
+		if len(reviews) < perPage {
+			break
+		}
+
+		page++
 	}
 
 	return nil
 }
 
 func fetchIssueCommentsForPR(db *sql.DB, repo Repository, pr PullRequest) error {
-	url := fmt.Sprintf("repos/%s/issues/%d/comments", repo.FullName, pr.Number)
-	cmd := exec.Command("gh", "api", url)
-	output, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("failed to fetch issue comments: %w", err)
-	}
+	page := 1
+	perPage := 100
 
-	var comments []struct {
-		ID   int `json:"id"`
-		User struct {
-			Login string `json:"login"`
-		} `json:"user"`
-		CreatedAt string `json:"created_at"`
-	}
+	for {
+		url := fmt.Sprintf("repos/%s/issues/%d/comments?per_page=%d&page=%d", repo.FullName, pr.Number, perPage, page)
+		cmd := exec.Command("gh", "api", url)
+		output, err := cmd.Output()
+		if err != nil {
+			return fmt.Errorf("failed to fetch issue comments: %w", err)
+		}
 
-	if err := json.Unmarshal(output, &comments); err != nil {
-		return fmt.Errorf("failed to parse issue comments: %w", err)
-	}
+		var comments []struct {
+			ID   int `json:"id"`
+			User struct {
+				Login string `json:"login"`
+			} `json:"user"`
+			CreatedAt string `json:"created_at"`
+		}
 
-	for _, comment := range comments {
-		if isBot(comment.User.Login) {
-			botType := getBotType(comment.User.Login)
-			createdAt, _ := time.Parse(time.RFC3339, comment.CreatedAt)
+		if err := json.Unmarshal(output, &comments); err != nil {
+			return fmt.Errorf("failed to parse issue comments: %w", err)
+		}
 
-			_, err := db.Exec(`
-				INSERT OR IGNORE INTO bot_reviews 
-				(repo_full_name, pr_number, bot_type, review_id, review_type, author_login, submitted_at, state, fetched_at)
-				VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-			`, repo.FullName, pr.Number, botType, fmt.Sprintf("%d", comment.ID), "issue_comment",
-				comment.User.Login, createdAt.Format(time.RFC3339), nil, time.Now().Format(time.RFC3339))
+		if len(comments) == 0 {
+			break
+		}
 
-			if err != nil {
-				log.Warn().Err(err).
-					Str("repo", repo.FullName).
-					Int("pr", pr.Number).
-					Int("comment_id", comment.ID).
-					Msg("Failed to store bot comment")
+		for _, comment := range comments {
+			if isBot(comment.User.Login) {
+				botType := getBotType(comment.User.Login)
+				createdAt, _ := time.Parse(time.RFC3339, comment.CreatedAt)
+
+				_, err := db.Exec(`
+					INSERT OR IGNORE INTO bot_reviews 
+					(repo_full_name, pr_number, bot_type, review_id, review_type, author_login, submitted_at, state, fetched_at)
+					VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+				`, repo.FullName, pr.Number, botType, fmt.Sprintf("issue_comment_%d", comment.ID), "issue_comment",
+					comment.User.Login, createdAt.Format(time.RFC3339), nil, time.Now().Format(time.RFC3339))
+
+				if err != nil {
+					log.Warn().Err(err).
+						Str("repo", repo.FullName).
+						Int("pr", pr.Number).
+						Int("comment_id", comment.ID).
+						Msg("Failed to store bot comment")
+				}
 			}
 		}
+
+		if len(comments) < perPage {
+			break
+		}
+
+		page++
 	}
 
 	return nil
@@ -702,8 +746,12 @@ func generateReport(db *sql.DB) {
 
 func getTotals(db *sql.DB) (int, int) {
 	var totalRepos, totalPRs int
-	db.QueryRow("SELECT COUNT(*) FROM repositories").Scan(&totalRepos)
-	db.QueryRow("SELECT COUNT(*) FROM pull_requests").Scan(&totalPRs)
+	if err := db.QueryRow("SELECT COUNT(*) FROM repositories").Scan(&totalRepos); err != nil {
+		log.Error().Err(err).Msg("Failed to count repositories")
+	}
+	if err := db.QueryRow("SELECT COUNT(*) FROM pull_requests").Scan(&totalPRs); err != nil {
+		log.Error().Err(err).Msg("Failed to count pull requests")
+	}
 	return totalRepos, totalPRs
 }
 

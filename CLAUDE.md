@@ -77,6 +77,10 @@ imports modules from `.just/` directory:
 - `just commits-db` - Open commits.db in Datasette browser
 - `just contributions-db` - Open contributions.db in Datasette browser
 - `just comments-db` - Open comments.db in Datasette browser
+- `just review-coverage` - Analyze code review bot coverage across all repos
+- `just analyze-reviews` - Analyze bot review coverage over time (requires R)
+- `just analyze-review-timing` - Analyze bot review timing (requires R)
+- `just reviews-db` - Open reviews.db in Datasette browser
 - `just github-update-all` - Complete GitHub update cycle: fetch all data, run analyses, stage changes, show db status (requires being on a branch)
 
 ### R package management

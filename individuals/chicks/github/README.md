@@ -116,7 +116,7 @@ gist comments with full context.
 
 ### Review Coverage Tracker (`review-coverage.go`)
 
-Analyzes code review bot coverage across all public repositories in the chick-net user account
+Analyzes code review bot coverage across all public repositories in the chicks-net user account
 and fini-net organization. Identifies gaps where automated reviews (Claude bot and GitHub Copilot)
 did not run when expected.
 
