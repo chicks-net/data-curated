@@ -114,6 +114,48 @@ gist comments with full context.
 - **Discussion comments** - Participation in GitHub Discussions
 - **Gist comments** - Comments on public gists
 
+### Review Coverage Tracker (`review-coverage.go`)
+
+Analyzes code review bot coverage across all public repositories in the chick-net user account
+and fini-net organization. Identifies gaps where automated reviews (Claude bot and GitHub Copilot)
+did not run when expected.
+
+**Features:**
+
+- Fetches all PRs (open + closed) from chicks-net and fini-net public repos
+- Counts push events (opened + synchronize) for each PR
+- Identifies bot reviews from `claude[bot]` and `copilot-pull-request-reviewer[bot]`
+- Detects Claude review gaps (when reviews < pushes)
+- Detects Copilot review gaps (when PR has no Copilot review at all)
+- Skips repositories with no PRs
+- Notes repos with PRs but zero code reviews
+- Stores results in SQLite database for analysis
+- Generates summary report with coverage rates
+
+**Database:** `reviews.db`
+
+**How it works:**
+
+1. Discovers all public repos in chicks-net and fini-net
+2. For each repo with PRs:
+   - Fetches all pull requests (open and closed)
+   - For each PR:
+     - Counts timeline events: "opened" (always 1) + "synchronize" (additional pushes)
+     - Fetches formal PR reviews
+     - Fetches issue comments (Claude uses `gh pr comment` which creates issue comments)
+     - Identifies bot-authored reviews/comments
+3. Stores all data in SQLite with timestamps
+4. Generates coverage summary showing:
+   - Claude coverage rate (% of PRs with at least one Claude review)
+   - Copilot coverage rate (% of PRs with at least one Copilot review)
+   - PRs with review gaps
+   - Repos needing attention
+
+**Expected behavior:**
+
+- Claude bot should leave one review per push event (opened + synchronize)
+- GitHub Copilot should leave a review when a PR is opened
+
 ## Prerequisites
 
 - Go 1.25.5 or later
@@ -153,6 +195,12 @@ go run github-contributions.go
 go run comment-fetcher.go
 ```
 
+### Analyze Code Review Coverage
+
+```bash
+go run review-coverage.go
+```
+
 Or use the justfile commands from the repository root:
 
 ```bash
@@ -160,12 +208,14 @@ just fetch-commits              # Fetch commit history (2020-present)
 just fetch-historical-commits   # Fetch historical commits (2008-2019)
 just fetch-contributions        # Fetch contribution counts
 just fetch-comments             # Fetch comment history
+just review-coverage            # Analyze code review bot coverage
 just commit-stats               # Show commit statistics
 just contribution-stats         # Show contribution statistics
-just comment-stats        # Show comment statistics
-just commits-db           # Open commits.db in Datasette
-just contributions-db     # Open contributions.db in Datasette
-just comments-db          # Open comments.db in Datasette
+just comment-stats              # Show comment statistics
+just commits-db                 # Open commits.db in Datasette
+just contributions-db           # Open contributions.db in Datasette
+just comments-db                # Open comments.db in Datasette
+just reviews-db                 # Open reviews.db in Datasette
 ```
 
 **Note on commit fetching:** Run `just fetch-commits` for 2020-present commits
@@ -274,6 +324,70 @@ Indexes are created on:
 - `is_own_org` - Filter external vs. internal
 - `(is_own_org, comment_type, created_at)` - Combined filtering
 
+### Reviews Database (`reviews.db`)
+
+Created by `review-coverage.go`:
+
+```sql
+CREATE TABLE repositories (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    owner TEXT NOT NULL,
+    name TEXT NOT NULL,
+    full_name TEXT NOT NULL UNIQUE,
+    is_org BOOLEAN NOT NULL,
+    pr_count INTEGER NOT NULL DEFAULT 0,
+    fetched_at TEXT NOT NULL
+);
+
+CREATE TABLE pull_requests (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo_full_name TEXT NOT NULL,
+    pr_number INTEGER NOT NULL,
+    title TEXT,
+    state TEXT NOT NULL,
+    created_at TEXT NOT NULL,
+    merged_at TEXT,
+    closed_at TEXT,
+    author_login TEXT,
+    opened_events INTEGER NOT NULL DEFAULT 1,
+    synchronize_events INTEGER NOT NULL DEFAULT 0,
+    total_pushes INTEGER NOT NULL DEFAULT 1,
+    fetched_at TEXT NOT NULL,
+    UNIQUE(repo_full_name, pr_number)
+);
+
+CREATE TABLE bot_reviews (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    repo_full_name TEXT NOT NULL,
+    pr_number INTEGER NOT NULL,
+    bot_type TEXT NOT NULL,
+    review_id TEXT NOT NULL UNIQUE,
+    review_type TEXT NOT NULL,
+    author_login TEXT NOT NULL,
+    submitted_at TEXT NOT NULL,
+    state TEXT,
+    fetched_at TEXT NOT NULL,
+    FOREIGN KEY (repo_full_name, pr_number) REFERENCES pull_requests(repo_full_name, pr_number)
+);
+```
+
+The database also includes a `coverage_summary` view that joins these tables
+to provide easy analysis of review coverage:
+
+```sql
+SELECT * FROM coverage_summary WHERE total_pushes > claude_reviews;
+-- Find PRs where Claude review count is less than push count
+
+SELECT * FROM coverage_summary WHERE copilot_reviews = 0;
+-- Find PRs with no Copilot reviews
+```
+
+Indexes are created on:
+
+- `repo_full_name` - Fast repository-based queries
+- `bot_type` - Filter by bot type (claude/copilot)
+- `pr_number` - Efficient PR lookups
+
 ## Performance
 
 ### Commit History Fetching
@@ -341,6 +455,16 @@ The program uses structured logging with zerolog:
 - Data starts from account creation date (2011-10-03 for chicks-net)
 - Contribution counts may change retroactively as GitHub adjusts metrics
 - Private contributions are included in counts but not detailed
+
+### Review Coverage (`reviews.db`)
+
+- Only analyzes public repositories (chicks-net user + fini-net org)
+- Requires GitHub CLI authentication with appropriate permissions
+- Push counting depends on timeline events (may not capture edge cases)
+- Bot identification relies on username patterns (`claude[bot]`, `copilot-pull-request-reviewer[bot]`)
+- Overwrites previous analysis results on each run (no historical tracking between runs)
+- Claude reviews may appear as issue comments rather than formal PR reviews
+- Does not cover private repositories or organizations other than chicks-net/fini-net
 
 ## Example Queries
 
@@ -413,6 +537,81 @@ WHERE comment_type = 'discussion' AND is_own_org = 0
 GROUP BY repo_full_name, discussion_title
 ORDER BY comment_count DESC
 LIMIT 10;
+```
+
+### Review Coverage Queries
+
+#### PRs with Claude review gaps (reviews < pushes)
+
+```sql
+SELECT
+  repo_full_name,
+  pr_number,
+  title,
+  state,
+  total_pushes,
+  claude_reviews,
+  total_pushes - claude_reviews as gap
+FROM coverage_summary
+WHERE claude_reviews < total_pushes
+ORDER BY gap DESC;
+```
+
+#### PRs missing Copilot reviews
+
+```sql
+SELECT
+  repo_full_name,
+  pr_number,
+  title,
+  state,
+  total_pushes
+FROM coverage_summary
+WHERE copilot_reviews = 0
+ORDER BY pr_number DESC;
+```
+
+#### Coverage rates by repository
+
+```sql
+SELECT
+  r.full_name,
+  r.pr_count,
+  COUNT(DISTINCT CASE WHEN br.bot_type = 'claude' THEN pr.pr_number END) as prs_w_claude,
+  COUNT(DISTINCT CASE WHEN br.bot_type = 'copilot' THEN pr.pr_number END) as prs_w_copilot,
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN br.bot_type = 'claude' THEN pr.pr_number END) / r.pr_count, 1) as claude_pct,
+  ROUND(100.0 * COUNT(DISTINCT CASE WHEN br.bot_type = 'copilot' THEN pr.pr_number END) / r.pr_count, 1) as copilot_pct
+FROM repositories r
+LEFT JOIN pull_requests pr ON r.full_name = pr.repo_full_name
+LEFT JOIN bot_reviews br ON pr.repo_full_name = br.repo_full_name AND pr.pr_number = br.pr_number
+GROUP BY r.full_name
+ORDER BY r.full_name;
+```
+
+#### Recent bot reviews
+
+```sql
+SELECT
+  repo_full_name,
+  pr_number,
+  bot_type,
+  review_type,
+  submitted_at
+FROM bot_reviews
+ORDER BY submitted_at DESC
+LIMIT 20;
+```
+
+#### Review coverage over time (by month)
+
+```sql
+SELECT
+  strftime('%Y-%m', submitted_at) as month,
+  bot_type,
+  COUNT(*) as review_count
+FROM bot_reviews
+GROUP BY month, bot_type
+ORDER BY month DESC, bot_type;
 ```
 
 ### Contributions Queries

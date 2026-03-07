@@ -977,6 +977,17 @@ _comment-stats:
 comments-db:
 	just datasette individuals/chicks/github/comments.db
 
+# Analyze code review bot coverage across all repos
+[working-directory("individuals/chicks/github")]
+[group('github')]
+review-coverage:
+	go run review-coverage.go
+
+# View review coverage database in Datasette
+[group('github')]
+reviews-db:
+	just datasette individuals/chicks/github/reviews.db
+
 # Analyze US restaurant density by county
 [working-directory("us-restaurants")]
 [group('restaurants')]
