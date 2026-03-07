@@ -983,6 +983,18 @@ comments-db:
 review-coverage:
 	go run review-coverage.go
 
+# Analyze bot review coverage over time
+[working-directory("individuals/chicks/github/reviews-analysis")]
+[group('github')]
+analyze-reviews:
+	Rscript analyze-reviews.R
+
+# Analyze bot review timing (how long it takes each bot to review)
+[working-directory("individuals/chicks/github/reviews-analysis")]
+[group('github')]
+analyze-review-timing:
+	Rscript analyze-review-timing.R
+
 # View review coverage database in Datasette
 [group('github')]
 reviews-db:
