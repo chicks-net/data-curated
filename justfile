@@ -1242,6 +1242,23 @@ analyze-ccusage:
 analyze-the-tower:
 	Rscript analyze-playlog.R
 
+# Update The Tower playlog data and analysis
+[group('games')]
+update-the-tower:
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	just branch the-tower-update
+
+	tower_playlog="individuals/chicks/games/the-tower/the_tower_playlog.tsv"
+	echo "{{GREEN}}Moving playlog to $tower_playlog{{NORMAL}}"
+	mv ~/Downloads/The\ Tower\ -\ PlayLog.tsv "$tower_playlog"
+	dos2unix "$tower_playlog"
+
+	just analyze-the-tower
+
+	git add individuals/chicks/games/the-tower
+
 # Check age of all database files in the repository
 [group('Utility')]
 db-status:
