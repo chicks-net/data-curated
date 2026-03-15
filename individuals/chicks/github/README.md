@@ -408,6 +408,11 @@ will log errors but continue processing other years. Simply run it again after
 **Current capability:** Successfully tested fetching 1,882 commits across 9 years
 (2017-2026) in approximately 30 seconds.
 
+## Documentation
+
+- [LinearWalkthrough.md](contributions-analysis/LinearWalkthrough.md) - Step-by-step explanation of the contributions analysis R script
+- [LinearWalkthrough.pdf](contributions-analysis/LinearWalkthrough.pdf) - PDF version of the walkthrough
+
 ## Viewing the Data
 
 Use Datasette to browse the databases:
