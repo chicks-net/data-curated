@@ -794,6 +794,12 @@ contributions-db:
 analyze-contributions:
 	Rscript analyze-contributions.R
 
+# Convert LinearWalkthrough.md to PDF with proper code formatting
+[working-directory("individuals/chicks/github/contributions-analysis")]
+[group('github')]
+walkthrough-pdf:
+	pandoc LinearWalkthrough.md -o LinearWalkthrough.pdf --pdf-engine=xelatex -V mainfont="Helvetica" -V geometry:margin=0.75in -V monofont="FiraCode Nerd Font Mono" --syntax-highlighting=idiomatic -H <(printf '\\usepackage{listings}\n\\lstset{breaklines=true,basicstyle=\\ttfamily\\small,columns=flexible}')
+
 # Download a repo and look at the top contributors to see if it is worth making into a movie.
 [group('github')]
 repo-preview repo:
