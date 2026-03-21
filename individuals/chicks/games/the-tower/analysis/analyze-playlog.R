@@ -350,7 +350,9 @@ if (nrow(tournament_df) > 0) {
   
   p7 <- ggplot(tournament_daily_by_tier, aes(x = Date, y = total_coins, fill = Tier_Factor)) +
     geom_col(position = "stack", alpha = 0.8) +
+    geom_smooth(aes(group = Tier_Factor, color = Tier_Factor), method = "loess", se = FALSE, linewidth = 1) +
     scale_fill_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
+    scale_color_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
     scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
     scale_y_continuous(labels = comma_format(accuracy = 1)) +
     labs(
@@ -374,7 +376,9 @@ if (nrow(tournament_df) > 0) {
   
   p8 <- ggplot(tournament_daily_by_tier, aes(x = Date, y = total_time / 60, fill = Tier_Factor)) +
     geom_col(position = "stack", alpha = 0.8) +
+    geom_smooth(aes(group = Tier_Factor, color = Tier_Factor), method = "loess", se = FALSE, linewidth = 1) +
     scale_fill_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
+    scale_color_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
     scale_x_date(date_labels = "%b %Y", date_breaks = "1 month") +
     scale_y_continuous(labels = comma_format(accuracy = 1)) +
     labs(
