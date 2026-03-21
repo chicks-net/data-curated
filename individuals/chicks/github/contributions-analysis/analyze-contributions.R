@@ -105,6 +105,7 @@ p <- ggplot(plot_data, aes(x = date)) +
   # Color scheme
   scale_color_manual(
     name = "Moving Averages",
+    breaks = c("14-day average", "30-day average", "90-day average"),
     values = c(
       "14-day average" = "#2E86AB",    # Blue
       "30-day average" = "#A23B72",   # Purple
@@ -283,6 +284,7 @@ p2 <- p2 +
   # Color scheme
   scale_color_manual(
     name = "Moving Averages",
+    breaks = c("4-week average", "13-week average", "26-week average"),
     values = c(
       "4-week average" = "#2E86AB",    # Blue
       "13-week average" = "#A23B72",   # Purple
@@ -448,6 +450,7 @@ p3 <- p3 +
   # Color scheme
   scale_color_manual(
     name = "Moving Averages",
+    breaks = c("6-month average", "12-month average"),
     values = c(
       "6-month average" = "#A23B72",    # Purple
       "12-month average" = "#F18F01"    # Orange
