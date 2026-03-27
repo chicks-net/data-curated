@@ -1,5 +1,6 @@
 # data-curated
 
+[![Hypercommit](https://img.shields.io/badge/Hypercommit-DB2475)](https://hypercommit.com/data-curated)
 ![GitHub Issues](https://img.shields.io/github/issues/chicks-net/data-curated)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/chicks-net/data-curated)
 ![GitHub License](https://img.shields.io/github/license/chicks-net/data-curated)
