@@ -101,13 +101,6 @@ imports modules from `.just/` directory:
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
-### Claude Code usage commands
-
-- `just fetch-ccusage` - Fetch Claude Code token usage data (daily and by session)
-- `just ccusage-db` - Open usage.db in Datasette browser
-- `just ccusage-stats` - Show usage statistics summary
-- `just analyze-ccusage` - Analyze usage trends with visualizations (requires R)
-
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
