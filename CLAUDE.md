@@ -176,12 +176,6 @@ The repository contains several Go programs:
   - Filters and marks chicks-net/fini-net organization comments
   - Supports incremental updates
   - See individuals/chicks/github/README.md for full documentation
-- `individuals/chicks/ccusage/fetch-usage.go` - Fetches Claude Code token usage data
-  - Run with: `just fetch-ccusage` (preferred) or `cd individuals/chicks/ccusage && go run fetch-usage.go`
-  - Stores data in `individuals/chicks/ccusage/usage.db` SQLite database
-  - Captures daily usage, per-model breakdowns, and session-level data
-  - Tracks input/output tokens, cache tokens (creation and read), and costs
-  - See individuals/chicks/ccusage/README.md for full documentation
 - `individuals/chicks/youtube/link-blog-posts.go` - Links YouTube videos to blog posts on chicks.net
   - Run with: `just link-youtube-blog-posts` (preferred) or `cd individuals/chicks/youtube && go run link-blog-posts.go --dry-run`
   - Clones www-chicks-net repo and searches for videos in blog posts
@@ -244,12 +238,6 @@ The repository contains R scripts for statistical analysis and visualization.
   - Run with: `just analyze-contributions`
   - Uses `contributions.db` (populated by `just fetch-contributions`)
   - Generates 2 visualizations: recent timeline and all-time weekly trends with running averages
-- `individuals/chicks/ccusage/usage-analysis/analyze-usage.R` - Analyzes Claude Code token usage and costs
-  - Run with: `just analyze-ccusage`
-  - Uses `usage.db` (populated by `just fetch-ccusage`)
-  - Generates 6 visualizations: token trends, cost trends, model breakdown, cache efficiency, top sessions, weekly plan usage
-  - Weekly spending limit configurable in `config.R` (default: $4/week)
-  - See individuals/chicks/ccusage/usage-analysis/README.md for details
 
 ## Data Formats
 
