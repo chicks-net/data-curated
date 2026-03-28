@@ -45,6 +45,7 @@ imports modules from `.just/` directory:
 - `just jackpot-status` - Show database age and when data was last updated
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
+- `just analyze-megamillions-pl` - Additional Mega Millions analysis variant (requires R)
 - `just analyze-powerball` - Analyze Powerball number frequency (requires R)
 - `just analyze-jackpots` - Analyze California lottery jackpot trends (requires R)
 - `just lottery-update-all` - Complete lottery update cycle: check status, download data, run all analyses, stage changes (requires being on a branch)
@@ -65,6 +66,7 @@ imports modules from `.just/` directory:
 ### GitHub commands
 
 - `just fetch-commits` - Fetch GitHub commit history (up to 1000 most recent)
+- `just fetch-historical-commits` - Fetch commit history from 2008-2019 (hybrid GraphQL+REST approach)
 - `just fetch-contributions` - Fetch complete contribution history (2011-present)
 - `just fetch-comments` - Fetch comments on external projects (issues, commits, discussions, gists)
 - `just commit-stats` - Show commit database statistics
@@ -104,10 +106,21 @@ imports modules from `.just/` directory:
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
+- `just update-the-tower` - Update The Tower playlog analysis
+
+### GitHub contributor ranking commands
+
+- `just daily-ranking <DIR> [OUTPUT] [BRANCH]` - Generate daily contributor rankings from a repo's git history (outputs JSONL)
+- `just daily-ranking-viewer <filename>` - Interactive TUI viewer for daily ranking JSONL files
+- `just repo-preview <repo>` - Download a repo and analyze its contributors
+- `just repo-to-movie <repo> <logo>` - Create an MP4 animation from repo contributor history
 
 ### Other commands
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
+- `just db-status` - Show age and status of all databases
+- `just add_sound_to_movie <input_video> <input_audio>` - Merge audio into a video file
+- `just walkthrough-pdf` - Convert LinearWalkthrough.md to PDF
 - `just prweb` - Open current branch's PR in browser
 - `just release <version>` - Create GitHub release with generated notes
 - `just` or `just list` - Show all available commands
@@ -170,12 +183,25 @@ The repository contains several Go programs:
   - Stores daily contribution counts from 2011-present in `contributions.db`
   - Includes all contribution types (commits, PRs, issues, reviews)
   - See individuals/chicks/github/README.md for full documentation
+- `individuals/chicks/github/historical-commits.go` - Fetches GitHub commits from 2008-2019 via hybrid GraphQL+REST approach
+  - Run with: `just fetch-historical-commits`
+  - Stores historical commits in `commits.db`
+  - See individuals/chicks/github/README.md for full documentation
 - `individuals/chicks/github/comment-fetcher.go` - Fetches comments on external GitHub projects via GraphQL API
   - Run with: `just fetch-comments`
   - Stores all comment types in `comments.db` (issues, commits, discussions, gists)
   - Filters and marks chicks-net/fini-net organization comments
   - Supports incremental updates
   - See individuals/chicks/github/README.md for full documentation
+- `individuals/chicks/github/review-coverage.go` - Analyzes code review bot (Claude, Copilot) coverage across repos
+  - Run with: `just review-coverage`
+  - Stores coverage data in `reviews.db`
+  - See individuals/chicks/github/README.md for full documentation
+- `individuals/github-contrib/daily-ranking/daily-ranking.go` - Generates daily contributor rankings from git history
+  - Run with: `just daily-ranking`
+  - Outputs JSONL format for use with the viewer
+- `individuals/github-contrib/daily-ranking-viewer/daily-ranking-viewer.go` - Interactive TUI for animated contributor ranking visualization
+  - Run with: `just daily-ranking-viewer`
 - `individuals/chicks/youtube/link-blog-posts.go` - Links YouTube videos to blog posts on chicks.net
   - Run with: `just link-youtube-blog-posts` (preferred) or `cd individuals/chicks/youtube && go run link-blog-posts.go --dry-run`
   - Clones www-chicks-net repo and searches for videos in blog posts
