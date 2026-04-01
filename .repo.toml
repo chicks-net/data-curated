@@ -1,0 +1,15 @@
+# .repo.toml
+
+[about]
+description = "My collection of data and analysis"
+topics = ["data-analysis", "data-visualization"]
+
+[urls]
+git_ssh = "git@github.com:chicks-net/data-curated.git"
+web_url = "https://github.com/chicks-net/data-curated"
+
+[flags]
+claude = true
+claude-review = true
+copilot-review = true
+standard-release = true

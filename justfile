@@ -1,5 +1,11 @@
 # project justfile
 
+import? '.just/template-sync.just'
+import? '.just/repo-toml.just'
+import? '.just/pr-hook.just'
+import? '.just/cue-verify.just'
+import? '.just/copilot.just'
+import? '.just/claude.just'
 import? '.just/shellcheck.just'
 import? '.just/compliance.just'
 import? '.just/gh-process.just'
@@ -1117,6 +1123,7 @@ link-youtube-blog-posts DRY_RUN="--dry-run":
 	fi
 
 	echo "{{GREEN}}Linking YouTube videos to blog posts...{{NORMAL}}"
+	# shellcheck disable=SC1083
 	go run link-blog-posts.go {{DRY_RUN}}
 
 # Generate blog posts for YouTube videos missing blog posts (6+ months old)
@@ -1144,6 +1151,7 @@ generate-blog-posts DRY_RUN="--dry-run":
 	fi
 
 	echo "{{GREEN}}Generating blog posts for YouTube videos...{{NORMAL}}"
+	# shellcheck disable=SC1083
 	go run generate-blog-posts.go {{DRY_RUN}}
 
 # Analyze The Tower playlog data
