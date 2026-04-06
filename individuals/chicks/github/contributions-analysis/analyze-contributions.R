@@ -248,7 +248,7 @@ for (company in names(logos)) {
       logo_height <- plot_max_y * 0.24
       logo_y <- plot_max_y * 0.92
     } else {
-      logo_height <- plot_max_y * 0.60
+      logo_height <- plot_max_y * 0.20
       logo_y <- plot_max_y * 0.90
     }
     p2 <- p2 + annotation_custom(img_grob,
@@ -409,7 +409,7 @@ for (company in names(logos)) {
       logo_height <- plot_max_y * 0.24
       logo_y <- plot_max_y * 0.92
     } else {
-      logo_height <- plot_max_y * 0.60
+      logo_height <- plot_max_y * 0.20
       logo_y <- plot_max_y * 0.90
     }
     p3 <- p3 + annotation_custom(img_grob,
