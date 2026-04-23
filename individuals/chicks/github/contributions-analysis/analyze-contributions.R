@@ -89,9 +89,16 @@ plot_start <- max(min(contributions$date), Sys.Date() - 730)  # 2 years
 plot_data <- contributions %>% filter(date >= plot_start)
 plot_total_contributions <- sum(plot_data$contribution_count)
 
+points_data <- plot_data
+today <- Sys.Date()
+if (nrow(plot_data[plot_data$date == today & plot_data$contribution_count == 0, ]) > 0) {
+  points_data <- points_data %>% filter(!(date == today & contribution_count == 0))
+}
+
 p <- ggplot(plot_data, aes(x = date)) +
-  # Daily points - smaller and semi-transparent
-  geom_point(aes(y = contribution_count),
+  # Daily points - smaller and semi-transparent (exclude today if zero contributions)
+  geom_point(data = points_data,
+             aes(y = contribution_count),
              alpha = 0.3,
              size = 1,
              color = "gray50") +
