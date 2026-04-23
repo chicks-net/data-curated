@@ -17,7 +17,7 @@ cat("Loaded", nrow(df), "records\n")
 
 colnames(df) <- c("Date", "Tier", "Finish_Wave", "Max_Wave", "Percentage", 
                    "Earned_Coins", "Ad_Coins", "Total_Coins_B", "Time_Minutes", 
-                   "Minutes_Per_Billion", "Event_Kills", "Progress", "Kills_Game", "Games_Left")
+                   "Minutes_Per_Billion", "Dissonant_Run", "Event_Kills", "Progress", "Kills_Game", "Games_Left")
 
 df <- df %>%
   filter(!is.na(Date) & Date != "" & !grepl("weekend|^[[:space:]]*$", Date)) %>%
@@ -28,7 +28,8 @@ df <- df %>%
     Percentage = as.numeric(gsub("[^0-9.]", "", Percentage)),
     Minutes_Per_Billion = as.numeric(gsub("[^0-9.]", "", Minutes_Per_Billion)),
     Time_Minutes = as.numeric(Time_Minutes),
-    Total_Coins_B = as.numeric(Total_Coins_B)
+    Total_Coins_B = as.numeric(Total_Coins_B),
+    Dissonant_Run = ifelse(is.na(Dissonant_Run) | Dissonant_Run == "", NA_character_, Dissonant_Run)
   ) %>%
   filter(!is.na(Date) & !is.na(Tier))
 
@@ -45,6 +46,12 @@ outliers_count <- positive_tiers_df %>%
 # Values >=100 are outliers that skew the visualization excessively
 df <- positive_tiers_df %>%
   filter(Minutes_Per_Billion > 0 & Minutes_Per_Billion < 100 & Time_Minutes > 0)
+
+dissonant_count <- sum(!is.na(df$Dissonant_Run))
+cat("Dissonant run records:", dissonant_count, "\n")
+
+df_all <- df
+df <- df %>% filter(is.na(Dissonant_Run))
 
 df$Tier_Factor <- factor(df$Tier)
 
@@ -109,10 +116,10 @@ p <- ggplot(df, aes(x = Date, y = Minutes_Per_Billion, color = Tier_Factor)) +
   scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 100)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier",
-    subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
+    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded)", nrow(df)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = sprintf("Trend lines shown for tiers 10+ with ≥20 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion).", outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ with ≥20 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d dissonant run(s) excluded.", outliers_count, dissonant_count)
   ) +
   theme_minimal() +
   theme(
@@ -127,7 +134,7 @@ p <- ggplot(df, aes(x = Date, y = Minutes_Per_Billion, color = Tier_Factor)) +
 
 ggsave("minutes-per-billion-by-tier.png", p, width = 14, height = 10, dpi = 300)
 
-daily_summary <- df %>%
+daily_summary <- df_all %>%
   group_by(Date) %>%
   summarise(
     total_billions = sum(Total_Coins_B, na.rm = TRUE),
@@ -155,8 +162,8 @@ p2 <- ggplot(daily_summary, aes(x = Date, y = total_billions)) +
   scale_y_continuous(labels = comma_format(accuracy = 1)) +
   labs(
     title = "The Tower: Total Billions Earned per Day",
-    subtitle = sprintf("%d days of play | Total: %.1f billions | Red line = 14-day rolling avg", 
-                       nrow(daily_summary), sum(daily_summary$total_billions)),
+    subtitle = sprintf("%d days of play | Total: %.1f billions | Red line = 14-day rolling avg (includes dissonant runs)", 
+                        nrow(daily_summary), sum(daily_summary$total_billions)),
     x = "Date",
     y = "Billions Earned"
   ) +
@@ -178,9 +185,9 @@ p3 <- ggplot(daily_summary, aes(x = Date, y = total_hours)) +
   scale_y_continuous(labels = comma_format(accuracy = 1)) +
   labs(
     title = "The Tower: Hours Played per Day",
-    subtitle = sprintf("%d days of play | Total: %.1f hours | Red line = 14-day rolling avg", 
-                       nrow(daily_summary), 
-                       sum(daily_summary$total_hours)),
+    subtitle = sprintf("%d days of play | Total: %.1f hours | Red line = 14-day rolling avg (includes dissonant runs)", 
+                        nrow(daily_summary), 
+                        sum(daily_summary$total_hours)),
     x = "Date",
     y = "Hours Played"
   ) +
@@ -232,10 +239,10 @@ p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
   coord_cartesian(ylim = c(0, 10)) +
   labs(
     title = "The Tower: Time to Finish Levels",
-    subtitle = sprintf("n = %d plays (regular tiers only)", nrow(df)),
+    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded)", nrow(df)),
     x = "Date",
     y = "Time (Hours)",
-    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) not shown (>10 hours).", time_outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) not shown (>10 hours). Dissonant runs excluded.", time_outliers_count)
   ) +
   theme_minimal() +
   theme(
