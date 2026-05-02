@@ -1,5 +1,6 @@
 # data-curated
 
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/chicks-net/data-curated/badge)](https://scorecard.dev/viewer/?uri=github.com/chicks-net/data-curated)
 ![GitHub Issues](https://img.shields.io/github/issues/chicks-net/data-curated)
 ![GitHub Pull Requests](https://img.shields.io/github/issues-pr/chicks-net/data-curated)
 ![GitHub License](https://img.shields.io/github/license/chicks-net/data-curated)
