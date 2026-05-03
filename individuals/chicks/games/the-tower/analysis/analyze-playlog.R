@@ -11,47 +11,43 @@ data_path <- "../the_tower_playlog.tsv"
 
 cat("Reading data from:", data_path, "\n")
 
-df <- read.delim(data_path, header = TRUE, sep = "\t", skip = 1, stringsAsFactors = FALSE)
+df <- read.delim(data_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
 
 cat("Loaded", nrow(df), "records\n")
-
-colnames(df) <- c("Date", "Tier", "Finish_Wave", "Max_Wave", "Percentage", 
-                   "Earned_Coins", "Ad_Coins", "Total_Coins_B", "Time_Minutes", 
-                   "Minutes_Per_Billion", "Dissonant_Run", "Event_Kills", "Progress", "Kills_Game", "Games_Left")
 
 df <- df %>%
   filter(!is.na(Date) & Date != "" & !grepl("weekend|^[[:space:]]*$", Date)) %>%
   mutate(
     Date = as.Date(Date),
     Tier = as.integer(Tier),
-    Finish_Wave = as.integer(Finish_Wave),
+    `Finish Wave` = as.integer(`Finish Wave`),
     Percentage = as.numeric(gsub("[^0-9.]", "", Percentage)),
-    Minutes_Per_Billion = as.numeric(gsub("[^0-9.]", "", Minutes_Per_Billion)),
-    Time_Minutes = as.numeric(Time_Minutes),
-    Total_Coins_B = as.numeric(Total_Coins_B),
-    Dissonant_Run = ifelse(is.na(Dissonant_Run) | Dissonant_Run == "", NA_character_, Dissonant_Run)
+    `Minutes/Billion` = as.numeric(gsub("[^0-9.]", "", `Minutes/Billion`)),
+    `Time (minutes)` = as.numeric(`Time (minutes)`),
+    `Total Coins (B)` = as.numeric(`Total Coins (B)`),
+    `Dissonant Run` = ifelse(is.na(`Dissonant Run`) | `Dissonant Run` == "", NA_character_, `Dissonant Run`)
   ) %>%
   filter(!is.na(Date) & !is.na(Tier))
 
 tournament_df_raw <- df %>% filter(Tier < 0)
 
-positive_tiers_df <- df %>% filter(Tier > 0 & !is.na(Minutes_Per_Billion))
+positive_tiers_df <- df %>% filter(Tier > 0 & !is.na(`Minutes/Billion`))
 
-# Count outliers (Minutes_Per_Billion > 100) before filtering
+# Count outliers (Minutes/Billion > 100) before filtering
 outliers_count <- positive_tiers_df %>%
-  filter(Minutes_Per_Billion >= 100) %>%
+  filter(`Minutes/Billion` >= 100) %>%
   nrow()
 
 # Filter to reasonable values: >0 and <100 minutes per billion
 # Values >=100 are outliers that skew the visualization excessively
 df <- positive_tiers_df %>%
-  filter(Minutes_Per_Billion > 0 & Minutes_Per_Billion < 100 & Time_Minutes > 0)
+  filter(`Minutes/Billion` > 0 & `Minutes/Billion` < 100 & `Time (minutes)` > 0)
 
-dissonant_count <- sum(!is.na(df$Dissonant_Run))
+dissonant_count <- sum(!is.na(df$`Dissonant Run`))
 cat("Dissonant run records:", dissonant_count, "\n")
 
 df_all <- df
-df <- df %>% filter(is.na(Dissonant_Run))
+df <- df %>% filter(is.na(`Dissonant Run`))
 
 df$Tier_Factor <- factor(df$Tier)
 
@@ -62,10 +58,10 @@ tier_summary <- df %>%
   group_by(Tier) %>%
   summarise(
     count = n(),
-    avg_min_per_b = mean(Minutes_Per_Billion, na.rm = TRUE),
-    median_min_per_b = median(Minutes_Per_Billion, na.rm = TRUE),
-    min_val = min(Minutes_Per_Billion, na.rm = TRUE),
-    max_val = max(Minutes_Per_Billion, na.rm = TRUE),
+    avg_min_per_b = mean(`Minutes/Billion`, na.rm = TRUE),
+    median_min_per_b = median(`Minutes/Billion`, na.rm = TRUE),
+    min_val = min(`Minutes/Billion`, na.rm = TRUE),
+    max_val = max(`Minutes/Billion`, na.rm = TRUE),
     .groups = "drop"
   )
 print(tier_summary)
@@ -95,12 +91,12 @@ tier_labels_mp <- df_tier10plus_mp %>%
   slice_head(n = 30) %>%
   summarise(
     end_date = max(Date),
-    avg_last_30 = mean(Minutes_Per_Billion, na.rm = TRUE),
+    avg_last_30 = mean(`Minutes/Billion`, na.rm = TRUE),
     .groups = "drop"
   ) %>%
   mutate(label = sprintf("T%d: %.1f", Tier, avg_last_30))
 
-p <- ggplot(df, aes(x = Date, y = Minutes_Per_Billion, color = Tier_Factor)) +
+p <- ggplot(df, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
   geom_point(size = 1.5, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_mp, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
@@ -137,9 +133,9 @@ ggsave("minutes-per-billion-by-tier.png", p, width = 14, height = 10, dpi = 300)
 daily_summary <- df_all %>%
   group_by(Date) %>%
   summarise(
-    total_billions = sum(Total_Coins_B, na.rm = TRUE),
-    total_minutes = sum(Time_Minutes, na.rm = TRUE),
-    total_hours = sum(Time_Minutes, na.rm = TRUE) / 60,
+    total_billions = sum(`Total Coins (B)`, na.rm = TRUE),
+    total_minutes = sum(`Time (minutes)`, na.rm = TRUE),
+    total_hours = sum(`Time (minutes)`, na.rm = TRUE) / 60,
     num_plays = n(),
     .groups = "drop"
   ) %>%
@@ -204,7 +200,7 @@ ggsave("hours-per-day.png", p3, width = 14, height = 6, dpi = 300)
 df_tier10plus <- df %>% filter(Tier >= 10)
 
 time_outliers_count <- df %>%
-  filter(Time_Minutes / 60 > 10) %>%
+  filter(`Time (minutes)` / 60 > 10) %>%
   nrow()
 
 tier_labels <- df_tier10plus %>%
@@ -213,7 +209,7 @@ tier_labels <- df_tier10plus %>%
   slice_head(n = 10) %>%
   summarise(
     end_date = max(Date),
-    end_hours = mean(Time_Minutes / 60),
+    end_hours = mean(`Time (minutes)` / 60),
     .groups = "drop"
   ) %>%
   mutate(
@@ -222,7 +218,7 @@ tier_labels <- df_tier10plus %>%
     label = sprintf("Tier %d: %dh%02dm", Tier, hours, minutes)
   )
 
-p4 <- ggplot(df, aes(x = Date, y = Time_Minutes / 60, color = Tier_Factor)) +
+p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) +
   geom_point(size = 1.5, alpha = 0.7) +
   geom_smooth(data = df_tier10plus, aes(group = Tier_Factor), 
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
@@ -280,7 +276,7 @@ cat("\n=== TOURNAMENT ANALYSIS ===\n\n")
 
 tournament_df <- tournament_df_raw %>%
   mutate(Tournament_Tier = abs(Tier)) %>%
-  filter(!is.na(Finish_Wave) & Finish_Wave > 0)
+  filter(!is.na(`Finish Wave`) & `Finish Wave` > 0)
 
 cat("Tournament records found:", nrow(tournament_df), "\n")
 
@@ -304,10 +300,10 @@ if (nrow(tournament_df) > 0) {
     group_by(Tournament_Tier) %>%
     summarise(
       count = n(),
-      avg_wave = mean(Finish_Wave, na.rm = TRUE),
-      max_wave = max(Finish_Wave, na.rm = TRUE),
-      avg_coins = mean(Total_Coins_B, na.rm = TRUE),
-      avg_time = mean(Time_Minutes, na.rm = TRUE),
+      avg_wave = mean(`Finish Wave`, na.rm = TRUE),
+      max_wave = max(`Finish Wave`, na.rm = TRUE),
+      avg_coins = mean(`Total Coins (B)`, na.rm = TRUE),
+      avg_time = mean(`Time (minutes)`, na.rm = TRUE),
       .groups = "drop"
     )
   print(tournament_summary)
@@ -322,7 +318,7 @@ if (nrow(tournament_df) > 0) {
     paste0("T-", tier_levels)
   )
   
-  p6 <- ggplot(tournament_df, aes(x = Date, y = Finish_Wave, color = Tier_Factor)) +
+  p6 <- ggplot(tournament_df, aes(x = Date, y = `Finish Wave`, color = Tier_Factor)) +
     geom_point(size = 2, alpha = 0.8) +
     geom_smooth(aes(group = Tier_Factor), method = "loess", se = FALSE, linewidth = 1) +
     scale_color_manual(name = "Tournament", values = tournament_colors, drop = FALSE) +
@@ -349,8 +345,8 @@ if (nrow(tournament_df) > 0) {
   tournament_daily_by_tier <- tournament_df %>%
     group_by(Date, Tier_Label, Tier_Factor) %>%
     summarise(
-      total_coins = sum(Total_Coins_B, na.rm = TRUE),
-      total_time = sum(Time_Minutes, na.rm = TRUE),
+      total_coins = sum(`Total Coins (B)`, na.rm = TRUE),
+      total_time = sum(`Time (minutes)`, na.rm = TRUE),
       num_plays = n(),
       .groups = "drop"
     )
