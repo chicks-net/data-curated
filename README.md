@@ -9,7 +9,7 @@
 
 My collection of random data sets.
 
-![banner of esoteric books in a felt world](docs/data-curated-banner.png)
+![banner shows some of our graphs hanging in art gallery](docs/data-curated-banner2.png)
 
 Some of these are related to projects I'm working on, but some of them are just for
 practice with tools like [Datasette](https://datasette.io/) and [SQLite](https://sqlite.org/).
