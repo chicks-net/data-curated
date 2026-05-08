@@ -308,8 +308,7 @@ p2 <- p2 +
     plot.title = element_text(size = 16, face = "bold"),
     plot.subtitle = element_text(size = 10, color = "gray40"),
     legend.position = "top",
-    legend.title = element_text(size = 10, face = "bold"),
-    panel.grid.minor = element_blank()
+    legend.title = element_text(size = 10, face = "bold")
   ) +
   scale_x_date(date_breaks = "1 year", date_labels = "%Y")
 
@@ -468,13 +467,13 @@ p3 <- p3 +
     y = "Contributions per Month",
     caption = paste0("Total contributions: ", format(total_contributions, big.mark = ","), " | Database last updated: ", last_updated_formatted)
   ) +
+   scale_y_continuous(minor_breaks = seq(0, 1e6, 100)) +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
     plot.subtitle = element_text(size = 10, color = "gray40"),
     legend.position = "top",
-    legend.title = element_text(size = 10, face = "bold"),
-    panel.grid.minor = element_blank()
+    legend.title = element_text(size = 10, face = "bold")
   ) +
   scale_x_date(date_breaks = "1 year", date_labels = "%Y")
 
