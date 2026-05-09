@@ -19,6 +19,7 @@ Datasette and SQLite.
 - `good-sites/` - Curated list of useful websites
 - `individuals/` - Personal data collections and projects
 - `us-presidents/` - US president data
+- `us-restaurants/` - US restaurant density analysis by county (Census API)
 - `.just/` - Shared justfile modules for workflow automation (from template-repo)
 
 ## Development Workflow
@@ -29,6 +30,10 @@ imports modules from `.just/` directory:
 - `gh-process.just` - Git/GitHub PR workflow automation
 - `compliance.just` - Repository health checks for community standards
 - `shellcheck.just` - Bash script linting for just recipes
+- `repo-toml.just` - `.repo.toml` configuration management
+- `template-sync.just` - Template repository sync utilities
+- `copilot.just` - GitHub Copilot review integration
+- `pr-hook.just` - PR workflow hook automation
 
 ### Branch workflow
 
@@ -137,8 +142,11 @@ Other automated workflows:
 
 - `claude.yml` - Claude Code responds to @claude mentions in issues/PRs/comments
 - `claude-code-review.yml` - Automated code reviews via Claude
+- `github-update.yml` - Scheduled GitHub data fetch (runs `just github-update-all`)
 - `actionlint.yml` - Lints GitHub Actions workflow files
 - `checkov.yml` - Security and compliance scanning
+- `scorecards.yml` - OpenSSF Scorecard security posture analysis
+- `auto-assign.yml` - Automatically assigns PRs to the repo owner
 
 ## Data Operations
 
@@ -214,6 +222,13 @@ The repository contains several Go programs:
   - Uses template.md to generate markdown blog posts
   - Outputs generated files to `individuals/chicks/youtube/generated/` directory
   - Defaults to dry-run mode (pass empty string to actually generate)
+- `individuals/github-contrib/snapshot-contributors/contributor-fetcher.go` - Fetches contributor statistics for any GitHub repo
+  - Run with: `cd individuals/github-contrib/snapshot-contributors && go run contributor-fetcher.go <owner/repo>`
+  - Uses GitHub `/repos/{owner}/{repo}/stats/contributors` API via `gh` CLI auth
+  - Outputs CSV named `<owner>-<repo>-contributors-<YYYYMMDD>.csv` with commits/additions/deletions/rankings
+  - Import to SQLite with companion `import-to-sqlite.sh <csv-file>`
+  - First API request may be slow (GitHub computes stats on demand; retries if 202 returned)
+  - Enable JSON logging with `JSON_LOGS=true`
 
 ### Python programs
 
