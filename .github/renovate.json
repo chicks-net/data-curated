@@ -1,0 +1,29 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "schedule": ["every weekday"],
+  "minimumReleaseAge": "4 days",
+  "gomod": {
+    "enabled": true
+  },
+  "github-actions": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "matchUpdateTypes": ["patch"],
+      "groupName": "patches",
+      "automerge": true
+    },
+    {
+      "matchUpdateTypes": ["minor"],
+      "groupName": "minor updates",
+      "automerge": true
+    },
+    {
+      "matchDepNames": ["bridgecrewio/checkov-action"],
+      "overrideDatasource": "git-refs",
+      "overridePackageName": "https://github.com/bridgecrewio/checkov-action"
+    }
+  ]
+}
