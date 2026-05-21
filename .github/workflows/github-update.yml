@@ -15,14 +15,19 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ab7a9404c0f3da075243ca237b5fac12c98deaa5 # v2.19.3
+        with:
+          egress-policy: audit
+
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
           lfs: false
 
       - name: Setup Go
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version: '1.23'
           cache-dependency-path: |
@@ -32,15 +37,15 @@ jobs:
             individuals/chicks/ccusage/go.sum
 
       - name: Setup R
-        uses: r-lib/actions/setup-r@v2
+        uses: r-lib/actions/setup-r@a51a8012b0aab7c32ef9d19bf54da93f3254335e # v2.12.0
         with:
           r-version: '4.4'
 
       - name: Install R package dependencies
-        uses: r-lib/actions/setup-r-dependencies@v2
+        uses: r-lib/actions/setup-r-dependencies@a51a8012b0aab7c32ef9d19bf54da93f3254335e # v2.12.0
 
       - name: Setup just
-        uses: extractions/setup-just@v4
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
         with:
           just-version: '1'
 
