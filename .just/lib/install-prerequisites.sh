@@ -138,7 +138,7 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 				echo -e "${RED}npm is not installed! Install Node.js first.${NC}"
 				echo "Install Node.js: brew install node"
 				INSTALL_FAILED+=("markdownlint-cli2")
-			elif npm install -g markdownlint-cli2; then
+			elif npm install -g markdownlint-cli2@0.22.1; then
 				INSTALL_SUCCESS+=("markdownlint-cli2")
 			else
 				INSTALL_FAILED+=("markdownlint-cli2")
