@@ -19,6 +19,8 @@ Graphs generated from playlog data:
 
 ![Minutes per Billion Coins by Tier](analysis/minutes-per-billion-by-tier.png)
 
+![Minutes per Billion Coins by Tier — Zoomed (< 20 min/B, since Sep 2025)](analysis/minutes-per-billion-by-tier-zoom.png)
+
 ![Time to Finish Levels](analysis/time-to-finish.png)
 
 ![Billions Earned per Day](analysis/billions-per-day.png)
