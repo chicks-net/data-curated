@@ -61,6 +61,8 @@ Graphs generated from playlog data:
 | T-8 | 51 | 808.9 | 2h28m | 2h47m | 15.9 | 45.9 | 1515 | 1697 |
 | **All** | **66** | **838.3** | **2h05m** | **2h47m** | **12.7** | **45.9** | **1263** | **1697** |
 
+<!-- RECENT-TOURNAMENT-STATS-END -->
+
 ### Tournament Analysis
 
 Tournaments are special events tracked as negative tier numbers. Analysis only includes tiers with 10+ plays.
@@ -70,5 +72,3 @@ Tournaments are special events tracked as negative tier numbers. Analysis only i
 ![Tournament Coins Earned Over Time](analysis/tournament-coins.png)
 
 ![Tournament Time Played Over Time](analysis/tournament-time.png)
-
-<!-- RECENT-TOURNAMENT-STATS-END -->
