@@ -609,7 +609,7 @@ if (nrow(df_tournament_recent) == 0) {
   cat("No tournament games found in the last 6 months. Skipping tournament stats table generation.\n")
 } else {
   tournament_recent_start_label <- format(tournament_recent_cutoff, "%b %Y")
-  tournament_recent_end_label <- format(max(df_all$Date), "%b %Y")
+  tournament_recent_end_label <- format(max(df_tournament_recent$Date), "%b %Y")
 
   tournament_tier_stats <- df_tournament_recent %>%
     group_by(Tournament_Tier) %>%
