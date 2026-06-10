@@ -558,7 +558,7 @@ stats_table <- c(
   sprintf("### Recent Statistics (%s \u2013 %s)", recent_start_label, recent_end_label),
   "",
   "| Tier | Games | Total Coins (B) | Avg Duration | Max Duration | Avg Coins (B) | Max Coins (B) | Avg Min/B | Avg Coins/Hr |",
-  "| ----- | ------: | --------------: | ----------- | ----------- | --------------: | --------------: | ----------: | -------------: |",
+  "| ----- | ------: | --------------: | -----------: | -----------: | --------------: | --------------: | ----------: | -------------: |",
   table_rows,
   all_row,
   ""
@@ -663,7 +663,7 @@ if (nrow(df_tournament_recent) == 0) {
     sprintf("### Recent Tournament Statistics (%s \u2013 %s)", tournament_recent_start_label, tournament_recent_end_label),
     "",
     "| Tier | Games | Total Coins (B) | Avg Duration | Max Duration | Avg Coins (B) | Max Coins (B) | Avg Wave | Max Wave |",
-    "| ----- | ------: | --------------: | ----------- | ----------- | --------------: | --------------: | ------: | ------: |",
+    "| ----- | ------: | --------------: | -----------: | -----------: | --------------: | --------------: | ------: | ------: |",
     tournament_table_rows,
     tournament_all_row,
     ""
