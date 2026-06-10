@@ -486,7 +486,8 @@ df_recent <- df %>% filter(Date >= recent_cutoff)
 
 if (nrow(df_recent) == 0) {
   cat("No games found in the last 4 months. Skipping stats table generation.\n")
-} else {
+  quit(save = "no")
+}
 
 recent_start_label <- format(recent_cutoff, "%b %Y")
 recent_end_label <- format(max(df$Date), "%b %Y")
@@ -520,9 +521,8 @@ all_stats <- df_recent %>%
   )
 
 fmt_hrs <- function(x) {
-  hrs <- floor(x)
-  mins <- round((x - hrs) * 60)
-  sprintf("%dh%02dm", hrs, mins)
+  total_mins <- round(x * 60)
+  sprintf("%dh%02dm", total_mins %/% 60, total_mins %% 60)
 }
 
 fmt_dec <- function(x, digits = 1) {
@@ -591,5 +591,3 @@ new_readme <- c(
 
 writeLines(new_readme, readme_path)
 cat("Updated README.md with recent stats table.\n")
-
-}
