@@ -484,6 +484,10 @@ cat("\n=== RECENT STATS TABLE ===\n\n")
 recent_cutoff <- floor_date(max(df$Date) - months(4), "month")
 df_recent <- df %>% filter(Date >= recent_cutoff)
 
+if (nrow(df_recent) == 0) {
+  cat("No games found in the last 4 months. Skipping stats table generation.\n")
+} else {
+
 recent_start_label <- format(recent_cutoff, "%b %Y")
 recent_end_label <- format(max(df$Date), "%b %Y")
 
@@ -504,13 +508,13 @@ tier_stats <- df_recent %>%
 
 all_stats <- df_recent %>%
   summarise(
-    Tier = 999,
     Games = n(),
     `Avg Duration` = mean(`Time (minutes)`, na.rm = TRUE) / 60,
     `Max Duration` = max(`Time (minutes)`, na.rm = TRUE) / 60,
     `Avg Coins (B)` = mean(`Total Coins (B)`, na.rm = TRUE),
     `Max Coins (B)` = max(`Total Coins (B)`, na.rm = TRUE),
     `Avg Min/Billion` = mean(`Minutes/Billion`, na.rm = TRUE),
+    # Avg Coins/Hr is mean-of-ratios: each game's rate weighted equally, not total/total
     `Avg Coins/Hr` = mean(`Total Coins (B)` / (`Time (minutes)` / 60), na.rm = TRUE),
     `Total Coins (B)` = sum(`Total Coins (B)`, na.rm = TRUE)
   )
@@ -529,18 +533,17 @@ fmt_coins <- function(x) {
   format(round(x, 1), big.mark = ",", nsmall = 1, scientific = FALSE)
 }
 
-table_rows <- c()
-for (i in seq_len(nrow(tier_stats))) {
+table_rows <- vapply(seq_len(nrow(tier_stats)), function(i) {
   row <- tier_stats[i, ]
-  table_rows <- c(table_rows, sprintf(
+  sprintf(
     "| %d | %d | %s | %s | %s | %s | %s | %s | %s |",
     row$Tier, row$Games,
     fmt_coins(row$`Total Coins (B)`),
     fmt_hrs(row$`Avg Duration`), fmt_hrs(row$`Max Duration`),
     fmt_dec(row$`Avg Coins (B)`), fmt_dec(row$`Max Coins (B)`),
     fmt_dec(row$`Avg Min/Billion`), fmt_dec(row$`Avg Coins/Hr`)
-  ))
-}
+  )
+}, character(1))
 
 all_row <- sprintf(
   "| **All** | **%d** | **%s** | **%s** | **%s** | **%s** | **%s** | **%s** | **%s** |",
@@ -572,20 +575,8 @@ end_marker <- "<!-- RECENT-STATS-END -->"
 start_idx <- which(readme_lines == start_marker)
 end_idx <- which(readme_lines == end_marker)
 
-if (length(start_idx) == 0 && length(end_idx) == 0) {
-  analysis_idx <- which(grepl("^## Analysis", readme_lines))
-  if (length(analysis_idx) == 0) {
-    stop("Could not find '## Analysis' heading in README.md")
-  }
-  insert_lines <- c(start_marker, end_marker)
-  new_readme <- c(
-    readme_lines[1:(analysis_idx[1] - 1)],
-    insert_lines,
-    readme_lines[analysis_idx[1]:length(readme_lines)]
-  )
-  readme_lines <- new_readme
-  start_idx <- which(readme_lines == start_marker)
-  end_idx <- which(readme_lines == end_marker)
+if (length(start_idx) != 1 || length(end_idx) != 1) {
+  stop("Expected exactly one RECENT-STATS-START and one RECENT-STATS-END marker in README.md. Found ", length(start_idx), " start and ", length(end_idx), " end markers.")
 }
 
 new_readme <- c(
@@ -600,3 +591,5 @@ new_readme <- c(
 
 writeLines(new_readme, readme_path)
 cat("Updated README.md with recent stats table.\n")
+
+}
