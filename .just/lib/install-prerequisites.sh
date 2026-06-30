@@ -3,7 +3,7 @@
 #
 # Usage: ./.just/lib/install-prerequisites.sh
 #
-# This script checks for required tools (just, gh, shellcheck, markdownlint-cli2, jq, gum)
+# This script checks for required tools (just, gh, shellcheck, markdownlint-cli2, jq, gum, cue, gh-observer)
 # and helps install them:
 #
 # - macOS: Automatically installs missing tools using Homebrew
@@ -64,6 +64,18 @@ if command -v gum &>/dev/null; then
 	INSTALLED+=("gum")
 else
 	MISSING+=("gum")
+fi
+
+if command -v cue &>/dev/null; then
+	INSTALLED+=("cue")
+else
+	MISSING+=("cue")
+fi
+
+if command -v gh &>/dev/null && gh extension list 2>/dev/null | grep -q 'gh-observer'; then
+	INSTALLED+=("gh-observer")
+else
+	MISSING+=("gh-observer")
 fi
 
 # report what's already installed
@@ -134,15 +146,17 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 			;;
 		markdownlint-cli2)
 			echo -e "${CYAN}Installing markdownlint-cli2...${NC}"
-			if ! command -v npm &>/dev/null; then
-				echo -e "${RED}npm is not installed! Install Node.js first.${NC}"
-				echo "Install Node.js: brew install node"
-				INSTALL_FAILED+=("markdownlint-cli2")
-			elif npm install -g markdownlint-cli2@0.22.1; then
-				INSTALL_SUCCESS+=("markdownlint-cli2")
+			if command -v brew &>/dev/null; then
+				if brew install markdownlint-cli2; then
+					INSTALL_SUCCESS+=("markdownlint-cli2")
+				else
+					INSTALL_FAILED+=("markdownlint-cli2")
+					echo -e "${RED}Failed to install markdownlint-cli2${NC}"
+				fi
 			else
+				echo -e "${RED}Homebrew is not installed! Install Homebrew first.${NC}"
+				echo "Install Homebrew: https://brew.sh"
 				INSTALL_FAILED+=("markdownlint-cli2")
-				echo -e "${RED}Failed to install markdownlint-cli2${NC}"
 			fi
 			;;
 		jq)
@@ -161,6 +175,29 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 			else
 				INSTALL_FAILED+=("gum")
 				echo -e "${RED}Failed to install gum${NC}"
+			fi
+			;;
+		cue)
+			echo -e "${CYAN}Installing cue...${NC}"
+			if brew install cue; then
+				INSTALL_SUCCESS+=("cue")
+			else
+				INSTALL_FAILED+=("cue")
+				echo -e "${RED}Failed to install cue${NC}"
+			fi
+			;;
+		gh-observer)
+			echo -e "${CYAN}Installing gh-observer...${NC}"
+			if command -v gh &>/dev/null; then
+				if gh extension install chicks-net/gh-observer; then
+					INSTALL_SUCCESS+=("gh-observer")
+				else
+					INSTALL_FAILED+=("gh-observer")
+					echo -e "${RED}Failed to install gh-observer${NC}"
+				fi
+			else
+				INSTALL_FAILED+=("gh-observer")
+				echo -e "${RED}Cannot install gh-observer: gh CLI is required${NC}"
 			fi
 			;;
 		esac
@@ -234,8 +271,12 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			fi
 			;;
 		markdownlint-cli2)
-			echo -e "${CYAN}Install markdownlint-cli2:${NC} npm install -g markdownlint-cli2"
-			echo -e "${YELLOW}(Requires Node.js/npm)${NC}"
+			if command -v brew &>/dev/null; then
+				echo -e "${CYAN}Install markdownlint-cli2:${NC} brew install markdownlint-cli2"
+			else
+				echo -e "${CYAN}Install markdownlint-cli2:${NC} npm install -g markdownlint-cli2"
+				echo -e "${YELLOW}(Requires Node.js/npm; brew preferred when available)${NC}"
+			fi
 			;;
 		jq)
 			if [[ "$PKG_MGR" == "apt-get" ]]; then
@@ -248,6 +289,13 @@ elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
 			;;
 		gum)
 			echo -e "${CYAN}Install gum:${NC} See https://github.com/charmbracelet/gum#installation"
+			;;
+		cue)
+			echo -e "${CYAN}Install cue:${NC} See https://github.com/cue-lang/cue#installation"
+			;;
+		gh-observer)
+			echo -e "${CYAN}Install gh-observer:${NC} gh extension install chicks-net/gh-observer"
+			echo -e "${YELLOW}(Requires gh CLI to be installed first)${NC}"
 			;;
 		esac
 	done
@@ -267,9 +315,11 @@ else
 	echo "  just: https://github.com/casey/just#installation"
 	echo "  gh: https://cli.github.com/manual/installation"
 	echo "  shellcheck: https://github.com/koalaman/shellcheck#installing"
-	echo "  markdownlint-cli2: npm install -g markdownlint-cli2"
+	echo "  markdownlint-cli2: brew install markdownlint-cli2"
 	echo "  jq: https://stedolan.github.io/jq/download/"
 	echo "  gum: https://github.com/charmbracelet/gum#installation"
+	echo "  cue: https://github.com/cue-lang/cue#installation"
+	echo "  gh-observer: gh extension install chicks-net/gh-observer (requires gh CLI)"
 	exit 1
 fi
 
