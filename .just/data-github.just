@@ -398,3 +398,34 @@ analyze-review-timing:
 [group('github')]
 reviews-db:
 	just datasette individuals/chicks/github/reviews.db
+
+# List releases from chicks-net and fini-net repos in the last N days
+# Output: ISO date <TAB> release URL, sorted newest first
+[group('github')]
+list-releases DAYS="7":
+	#!/usr/bin/env bash
+	set -euo pipefail
+
+	# Check for required commands
+	just _require_command gh "Install gh CLI: https://cli.github.com/"
+	just _require_command jq "Install jq: https://stedolan.github.io/jq/download/"
+
+	DAYS="{{DAYS}}"
+
+	# Compute cutoff timestamp (portable for both GNU and BSD date)
+	if date -u -d "-${DAYS} days" +%Y-%m-%dT%H:%M:%SZ >/dev/null 2>&1; then
+		CUTOFF=$(date -u -d "-${DAYS} days" +%Y-%m-%dT%H:%M:%SZ)
+	else
+		CUTOFF=$(date -u -v-"${DAYS}d" +%Y-%m-%dT%H:%M:%SZ)
+	fi
+
+	echo "Releases in the last ${DAYS} days (since ${CUTOFF})"
+	echo ""
+
+	for org in chicks-net fini-net; do
+		gh repo list "$org" --json nameWithOwner --limit 200 --jq '.[].nameWithOwner' 2>/dev/null | while read -r repo; do
+			gh release list -R "$repo" --json tagName,publishedAt --limit 50 2>/dev/null \
+				| jq -r --arg cutoff "$CUTOFF" --arg repo "$repo" \
+					'.[] | select(.publishedAt != null and .publishedAt >= $cutoff) | "\(.publishedAt)\thttps://github.com/\($repo)/releases/tag/\(.tagName)"' 2>/dev/null || true
+		done
+	done | sort -r
