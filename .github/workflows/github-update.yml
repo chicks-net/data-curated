@@ -9,7 +9,7 @@ on:
 permissions: {}
 
 jobs:
-  update:
+  github-update:
     runs-on: ubuntu-latest
     permissions:
       contents: write
