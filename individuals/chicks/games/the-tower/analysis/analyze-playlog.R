@@ -541,7 +541,7 @@ table_rows <- vapply(seq_len(nrow(tier_stats)), function(i) {
     fmt_coins(row$`Total Coins (B)`),
     fmt_hrs(row$`Avg Duration`), fmt_hrs(row$`Max Duration`),
     fmt_dec(row$`Avg Coins (B)`), fmt_dec(row$`Max Coins (B)`),
-    fmt_dec(row$`Avg Min/Billion`), fmt_dec(row$`Avg Coins/Hr`)
+    fmt_dec(row$`Avg Min/Billion`, 2), fmt_dec(row$`Avg Coins/Hr`)
   )
 }, character(1))
 
@@ -551,7 +551,7 @@ all_row <- sprintf(
   fmt_coins(all_stats$`Total Coins (B)`),
   fmt_hrs(all_stats$`Avg Duration`), fmt_hrs(all_stats$`Max Duration`),
   fmt_dec(all_stats$`Avg Coins (B)`), fmt_dec(all_stats$`Max Coins (B)`),
-  fmt_dec(all_stats$`Avg Min/Billion`), fmt_dec(all_stats$`Avg Coins/Hr`)
+  fmt_dec(all_stats$`Avg Min/Billion`, 2), fmt_dec(all_stats$`Avg Coins/Hr`)
 )
 
 stats_table <- c(
