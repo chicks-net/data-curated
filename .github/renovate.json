@@ -24,6 +24,13 @@
       "matchDepNames": ["bridgecrewio/checkov-action"],
       "overrideDatasource": "git-refs",
       "overridePackageName": "https://github.com/bridgecrewio/checkov-action"
+    },
+    {
+      "matchDatasources": ["go"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "go modules",
+      "schedule": ["every month"],
+      "automerge": true
     }
   ]
 }
