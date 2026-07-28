@@ -27,6 +27,7 @@
     },
     {
       "matchDatasources": ["go"],
+      "matchUpdateTypes": ["minor", "patch"],
       "groupName": "go modules",
       "schedule": ["every month"],
       "automerge": true
