@@ -11,6 +11,12 @@
   },
   "packageRules": [
     {
+      "matchDatasources": ["go"],
+      "groupName": "go modules",
+      "schedule": ["every month"],
+      "automerge": true
+    },
+    {
       "matchUpdateTypes": ["patch"],
       "groupName": "patches",
       "automerge": true
