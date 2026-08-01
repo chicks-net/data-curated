@@ -94,7 +94,7 @@ jobs:
       - name: Create Pull Request
         if: steps.changes.outputs.has_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.PR_CREATION }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
           RANDOM_EMOJI: ${{ steps.emoji.outputs.emoji }}
         run: |
