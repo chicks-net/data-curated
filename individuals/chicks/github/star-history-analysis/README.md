@@ -92,7 +92,11 @@ Analysis complete!
    timestamps.
 2. Compute a cumulative count per repo per day (each star adds one to that
    repo's running total from its `starredAt` date onward).
-3. Plot one line per repo with `ggplot2` (`geom_step`), one PNG per org.
+3. Plot one line per repo with `ggplot2` (`geom_line` over actual star-event
+   points plus a zero start point per repo and a current-date endpoint), one
+   PNG per org.  Straight diagonal segments connect sparse star events (no
+   daily-grid flat-with-jumps jaggedness), and each repo's line extends
+   horizontally to today.
 4. Repos with zero stars are skipped (no line drawn, omitted from the legend).
 
 ## Data Source

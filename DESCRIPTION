@@ -15,4 +15,5 @@ Imports:
     scales,
     censusapi,
     png,
-    jpeg
+    jpeg,
+    jsonlite

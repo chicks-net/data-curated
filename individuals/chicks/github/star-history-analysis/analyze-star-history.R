@@ -60,7 +60,15 @@ fetch_repo_stargazers <- function(org, repo) {
              paste(json_out, collapse = "\n"))
       }
     }
-    payload <- jsonlite::fromJSON(paste(json_out, collapse = "\n"))
+    payload <- tryCatch(
+      jsonlite::fromJSON(paste(json_out, collapse = "\n")),
+      error = function(e) {
+        stop("Failed to parse GraphQL JSON for ", org, "/", repo,
+             " (stdout/stderr may have interleaved):\n",
+             paste(json_out, collapse = "\n"), "\n",
+             "Parse error: ", conditionMessage(e))
+      }
+    )
     sg <- payload$data$repository$stargazers
     if (is.null(sg)) {
       stop("No stargazers returned for ", org, "/", repo,
