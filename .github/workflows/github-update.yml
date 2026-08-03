@@ -66,6 +66,13 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: just _github-update-ci
 
+      - name: Analyze star history
+        env:
+          GH_TOKEN: ${{ secrets.GH_STAR_TOKEN }}
+        run: |
+          just analyze-star-history
+          git add individuals/chicks/github
+
       - name: Check for changes
         id: changes
         run: |

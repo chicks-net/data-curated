@@ -47,8 +47,11 @@ brew install gh
 gh auth login
 ```
 
-In CI the `GH_TOKEN` environment variable is used (set by the GitHub Actions
-workflow).
+In CI the `GH_TOKEN` environment variable is used. The star-history step runs
+with a dedicated classic PAT (`GH_STAR_TOKEN` secret) rather than the default
+`GITHUB_TOKEN`, because the default Actions token is scoped to this repo and
+cannot read `stargazers` on sibling org repos (`megamap`, `chicks-home`,
+etc.). The PAT needs only `public_repo` scope (all target repos are public).
 
 ## Running the Analysis
 
