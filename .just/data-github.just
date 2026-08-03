@@ -174,7 +174,6 @@ _github-update-ci:
 	just analyze-commits
 	just fetch-contributions
 	just analyze-contributions
-	just analyze-star-history
 	git add individuals/chicks/github
 	git status --porcelain
 
