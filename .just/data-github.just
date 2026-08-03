@@ -162,6 +162,7 @@ github-update-all: _on_a_branch
 	just analyze-commits
 	just fetch-contributions
 	just analyze-contributions
+	just analyze-star-history
 	git add individuals/chicks/github
 	git stp
 	just db-status
@@ -173,6 +174,7 @@ _github-update-ci:
 	just analyze-commits
 	just fetch-contributions
 	just analyze-contributions
+	just analyze-star-history
 	git add individuals/chicks/github
 	git status --porcelain
 
@@ -191,6 +193,12 @@ contributions-db:
 [group('github')]
 analyze-contributions:
 	Rscript analyze-contributions.R
+
+# Generate star history charts (replicates star-history.com locally via GraphQL)
+[working-directory("individuals/chicks/github/star-history-analysis")]
+[group('github')]
+analyze-star-history:
+	Rscript analyze-star-history.R
 
 # Convert LinearWalkthrough.md to PDF with proper code formatting
 [working-directory("individuals/chicks/github/contributions-analysis")]
