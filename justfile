@@ -144,6 +144,7 @@ install-r-deps:
 		"censusapi"  # Census Bureau API access for restaurant analysis
 		"png"        # PNG image reading for logos in contributions analysis
 		"jpeg"       # JPEG image reading for logos in contributions analysis
+		"jsonlite"   # JSON parsing for star-history GraphQL API responses
 	)
 
 	echo "{{BLUE}}Packages to check/install:{{NORMAL}}"

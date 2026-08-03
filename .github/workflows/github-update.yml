@@ -110,7 +110,7 @@ jobs:
           - Commit history (commits.db)
           - Contribution counts (contributions.db)
           - Comment history (comments.db)
-          - Analysis visualizations
+          - Analysis visualizations (contributions, star history charts)
 
           ## Meta
 
