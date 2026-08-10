@@ -170,10 +170,14 @@ plot_star_history <- function(events, org, out_file) {
     ) +
     theme_minimal() +
     theme(
-      plot.title = element_text(size = 16, face = "bold"),
-      plot.subtitle = element_text(size = 11, color = "gray40"),
+      plot.title = element_text(size = 20, face = "bold"),
+      plot.subtitle = element_text(size = 14, color = "gray40"),
       legend.position = "top",
-      legend.title = element_text(size = 10, face = "bold"),
+      legend.title = element_text(size = 13, face = "bold"),
+      legend.text = element_text(size = 12),
+      axis.text = element_text(size = 12),
+      axis.title = element_text(size = 14),
+      plot.caption = element_text(size = 10),
       panel.grid.minor = element_blank()
     )
 
