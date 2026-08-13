@@ -108,6 +108,12 @@ imports modules from `.just/` directory:
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
+### PDF scans commands
+
+- `just fetch-pdf-metadata [FOLDER_ID]` - Fetch PDF file metadata from a Google Drive folder (defaults to `folder_id` in `config.toml`; pass `-- --no-recurse` to disable subfolder recursion)
+- `just pdf-scans-db` - Open pdfs.db in Datasette browser
+- `just pdf-scans-status` - Show database statistics (totals, trashed count, files by year, largest files)
+
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
@@ -241,6 +247,13 @@ The repository contains Python programs for data fetching and processing:
   - No YouTube API key required (uses yt-dlp scraping)
   - Companion Go program `link-blog-posts.go` links videos to blog posts on chicks.net
   - See individuals/chicks/youtube/README.md for full documentation
+- `individuals/chicks/pdf-scans/fetch-pdfs.py` - Fetches scanned PDF metadata from Google Drive via the Drive API v3
+  - Run with: `just fetch-pdf-metadata` (preferred) or `cd individuals/chicks/pdf-scans && uv run fetch-pdfs.py`
+  - Stores file metadata in `individuals/chicks/pdf-scans/pdfs.db` SQLite database
+  - Collects: name, size, created/modified time, trashed status, last modifying user, links, md5 checksum, etc. (no OCR, no downloads)
+  - OAuth desktop flow via `google-api-python-client` + `google-auth-oauthlib`; token cached at `~/.config/pdf-scans/token.json`
+  - Reads `config.toml` for default `folder_id` and `recurse` setting; recurses subfolders by default
+  - See individuals/chicks/pdf-scans/README.md for full documentation
 
 ### R analysis scripts
 
