@@ -1,9 +1,9 @@
 repo_full_name,emoji_count,commit_count,unique_emojis,emojis_per_commit
 chicks-net/www-chicks-net,446,310,270,1.4387096774193548
-chicks-net/data-curated,330,248,208,1.3306451612903225
-fini-net/template-repo,245,149,122,1.6442953020134228
+chicks-net/data-curated,332,250,209,1.328
+fini-net/template-repo,254,150,122,1.6933333333333334
 fini-net/gh-observer,244,170,147,1.4352941176470588
-chicks-net/chicks-home,151,96,93,1.5729166666666667
+chicks-net/chicks-home,152,97,94,1.5670103092783505
 fini-net/fini-infra,147,91,86,1.6153846153846154
 chicks-net/google-plus-posts-dumper,127,90,90,1.4111111111111112
 fini-net/fini-coredns-example,93,70,68,1.3285714285714285
