@@ -1,3 +1,5 @@
+
+
 # data-curated
 
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/chicks-net/data-curated/badge)](https://scorecard.dev/viewer/?uri=github.com/chicks-net/data-curated)
@@ -18,7 +20,7 @@ Each directory could be something interesting....
 
 ## Datasets
 
-- 🦜 [**duolingo/**](duolingo/) - Spanish learning character data in TOML format with build scripts
+- 🦜 [**duolingo/**](duolingo/) - Spanish learning character data in TOML format with build scripts that generate `character_reference.md`
 - 🌐 [**good-sites/**](good-sites/) - Curated list of useful websites and learning resources
 - 📊 [**individuals/**](individuals/) - Personal data collections and projects
   - 📈 [**chicks/blog/**](individuals/chicks/blog/) - Blog post frequency tracking with charts
