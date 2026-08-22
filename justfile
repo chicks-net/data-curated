@@ -12,6 +12,7 @@ import? '.just/gh-process.just'
 import? '.just/data-lottery.just'
 import? '.just/data-github.just'
 import? '.just/data-youtube.just'
+import? '.just/data-pdf-scans.just'
 
 # this needs to be first in the file so that it acts as the default
 # list recipes (default works without naming it)
