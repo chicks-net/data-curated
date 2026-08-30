@@ -188,6 +188,66 @@ p_zoom <- ggplot(df_zoom, aes(x = Date, y = `Minutes/Billion`, color = Tier_Fact
 
 ggsave("minutes-per-billion-by-tier-zoom.png", p_zoom, width = 14, height = 10, dpi = 300)
 
+two_mo_cutoff <- floor_date(max(df$Date) - months(2), "month")
+df_2mo <- df %>% filter(Date >= two_mo_cutoff)
+
+two_mo_excluded_count <- nrow(df) - nrow(df_2mo)
+
+# Narrower 2-month window has fewer points per tier, so threshold is 10 (vs 20 elsewhere)
+df_tier10plus_mp_2mo <- df_2mo %>%
+  filter(Tier >= 10) %>%
+  group_by(Tier) %>%
+  filter(n() >= 10) %>%
+  ungroup()
+
+tier_labels_mp_2mo <- df_tier10plus_mp_2mo %>%
+  group_by(Tier) %>%
+  arrange(desc(Date)) %>%
+  slice_head(n = 30) %>%
+  summarise(
+    end_date = max(Date),
+    avg_last_30 = mean(`Minutes/Billion`, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(label = sprintf("T%d: %.1f", Tier, avg_last_30))
+
+two_mo_start_label <- format(two_mo_cutoff, "%b %d, %Y")
+two_mo_end_label <- format(max(df$Date), "%b %d, %Y")
+
+p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
+  geom_point(size = 1.5, alpha = 0.7) +
+  geom_smooth(data = df_tier10plus_mp_2mo, aes(group = Tier_Factor),
+              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
+  geom_text(data = tier_labels_mp_2mo, aes(x = end_date, y = avg_last_30,
+             label = paste0("  ", label), color = factor(Tier)),
+            hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
+  scale_color_manual(
+    name = "Tier",
+    values = tier_colors,
+    drop = FALSE
+  ) +
+  scale_x_date(date_labels = "%b %d", date_breaks = "1 week", expand = c(0.05, 0, 0.1, 0)) +
+  scale_y_log10(labels = label_number(accuracy = 0.01)) +
+  labs(
+    title = "The Tower: Minutes per Billion Coins by Tier (Last ~2 Months)",
+    subtitle = sprintf("n = %d plays | %s \u2013 %s | Dissonant runs excluded", nrow(df_2mo), two_mo_start_label, two_mo_end_label),
+    x = "Date",
+    y = "Minutes per Billion Coins (log scale)",
+    caption = sprintf("Trend lines for tiers 10+ with >=10 points in range. Labels show avg of last 30 plays. %d older point(s) excluded from view.", two_mo_excluded_count)
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(size = 9, hjust = 0),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave("minutes-per-billion-by-tier-2mo.png", p_2mo, width = 14, height = 10, dpi = 300)
+
 daily_summary <- df_all %>%
   group_by(Date) %>%
   summarise(
@@ -469,6 +529,7 @@ if (nrow(tournament_df) > 0) {
 cat("\nAnalysis complete! Generated visualizations:\n")
   cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
   cat("  - minutes-per-billion-by-tier-zoom.png: Zoomed view (since Sep 2025, < 20 min/billion)\n")
+  cat("  - minutes-per-billion-by-tier-2mo.png: Last 2 months, auto-scaled y-axis\n")
   cat("  - billions-per-day.png: Total billions earned per day\n")
   cat("  - hours-per-day.png: Hours played per day\n")
   cat("  - time-to-finish.png: Scatter plot of time to finish levels\n")
