@@ -193,6 +193,7 @@ df_2mo <- df %>% filter(Date >= two_mo_cutoff)
 
 two_mo_excluded_count <- nrow(df) - nrow(df_2mo)
 
+# Narrower 2-month window has fewer points per tier, so threshold is 10 (vs 20 elsewhere)
 df_tier10plus_mp_2mo <- df_2mo %>%
   filter(Tier >= 10) %>%
   group_by(Tier) %>%
@@ -226,9 +227,9 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
     drop = FALSE
   ) +
   scale_x_date(date_labels = "%b %d", date_breaks = "1 week", expand = c(0.05, 0, 0.1, 0)) +
-  scale_y_log10(labels = comma_format(accuracy = 1)) +
+  scale_y_log10(labels = label_number(accuracy = 0.01)) +
   labs(
-    title = "The Tower: Minutes per Billion Coins by Tier (Last 2 Months)",
+    title = "The Tower: Minutes per Billion Coins by Tier (Last ~2 Months)",
     subtitle = sprintf("n = %d plays | %s \u2013 %s | Dissonant runs excluded", nrow(df_2mo), two_mo_start_label, two_mo_end_label),
     x = "Date",
     y = "Minutes per Billion Coins (log scale)",
