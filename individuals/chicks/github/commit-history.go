@@ -263,12 +263,17 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 			subNewCommits := 0
 			for _, subPeriod := range subPeriods {
 				subFetched, subNew, err := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
-				if err != nil {
-					log.Error().Err(err).Str("sub_period", subPeriod.Label).Msg("Error fetching sub-period")
-					continue
-				}
 				subTotalFetched += subFetched
 				subNewCommits += subNew
+				if err != nil {
+					log.Error().
+						Err(err).
+						Str("sub_period", subPeriod.Label).
+						Int("partial_fetched", subFetched).
+						Int("partial_new", subNew).
+						Msg("Error fetching sub-period")
+					continue
+				}
 			}
 
 			// Return combined totals including commits fetched before subdivision
@@ -338,12 +343,17 @@ func main() {
 
 	for _, period := range periods {
 		fetched, new, err := fetchCommitsForPeriod(db, username, period, 0)
-		if err != nil {
-			log.Error().Err(err).Str("period", period.Label).Msg("Error fetching period")
-			continue
-		}
 		totalFetched += fetched
 		newCommits += new
+		if err != nil {
+			log.Error().
+				Err(err).
+				Str("period", period.Label).
+				Int("partial_fetched", fetched).
+				Int("partial_new", new).
+				Msg("Error fetching period")
+			continue
+		}
 
 		log.Info().
 			Str("period", period.Label).
