@@ -18,6 +18,9 @@ fetching.
 - **Date-based partitioning** - fetches commits by year (2020-present)
 - **Automatic subdivision** - splits busy periods into quarters or months when needed
 - **No 1000 commit limit** - can fetch complete commit history across all years
+- **Retry with backoff** - rides out rate limits and transient Search API errors (15s/30s/60s)
+- **Suspicious-empty detection** - flags periods that return zero commits despite evidence commits should exist (existing DB records or a recent period end), so Search API index lag is caught rather than silently treated as "no data"
+- **Failure surfacing** - failed and suspicious periods are listed in the run summary; a current-year gap fails the run so the pipeline retries instead of committing a stale `commits.db`
 - Stores commits in a SQLite database
 - Extracts and indexes emojis from commit messages
 - Avoids API rate limits by using authenticated `gh` CLI
@@ -444,6 +447,7 @@ The program uses structured logging with zerolog:
 
 - GitHub Search API returns a maximum of 1000 results **per query** (worked around via date partitioning)
 - GitHub Search API only indexes commits from ~2017 onwards (use `historical-commits.go` for pre-2017)
+- GitHub Search API index lag can cause recent commits to be missing from results; the fetcher retries and flags such periods, and fails the run if the current year is affected
 - Only public commits are included in search results
 - Private repository commits require appropriate permissions
 - API rate limiting may temporarily prevent fetching very old commits (can be resumed later)

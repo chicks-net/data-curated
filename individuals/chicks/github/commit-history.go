@@ -26,6 +26,11 @@ const (
 	EnvJSONLogs        = "JSON_LOGS"
 	EnvJSONLogsValue   = "true"
 	SearchAPIStartYear = 2020 // GitHub Search API only indexes commits reliably from ~2017, use historical-commits.go for pre-2020
+
+	// Retry configuration for transient Search API failures (rate limits, index lag)
+	MaxAPIRetries   = 3                   // Retry attempts after the initial request
+	RetryBaseDelay  = 15 * time.Second    // Base delay doubles each retry: 15s, 30s, 60s
+	RecentPeriodAge = 30 * 24 * time.Hour // Periods ending within this window are expected to have commits for an active author
 )
 
 // TimePeriod represents a time range for fetching commits
@@ -33,6 +38,19 @@ type TimePeriod struct {
 	Start time.Time
 	End   time.Time
 	Label string
+}
+
+// PeriodResult reports the outcome of fetching one time period
+type PeriodResult struct {
+	Fetched         int
+	New             int
+	Err             error
+	SuspiciousEmpty bool // Period returned zero commits despite evidence they should exist
+}
+
+// IsCurrentYear reports whether the period falls in the current calendar year
+func (p TimePeriod) IsCurrentYear() bool {
+	return p.End.Year() == time.Now().UTC().Year()
 }
 
 // CommitSearchResponse represents the GitHub API response for commit search
@@ -146,7 +164,7 @@ func subdivideQuarterIntoMonths(period TimePeriod) []TimePeriod {
 }
 
 // fetchCommitsForPeriod fetches all commits for a time period, subdividing if necessary
-func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth int) (int, int, error) {
+func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth int) PeriodResult {
 	indent := strings.Repeat("  ", depth)
 	log.Info().
 		Str("period", period.Label).
@@ -154,19 +172,31 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 		Str("end", period.End.Format(DateFormatShort)).
 		Msg(indent + "Fetching commits for period")
 
+	result := PeriodResult{}
 	page := InitialPage
 	perPage := CommitsPerPage
-	totalFetched := 0
-	newCommits := 0
 
 	for {
-		commits, totalCount, err := fetchCommits(username, page, perPage, &period)
+		commits, totalCount, err := fetchCommitsWithRetry(username, page, perPage, &period, depth, indent)
 		if err != nil {
-			return totalFetched, newCommits, fmt.Errorf("error fetching commits: %w", err)
+			log.Error().
+				Err(err).
+				Str("period", period.Label).
+				Int("page", page).
+				Msg(indent + "Error fetching commits after retries")
+			result.Err = fmt.Errorf("error fetching commits: %w", err)
+			return result
 		}
 
 		if len(commits) == 0 {
-			log.Debug().Str("period", period.Label).Msg(indent + "No more commits for period")
+			if page == InitialPage && isSuspiciousEmpty(db, period) {
+				log.Warn().
+					Str("period", period.Label).
+					Msg(indent + "Search API returned zero commits but period should have some - flagging as suspicious")
+				result.SuspiciousEmpty = true
+			} else {
+				log.Debug().Str("period", period.Label).Msg(indent + "No more commits for period")
+			}
 			break
 		}
 
@@ -202,7 +232,7 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 			if err := saveCommit(db, record); err != nil {
 				log.Error().Err(err).Str("sha", commit.SHA).Msg("Error saving commit")
 			} else {
-				newCommits++
+				result.New++
 				log.Debug().
 					Str("sha", commit.SHA[:SHALogLength]).
 					Str("repo", commit.Repository.FullName).
@@ -211,28 +241,28 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 			}
 		}
 
-		totalFetched += len(commits)
+		result.Fetched += len(commits)
 		log.Debug().
 			Str("period", period.Label).
 			Int("page", page).
 			Int("fetched", len(commits)).
-			Int("total_fetched", totalFetched).
-			Int("new_commits", newCommits).
+			Int("total_fetched", result.Fetched).
+			Int("new_commits", result.New).
 			Int("total_available", totalCount).
 			Msg(indent + "Page processed")
 
 		// Check if we've fetched all commits for this period
-		if totalFetched >= totalCount {
+		if result.Fetched >= totalCount {
 			log.Info().
 				Str("period", period.Label).
-				Int("total_fetched", totalFetched).
-				Int("new_commits", newCommits).
+				Int("total_fetched", result.Fetched).
+				Int("new_commits", result.New).
 				Msg(indent + "All commits fetched for period")
 			break
 		}
 
 		// Check if we're hitting the GitHub search API limit
-		if totalCount >= GitHubAPILimit && totalFetched >= GitHubAPILimit {
+		if totalCount >= GitHubAPILimit && result.Fetched >= GitHubAPILimit {
 			log.Warn().
 				Str("period", period.Label).
 				Int("limit", GitHubAPILimit).
@@ -257,33 +287,97 @@ func fetchCommitsForPeriod(db *sql.DB, username string, period TimePeriod, depth
 				break
 			}
 
-			// Recursively fetch each sub-period
-			// Use separate counters for subdivision results
-			subTotalFetched := 0
-			subNewCommits := 0
+			// Recursively fetch each sub-period and merge results so
+			// failures and suspicious empties propagate to the top level
 			for _, subPeriod := range subPeriods {
-				subFetched, subNew, err := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
-				subTotalFetched += subFetched
-				subNewCommits += subNew
-				if err != nil {
+				subResult := fetchCommitsForPeriod(db, username, subPeriod, depth+1)
+				result.Fetched += subResult.Fetched
+				result.New += subResult.New
+				if subResult.Err != nil {
 					log.Error().
-						Err(err).
+						Err(subResult.Err).
 						Str("sub_period", subPeriod.Label).
-						Int("partial_fetched", subFetched).
-						Int("partial_new", subNew).
+						Int("partial_fetched", subResult.Fetched).
+						Int("partial_new", subResult.New).
 						Msg("Error fetching sub-period")
-					continue
+					if result.Err == nil {
+						result.Err = fmt.Errorf("sub-period %s: %w", subPeriod.Label, subResult.Err)
+					}
+				}
+				if subResult.SuspiciousEmpty {
+					result.SuspiciousEmpty = true
 				}
 			}
 
-			// Return combined totals including commits fetched before subdivision
-			return totalFetched + subTotalFetched, newCommits + subNewCommits, nil
+			return result
 		}
 
 		page++
 	}
 
-	return totalFetched, newCommits, nil
+	return result
+}
+
+// fetchCommitsWithRetry fetches a page of commits, retrying with
+// exponential backoff on failure to ride out rate limits and
+// transient Search API errors
+func fetchCommitsWithRetry(username string, page, perPage int, period *TimePeriod, depth int, indent string) ([]CommitResult, int, error) {
+	var lastErr error
+	for attempt := 0; attempt <= MaxAPIRetries; attempt++ {
+		if attempt > 0 {
+			delay := RetryBaseDelay * (1 << (attempt - 1))
+			log.Warn().
+				Str("period", period.Label).
+				Int("page", page).
+				Int("attempt", attempt).
+				Dur("delay", delay).
+				Err(lastErr).
+				Msg(indent + "Retrying commit fetch")
+			time.Sleep(delay)
+		}
+
+		commits, totalCount, err := fetchCommits(username, page, perPage, period)
+		if err == nil {
+			return commits, totalCount, nil
+		}
+		lastErr = err
+	}
+	return nil, 0, lastErr
+}
+
+// isSuspiciousEmpty reports whether a zero-commit period should be
+// trusted. A period is suspect when the database already holds commits
+// in that date range, or when the period has started and overlaps the
+// recent window where an active author would be expected to have
+// commits. Periods that have not started yet legitimately have none.
+func isSuspiciousEmpty(db *sql.DB, period TimePeriod) bool {
+	exists, err := commitsExistInRange(db, period.Start, period.End)
+	if err != nil {
+		log.Error().Err(err).Str("period", period.Label).Msg("Error checking for existing commits in period")
+		return false
+	}
+	if exists {
+		return true
+	}
+	now := time.Now().UTC()
+	if period.Start.After(now) {
+		return false
+	}
+	return now.Sub(period.End) < RecentPeriodAge
+}
+
+// commitsExistInRange reports whether the database holds any commit
+// with an author_date inside the given range
+func commitsExistInRange(db *sql.DB, start, end time.Time) (bool, error) {
+	var count int
+	err := db.QueryRow(
+		"SELECT COUNT(*) FROM commits WHERE author_date >= ? AND author_date <= ?",
+		start.Format(time.RFC3339), end.Format(time.RFC3339),
+	).Scan(&count)
+	if err != nil {
+		return false, fmt.Errorf("failed to check for commits in range: %w", err)
+	}
+	return count > 0, nil
 }
 
 func main() {
@@ -341,34 +435,85 @@ func main() {
 		Int("periods", len(periods)).
 		Msg("Starting date-partitioned fetch (use historical-commits.go for pre-2020)")
 
-	for _, period := range periods {
-		fetched, new, err := fetchCommitsForPeriod(db, username, period, 0)
-		totalFetched += fetched
-		newCommits += new
-		if err != nil {
-			log.Error().
-				Err(err).
-				Str("period", period.Label).
-				Int("partial_fetched", fetched).
-				Int("partial_new", new).
-				Msg("Error fetching period")
-			continue
-		}
+	type problemPeriod struct {
+		label         string
+		result        PeriodResult
+		isCurrentYear bool
+	}
 
-		log.Info().
-			Str("period", period.Label).
-			Int("period_fetched", fetched).
-			Int("period_new", new).
-			Int("total_fetched", totalFetched).
-			Int("total_new", newCommits).
-			Msg("Period completed")
+	var problemPeriods []problemPeriod
+
+	for _, period := range periods {
+		result := fetchCommitsForPeriod(db, username, period, 0)
+		totalFetched += result.Fetched
+		newCommits += result.New
+
+		if result.Err != nil {
+			log.Error().
+				Err(result.Err).
+				Str("period", period.Label).
+				Int("partial_fetched", result.Fetched).
+				Int("partial_new", result.New).
+				Msg("Error fetching period")
+			problemPeriods = append(problemPeriods, problemPeriod{label: period.Label, result: result, isCurrentYear: period.IsCurrentYear()})
+		} else {
+			if result.SuspiciousEmpty {
+				log.Warn().
+					Str("period", period.Label).
+					Msg("Period returned zero commits despite evidence commits should exist")
+				problemPeriods = append(problemPeriods, problemPeriod{label: period.Label, result: result, isCurrentYear: period.IsCurrentYear()})
+			}
+
+			log.Info().
+				Str("period", period.Label).
+				Int("period_fetched", result.Fetched).
+				Int("period_new", result.New).
+				Int("total_fetched", totalFetched).
+				Int("total_new", newCommits).
+				Msg("Period completed")
+		}
+	}
+
+	// Surface problem periods in the final summary instead of
+	// silently skipping them (see issue #490)
+	if len(problemPeriods) > 0 {
+		log.Warn().
+			Int("problem_periods", len(problemPeriods)).
+			Msg("Some periods failed or returned suspiciously empty results")
+		for _, p := range problemPeriods {
+			if p.result.Err != nil {
+				log.Warn().
+					Str("period", p.label).
+					Bool("current_year", p.isCurrentYear).
+					Err(p.result.Err).
+					Msg("Failed period")
+			} else {
+				log.Warn().
+					Str("period", p.label).
+					Bool("current_year", p.isCurrentYear).
+					Msg("Suspiciously empty period")
+			}
+		}
 	}
 
 	log.Info().
 		Int("total_fetched", totalFetched).
 		Int("new_commits", newCommits).
+		Int("problem_periods", len(problemPeriods)).
 		Str("database", DatabaseFile).
 		Msg("Commit history fetch completed")
+
+	// A gap in the current year means recent commits went missing
+	// from the database; fail the run so the update pipeline notices
+	// instead of committing a silently stale commits.db
+	for _, p := range problemPeriods {
+		if p.isCurrentYear {
+			log.Error().
+				Str("period", p.label).
+				Msg("Current-year period incomplete - failing so the gap is retried instead of silently accepted")
+			os.Exit(1)
+		}
+	}
 }
 
 func initDatabase() (*sql.DB, error) {
@@ -453,6 +598,9 @@ func fetchCommits(username string, page, perPage int, period *TimePeriod) ([]Com
 	cmd := exec.Command("gh", "api", apiURL)
 	output, err := cmd.Output()
 	if err != nil {
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return nil, 0, fmt.Errorf("gh api failed: %s", string(exitErr.Stderr))
+		}
 		return nil, 0, fmt.Errorf("gh api failed: %w", err)
 	}
 
