@@ -125,17 +125,19 @@ func main() {
 
 		for _, repo := range repos {
 			fetched, new, err := fetchRepoCommits(db, username, repo, yearStart, yearEnd)
+			yearFetched += fetched
+			yearNew += new
 			if err != nil {
 				log.Error().
 					Err(err).
 					Str("repo", repo).
 					Int("year", year).
+					Int("partial_fetched", fetched).
+					Int("partial_new", new).
 					Msg("Error fetching repo commits")
 				failedRepos = append(failedRepos, FailedRepo{Repo: repo, Year: year, Err: err})
 				continue
 			}
-			yearFetched += fetched
-			yearNew += new
 		}
 
 		totalFetched += yearFetched
