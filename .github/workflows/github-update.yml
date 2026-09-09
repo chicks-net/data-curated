@@ -2,7 +2,7 @@
 name: GitHub Update
 on:
   schedule:
-    - cron: '42 10 * * *' # 10:42am UTC works out to be 2:42: or 3:42am Pacific time.
+    - cron: '42 10 * * *' # 10:42am UTC works out to be 2:42am or 3:42am Pacific time.
   workflow_dispatch:
 
 # global permissions
