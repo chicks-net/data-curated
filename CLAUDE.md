@@ -136,7 +136,16 @@ Markdown linting runs automatically via GitHub Actions on pushes/PRs:
 
 - Uses `markdownlint-cli2-action` on all `*.md` files
 - Excludes: `.github/pull_request_template.md`, `duolingo/character_reference.md`
+  (plus `.opencode/**`), configured in `.markdownlint-cli2.yaml`
 - Local check: `npx markdownlint-cli2 "**/*.md"`
+
+EditorConfig compliance is enforced by `editorconfig.yml`, backed by
+`.editorconfig` and `.editorconfig-checker.json` (which excludes raw data
+and code files with language-specific indent conventions).  Local check:
+`editorconfig-checker`
+
+zizmor (GitHub Actions security analysis) runs via `zizmor.yml`, configured
+by `zizmor.yml` at repo root.  Local check: `zizmor -q .github/workflows`
 
 Other automated workflows:
 
@@ -147,6 +156,13 @@ Other automated workflows:
 - `checkov.yml` - Security and compliance scanning
 - `scorecards.yml` - OpenSSF Scorecard security posture analysis
 - `auto-assign.yml` - Automatically assigns PRs to the repo owner
+- `codeql.yml` - CodeQL security scanning (Go, Python)
+- `dependency-review.yml` - Scans dependency changes in PRs for vulnerabilities
+- `gitleaks.yml` - Secret detection
+- `renovate-validate.yml` - Validates `.github/renovate.json`
+
+Files owned locally (not managed by template CHECKSUMS): `.editorconfig`,
+`.editorconfig-checker.json`, `zizmor.yml`, `.markdownlint-cli2.yaml`
 
 ## Data Operations
 

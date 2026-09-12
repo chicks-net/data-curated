@@ -4,17 +4,17 @@ set -euo pipefail
 
 # Check for CSV file argument
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <csv-file>"
-    echo "Example: $0 StackExchange-dnscontrol-contributors-20251210.csv"
-    exit 1
+	echo "Usage: $0 <csv-file>"
+	echo "Example: $0 StackExchange-dnscontrol-contributors-20251210.csv"
+	exit 1
 fi
 
 CSV_FILE="$1"
 
 # Check if CSV file exists
 if [ ! -f "$CSV_FILE" ]; then
-    echo "Error: CSV file '$CSV_FILE' not found"
-    exit 1
+	echo "Error: CSV file '$CSV_FILE' not found"
+	exit 1
 fi
 
 # Derive database name from CSV file
@@ -27,26 +27,26 @@ echo "  Output: $DB_FILE"
 
 # Remove existing database if it exists
 if [ -f "$DB_FILE" ]; then
-    echo "Warning: Removing existing database file: $DB_FILE"
-    rm "$DB_FILE"
+	echo "Warning: Removing existing database file: $DB_FILE"
+	rm "$DB_FILE"
 fi
 
 # Import CSV into SQLite
 sqlite3 "$DB_FILE" << EOF
 -- Create table with proper types
 CREATE TABLE contributors (
-    login TEXT NOT NULL,
-    user_id INTEGER NOT NULL,
-    avatar_url TEXT,
-    type TEXT,
-    site_admin INTEGER,
-    total_commits INTEGER NOT NULL,
-    total_additions INTEGER NOT NULL,
-    total_deletions INTEGER NOT NULL,
-    weeks_active INTEGER NOT NULL,
-    rank_by_commits INTEGER NOT NULL,
-    rank_by_additions INTEGER NOT NULL,
-    rank_by_deletions INTEGER NOT NULL
+	login TEXT NOT NULL,
+	user_id INTEGER NOT NULL,
+	avatar_url TEXT,
+	type TEXT,
+	site_admin INTEGER,
+	total_commits INTEGER NOT NULL,
+	total_additions INTEGER NOT NULL,
+	total_deletions INTEGER NOT NULL,
+	weeks_active INTEGER NOT NULL,
+	rank_by_commits INTEGER NOT NULL,
+	rank_by_additions INTEGER NOT NULL,
+	rank_by_deletions INTEGER NOT NULL
 );
 
 -- Import CSV data (skip header row)
@@ -56,18 +56,18 @@ CREATE TABLE contributors (
 -- Copy data from temp table to main table with type conversion
 INSERT INTO contributors
 SELECT
-    login,
-    CAST(user_id AS INTEGER),
-    avatar_url,
-    type,
-    CASE WHEN site_admin = 'true' THEN 1 ELSE 0 END,
-    CAST(total_commits AS INTEGER),
-    CAST(total_additions AS INTEGER),
-    CAST(total_deletions AS INTEGER),
-    CAST(weeks_active AS INTEGER),
-    CAST(rank_by_commits AS INTEGER),
-    CAST(rank_by_additions AS INTEGER),
-    CAST(rank_by_deletions AS INTEGER)
+	login,
+	CAST(user_id AS INTEGER),
+	avatar_url,
+	type,
+	CASE WHEN site_admin = 'true' THEN 1 ELSE 0 END,
+	CAST(total_commits AS INTEGER),
+	CAST(total_additions AS INTEGER),
+	CAST(total_deletions AS INTEGER),
+	CAST(weeks_active AS INTEGER),
+	CAST(rank_by_commits AS INTEGER),
+	CAST(rank_by_additions AS INTEGER),
+	CAST(rank_by_deletions AS INTEGER)
 FROM contributors_temp
 WHERE login != 'login'; -- Skip header row
 

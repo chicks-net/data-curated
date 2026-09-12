@@ -1,0 +1,50 @@
+# EditorConfig is awesome: https://editorconfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+indent_style = tab
+indent_size = 8
+# shfmt
+switch_case_indent = true
+
+[*.md]
+indent_style = space
+indent_size = 2
+
+[*.{yml,yaml}]
+indent_style = space
+indent_size = 2
+
+[*.json]
+indent_style = space
+indent_size = 2
+
+# Code files in this repo use spaces, not the global tab default
+[*.R]
+indent_style = space
+indent_size = 2
+
+[*.{py,pl}]
+indent_style = space
+indent_size = 4
+
+[*.{sql,plist}]
+indent_style = space
+indent_size = 2
+
+[{justfile,*.just}]
+indent_style = space
+indent_size = 4
+
+[.claude/*.json]
+indent_style = space
+indent_size = 2
+
+[.just/CHECKSUMS.json]
+indent_style = space
+indent_size = 2

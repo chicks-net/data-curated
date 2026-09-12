@@ -198,7 +198,7 @@ def import_state_data(conn, state_code, data_dir):
                 cursor.execute('''
                     INSERT OR REPLACE INTO cities
                     (name, state_abbrev, latitude, longitude, pop_2010, pop_2020,
-                     land_area_sqmi, water_area_sqmi, ansi_code, geoid)
+                        land_area_sqmi, water_area_sqmi, ansi_code, geoid)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     gaz_place['name'],
