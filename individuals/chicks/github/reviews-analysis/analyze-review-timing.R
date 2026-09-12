@@ -140,7 +140,7 @@ data_for_histogram <- first_reviews %>%
       TRUE ~ "> 6 hours"
     ),
     time_bucket = factor(time_bucket, 
-                         levels = c("<= 1 min", "1-5 min", "5-10 min", "10-30 min", 
+                          levels = c("<= 1 min", "1-5 min", "5-10 min", "10-30 min", 
                                     "30-60 min", "1-6 hours", "> 6 hours"))
   )
 

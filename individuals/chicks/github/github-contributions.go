@@ -14,11 +14,11 @@ import (
 )
 
 const (
-	DatabaseFile    = "./contributions.db"
-	DateFormatShort = "2006-01-02"
-	EnvJSONLogs     = "JSON_LOGS"
+	DatabaseFile     = "./contributions.db"
+	DateFormatShort  = "2006-01-02"
+	EnvJSONLogs      = "JSON_LOGS"
 	EnvJSONLogsValue = "true"
-	AccountCreated  = "2011-10-03" // chicks-net account creation date
+	AccountCreated   = "2011-10-03" // chicks-net account creation date
 )
 
 // GraphQLResponse represents the GitHub GraphQL API response

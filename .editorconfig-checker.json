@@ -5,16 +5,9 @@
     "^LICENSE$",
     "^\\.opencode/",
     "^\\.cache/",
-    "\\.csv$",
-    "\\.db$",
     "\\.tsv$",
+    "review-count\\.txt$",
     "^DESCRIPTION$",
-    "\\.txt$",
-    "\\.json$",
-    "\\.sql$",
-    "\\.go$",
-    "\\.R$",
-    "\\.pl$",
-    "\\.md$"
+    "graph-generator\\.go$"
   ]
 }

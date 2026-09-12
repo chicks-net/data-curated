@@ -89,7 +89,7 @@ while (my $row = $csv->getline($fh)) {
 close $fh;
 
 print sprintf("Loaded %d drawings from %s to %s\n",
-              $drawing_count, $min_date, $max_date);
+                $drawing_count, $min_date, $max_date);
 
 # Sort main numbers by frequency (descending)
 my @main_sorted = sort { $main_freq{$b} <=> $main_freq{$a} || $a <=> $b } keys %main_freq;

@@ -15,12 +15,12 @@ import (
 )
 
 const (
-	dbPath        = "videos.db"
-	githubRepo    = "chicks-net/www-chicks-net"
-	repoURL       = "https://github.com/chicks-net/www-chicks-net.git"
-	postsPath     = "content/posts"
-	blogBaseURL   = "https://www.chicks.net"
-	tempRepoPath  = "/tmp/www-chicks-net-blog-linker"
+	dbPath       = "videos.db"
+	githubRepo   = "chicks-net/www-chicks-net"
+	repoURL      = "https://github.com/chicks-net/www-chicks-net.git"
+	postsPath    = "content/posts"
+	blogBaseURL  = "https://www.chicks.net"
+	tempRepoPath = "/tmp/www-chicks-net-blog-linker"
 )
 
 // Video represents a video record from the database

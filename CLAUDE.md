@@ -140,8 +140,9 @@ Markdown linting runs automatically via GitHub Actions on pushes/PRs:
 - Local check: `npx markdownlint-cli2 "**/*.md"`
 
 EditorConfig compliance is enforced by `editorconfig.yml`, backed by
-`.editorconfig` and `.editorconfig-checker.json` (which excludes raw data
-and code files with language-specific indent conventions).  Local check:
+`.editorconfig` and `.editorconfig-checker.json` (which only excludes
+raw data files — `.tsv`, `review-count.txt`, `DESCRIPTION` — plus the
+SVG-template string in `graph-generator.go`).  Local check:
 `editorconfig-checker`
 
 zizmor (GitHub Actions security analysis) runs via `zizmor.yml`, configured

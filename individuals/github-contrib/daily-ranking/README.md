@@ -41,10 +41,10 @@ Contributors are identified by merging commits that share either a name OR an
 email address. This handles two common scenarios:
 
 1. **Multiple email addresses**: A contributor using different emails for work
-   and personal commits will be correctly merged into a single identity.
+    and personal commits will be correctly merged into a single identity.
 
 2. **Name changes**: When a contributor changes their name, all commits are
-   merged under a single identity using the most recent name.
+    merged under a single identity using the most recent name.
 
 For example, if "Alice" commits with `alice@work.com` and later as "Alice Smith"
 with `alice@personal.com`, all commits are merged and displayed under

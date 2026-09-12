@@ -87,8 +87,8 @@ monthly_long <- monthly_stats %>%
   ) %>%
   mutate(
     pct = ifelse(bot_type == "claude_reviewed", 
-                 monthly_stats$claude_pct[match(month, monthly_stats$month)],
-                 monthly_stats$copilot_pct[match(month, monthly_stats$month)]),
+                  monthly_stats$claude_pct[match(month, monthly_stats$month)],
+                  monthly_stats$copilot_pct[match(month, monthly_stats$month)]),
     bot_type = ifelse(bot_type == "claude_reviewed", "Claude", "Copilot")
   )
 
@@ -101,10 +101,10 @@ p1 <- ggplot(plot_data, aes(x = month, y = coverage_pct)) +
   geom_line(color = "#2E86AB", linewidth = 1.2) +
   geom_point(color = "#2E86AB", size = 2.5) +
   geom_hline(yintercept = overall_coverage, linetype = "dashed", 
-             color = "#A23B72", alpha = 0.7) +
+              color = "#A23B72", alpha = 0.7) +
   annotate("text", x = min(plot_data$month), y = overall_coverage + 3,
-           label = sprintf("Overall: %.1f%%", overall_coverage),
-           hjust = 0, color = "#A23B72", size = 4, fontface = "bold") +
+            label = sprintf("Overall: %.1f%%", overall_coverage),
+            hjust = 0, color = "#A23B72", size = 4, fontface = "bold") +
   scale_y_continuous(limits = c(0, 105), breaks = seq(0, 100, 20)) +
   scale_x_datetime(date_labels = "%b %Y", date_breaks = "3 months") +
   labs(

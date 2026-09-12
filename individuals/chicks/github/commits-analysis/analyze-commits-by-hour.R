@@ -83,8 +83,8 @@ p1 <- ggplot(hourly_counts, aes(x = hour_label, y = n)) +
   labs(
     title = "GitHub Commits by Hour of Day (Local Time)",
     subtitle = paste("Analysis of", comma_format()(nrow(commits)), "commits in authors' local time |",
-                     format(min(commits$author_datetime), "%Y-%m-%d"), "to",
-                     format(max(commits$author_datetime), "%Y-%m-%d")),
+                      format(min(commits$author_datetime), "%Y-%m-%d"), "to",
+                      format(max(commits$author_datetime), "%Y-%m-%d")),
     x = "Hour of Day (Local Time)",
     y = "Number of Commits"
   ) +
@@ -121,8 +121,8 @@ p3 <- ggplot(time_periods, aes(x = reorder(time_period, n), y = n, fill = time_p
   labs(
     title = "Commits by Time Period (Local Time)",
     subtitle = paste("Distribution across local time periods |",
-                     format(min(commits$author_datetime), "%Y-%m-%d"), "to",
-                     format(max(commits$author_datetime), "%Y-%m-%d")),
+                      format(min(commits$author_datetime), "%Y-%m-%d"), "to",
+                      format(max(commits$author_datetime), "%Y-%m-%d")),
     x = NULL,
     y = "Number of Commits"
   ) +

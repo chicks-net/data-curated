@@ -72,16 +72,16 @@ Rscript analyze-star-history.R
 --- chicks-net ---
 Fetching stargazers for chicks-net :
   Fetching chicks-net/megamap ...
-     37 stars across 1 page(s)
+      37 stars across 1 page(s)
   Fetching chicks-net/fbdata-forensics ...
-     8 stars across 1 page(s)
+      8 stars across 1 page(s)
   ...
 Saved: star-history-chicks-net.png
 
 --- fini-net ---
 Fetching stargazers for fini-net :
   Fetching fini-net/fini-coredns-example ...
-     9 stars across 1 page(s)
+      9 stars across 1 page(s)
   ...
 Saved: star-history-fini-net.png
 
@@ -91,15 +91,15 @@ Analysis complete!
 ## How It Works
 
 1. For each repo, paginate the GraphQL `repository.stargazers` connection
-   (100 edges per page, ordered by `STARRED_AT ASC`) collecting `starredAt`
-   timestamps.
+    (100 edges per page, ordered by `STARRED_AT ASC`) collecting `starredAt`
+    timestamps.
 2. Compute a cumulative count per repo per day (each star adds one to that
-   repo's running total from its `starredAt` date onward).
+    repo's running total from its `starredAt` date onward).
 3. Plot one line per repo with `ggplot2` (`geom_line` over actual star-event
-   points plus a zero start point per repo and a current-date endpoint), one
-   PNG per org.  Straight diagonal segments connect sparse star events (no
-   daily-grid flat-with-jumps jaggedness), and each repo's line extends
-   horizontally to today.
+    points plus a zero start point per repo and a current-date endpoint), one
+    PNG per org.  Straight diagonal segments connect sparse star events (no
+    daily-grid flat-with-jumps jaggedness), and each repo's line extends
+    horizontally to today.
 4. Repos with zero stars are skipped (no line drawn, omitted from the legend).
 
 ## Data Source
@@ -110,7 +110,7 @@ GitHub GraphQL API via `gh api graphql`:
 query($cursor: String) {
   repository(owner: "ORG", name: "REPO") {
     stargazers(first: 100, after: $cursor,
-               orderBy: {field: STARRED_AT, direction: ASC}) {
+                orderBy: {field: STARRED_AT, direction: ASC}) {
       totalCount
       edges { starredAt node { login } }
       pageInfo { endCursor hasNextPage }

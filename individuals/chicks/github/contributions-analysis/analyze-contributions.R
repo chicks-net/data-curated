@@ -95,10 +95,10 @@ points_data <- plot_data %>% filter(!(date == today & contribution_count == 0))
 p <- ggplot(plot_data, aes(x = date)) +
   # Daily points - smaller and semi-transparent (exclude today if zero contributions)
   geom_point(data = points_data,
-             aes(y = contribution_count),
-             alpha = 0.3,
-             size = 1,
-             color = "gray50") +
+              aes(y = contribution_count),
+              alpha = 0.3,
+              size = 1,
+              color = "gray50") +
   # Running average lines
   geom_line(aes(y = avg_14day, color = "14-day average"),
             linewidth = 0.5) +
@@ -137,11 +137,11 @@ p <- ggplot(plot_data, aes(x = date)) +
   geom_vline(xintercept = as.Date("2025-03-10"), linetype = "dashed", color = "red", alpha = 0.6) +
   geom_vline(xintercept = as.Date("2025-08-29"), linetype = "dashed", color = "red", alpha = 0.6) +
   annotate("text", x = as.Date("2025-03-10"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.95,
-           label = "commitment to daily github", angle = 90, hjust = 1, vjust = -1.5,
-           size = 3, color = "red", alpha = 0.7) +
+            label = "commitment to daily github", angle = 90, hjust = 1, vjust = -1.5,
+            size = 3, color = "red", alpha = 0.7) +
   annotate("text", x = as.Date("2025-08-29"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.85,
-           label = "started using Claude Code", angle = 90, hjust = 1, vjust = -1.5,
-           size = 3, color = "red", alpha = 0.7)
+            label = "started using Claude Code", angle = 90, hjust = 1, vjust = -1.5,
+            size = 3, color = "red", alpha = 0.7)
 
 # Save the plot
 output_file <- "contributions-last2years.png"
@@ -265,19 +265,19 @@ for (company in names(logos)) {
 telmate_row <- jobs_filtered[jobs_filtered$Company == "Telmate", ]
 if (nrow(telmate_row) > 0) {
   p2 <- p2 + annotate("text",
-                       x = telmate_row$midpoint,
-                       y = plot_max_y * 0.96,
-                       label = "Telmate",
-                       size = 3,
-                       color = "gray30",
-                       alpha = 0.7)
+                        x = telmate_row$midpoint,
+                        y = plot_max_y * 0.96,
+                        label = "Telmate",
+                        size = 3,
+                        color = "gray30",
+                        alpha = 0.7)
 }
 
 p2 <- p2 +
   # Weekly bars
   geom_col(aes(y = contributions),
-           alpha = 0.3,
-           fill = "gray50") +
+            alpha = 0.3,
+            fill = "gray50") +
   # Running average lines (based on daily averages)
   geom_line(aes(y = avg_4week * 7, color = "4-week average"),
             linewidth = 0.3) +
@@ -425,19 +425,19 @@ for (company in names(logos)) {
 telmate_row <- jobs_filtered[jobs_filtered$Company == "Telmate", ]
 if (nrow(telmate_row) > 0) {
   p3 <- p3 + annotate("text",
-                       x = telmate_row$midpoint,
-                       y = plot_max_y * 0.96,
-                       label = "Telmate",
-                       size = 3,
-                       color = "gray30",
-                       alpha = 0.7)
+                        x = telmate_row$midpoint,
+                        y = plot_max_y * 0.96,
+                        label = "Telmate",
+                        size = 3,
+                        color = "gray30",
+                        alpha = 0.7)
 }
 
 p3 <- p3 +
   # Monthly bars
   geom_col(aes(y = contributions),
-           alpha = 0.6,
-           fill = "steelblue") +
+            alpha = 0.6,
+            fill = "steelblue") +
   # Projected portion for current month (greyed out)
   geom_rect(data = monthly_projection,
             aes(xmin = xmin, xmax = xmax,
@@ -467,7 +467,7 @@ p3 <- p3 +
     y = "Contributions per Month",
     caption = paste0("Total contributions: ", format(total_contributions, big.mark = ","), " | Database last updated: ", last_updated_formatted)
   ) +
-   scale_y_continuous(minor_breaks = seq(0, 1e6, 100)) +
+    scale_y_continuous(minor_breaks = seq(0, 1e6, 100)) +
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
