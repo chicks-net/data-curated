@@ -62,9 +62,9 @@ addresses a limitation of the GitHub Search API, which only indexes commits from
 **How it works:**
 
 1. For each year from 2016 down to 2008:
-   - Uses GraphQL `commitContributionsByRepository` to discover repos with commits
-   - Queries REST API `/repos/{owner}/{repo}/commits` for each repo
-   - Stores commits in `commits.db` with deduplication
+    - Uses GraphQL `commitContributionsByRepository` to discover repos with commits
+    - Queries REST API `/repos/{owner}/{repo}/commits` for each repo
+    - Stores commits in `commits.db` with deduplication
 
 **Why needed:** The GitHub Search API's `/search/commits` endpoint only provides
 results from approximately 2017 onwards. For pre-2017 commit history, this hybrid
@@ -141,18 +141,18 @@ did not run when expected.
 
 1. Discovers all public repos in chicks-net and fini-net
 2. For each repo with PRs:
-   - Fetches all pull requests (open and closed)
-   - For each PR:
-     - Counts timeline events: "opened" (always 1) + "synchronize" (additional pushes)
-     - Fetches formal PR reviews
-     - Fetches issue comments (Claude uses `gh pr comment` which creates issue comments)
-     - Identifies bot-authored reviews/comments
+    - Fetches all pull requests (open and closed)
+    - For each PR:
+      - Counts timeline events: "opened" (always 1) + "synchronize" (additional pushes)
+      - Fetches formal PR reviews
+      - Fetches issue comments (Claude uses `gh pr comment` which creates issue comments)
+      - Identifies bot-authored reviews/comments
 3. Stores all data in SQLite with timestamps
 4. Generates coverage summary showing:
-   - Claude coverage rate (% of PRs with at least one Claude review)
-   - Copilot coverage rate (% of PRs with at least one Copilot review)
-   - PRs with review gaps
-   - Repos needing attention
+    - Claude coverage rate (% of PRs with at least one Claude review)
+    - Copilot coverage rate (% of PRs with at least one Copilot review)
+    - PRs with review gaps
+    - Repos needing attention
 
 **Expected behavior:**
 

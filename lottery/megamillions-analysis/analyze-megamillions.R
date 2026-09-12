@@ -9,12 +9,12 @@ library(tidyverse)
 # Read the Mega Millions data
 cat("Reading Mega Millions data...\n")
 lottery_data <- read_csv("../Lottery_Mega_Millions_Winning_Numbers__Beginning_2002.csv",
-                         col_types = cols(
-                           `Draw Date` = col_date(format = "%m/%d/%Y"),
-                           `Winning Numbers` = col_character(),
-                           `Mega Ball` = col_character(),
-                           Multiplier = col_character()
-                         ))
+                          col_types = cols(
+                            `Draw Date` = col_date(format = "%m/%d/%Y"),
+                            `Winning Numbers` = col_character(),
+                            `Mega Ball` = col_character(),
+                            Multiplier = col_character()
+                          ))
 
 cat(sprintf("Loaded %d drawings from %s to %s\n",
             nrow(lottery_data),
@@ -73,9 +73,9 @@ if (!isTRUE(getOption("skip.plots"))) {
   p1 <- ggplot(main_freq, aes(x = reorder(Number, -Count), y = Count)) +
     geom_col(fill = "steelblue") +
     labs(title = "Mega Millions Main Numbers Frequency",
-         subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
-         x = "Number",
-         y = "Times Drawn") +
+          subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
+          x = "Number",
+          y = "Times Drawn") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
 
@@ -85,9 +85,9 @@ if (!isTRUE(getOption("skip.plots"))) {
   p2 <- ggplot(mega_ball_freq, aes(x = reorder(`Mega Ball`, -Count), y = Count)) +
     geom_col(fill = "gold") +
     labs(title = "Mega Millions Mega Ball Frequency",
-         subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
-         x = "Mega Ball Number",
-         y = "Times Drawn") +
+          subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
+          x = "Mega Ball Number",
+          y = "Times Drawn") +
     theme_minimal() +
     theme(axis.text.x = element_text(size = 10))
 

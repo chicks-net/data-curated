@@ -1,0 +1,13 @@
+{
+  "Exclude": [
+    "\\.just/repo-toml\\.sh$",
+    "\\.just/lib/generate_checksums\\.sh$",
+    "^LICENSE$",
+    "^\\.opencode/",
+    "^\\.cache/",
+    "\\.tsv$",
+    "review-count\\.txt$",
+    "^DESCRIPTION$",
+    "graph-generator\\.go$"
+  ]
+}

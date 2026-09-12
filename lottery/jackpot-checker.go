@@ -16,9 +16,9 @@ import (
 )
 
 const (
-	PowerballGameID   = 12
+	PowerballGameID    = 12
 	MegaMillionsGameID = 15
-	APIBaseURL        = "https://www.calottery.com/api/DrawGameApi/DrawGamePastDrawResults"
+	APIBaseURL         = "https://www.calottery.com/api/DrawGameApi/DrawGamePastDrawResults"
 )
 
 // CustomTime wraps time.Time to handle the API's date format

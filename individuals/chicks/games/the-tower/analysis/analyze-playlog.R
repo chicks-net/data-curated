@@ -102,7 +102,7 @@ p <- ggplot(df, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
   geom_smooth(data = df_tier10plus_mp, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp, aes(x = end_date, y = avg_last_30, 
-             label = paste0("  ", label), color = factor(Tier)),
+              label = paste0("  ", label), color = factor(Tier)),
             hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
   scale_color_manual(
     name = "Tier",
@@ -159,7 +159,7 @@ p_zoom <- ggplot(df_zoom, aes(x = Date, y = `Minutes/Billion`, color = Tier_Fact
   geom_smooth(data = df_tier10plus_mp_zoom, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp_zoom, aes(x = end_date, y = avg_last_30,
-             label = paste0("  ", label), color = factor(Tier)),
+              label = paste0("  ", label), color = factor(Tier)),
             hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
   scale_color_manual(
     name = "Tier",
@@ -219,7 +219,7 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
   geom_smooth(data = df_tier10plus_mp_2mo, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp_2mo, aes(x = end_date, y = avg_last_30,
-             label = paste0("  ", label), color = factor(Tier)),
+              label = paste0("  ", label), color = factor(Tier)),
             hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
   scale_color_manual(
     name = "Tier",
@@ -341,7 +341,7 @@ p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) 
   geom_smooth(data = df_tier10plus, aes(group = Tier_Factor), 
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels, aes(x = end_date, y = end_hours, 
-             label = paste0("  ", label)), 
+              label = paste0("  ", label)), 
             hjust = 0, size = 3, fontface = "bold") +
   scale_color_manual(
     name = "Tier",
@@ -479,7 +479,7 @@ if (nrow(tournament_df) > 0) {
     labs(
       title = "The Tower: Tournament Coins Earned Over Time",
       subtitle = sprintf("n = %d tournament plays | Total: %.1f billions", 
-                         nrow(tournament_df), sum(tournament_daily_by_tier$total_coins, na.rm = TRUE)),
+                          nrow(tournament_df), sum(tournament_daily_by_tier$total_coins, na.rm = TRUE)),
       x = "Date",
       y = "Total Coins (Billions)"
     ) +
@@ -505,7 +505,7 @@ if (nrow(tournament_df) > 0) {
     labs(
       title = "The Tower: Tournament Time Played Over Time",
       subtitle = sprintf("n = %d tournament plays | Total: %.1f hours", 
-                         nrow(tournament_df), sum(tournament_daily_by_tier$total_time, na.rm = TRUE) / 60),
+                          nrow(tournament_df), sum(tournament_daily_by_tier$total_time, na.rm = TRUE) / 60),
       x = "Date",
       y = "Time (Hours)"
     ) +

@@ -139,11 +139,11 @@ plutil -lint ~/Library/LaunchAgents/net.chicks.lottery.jackpot-checker.plist
 1. Check the logs for errors
 2. Verify the Go binary path is correct:
 
-   ```bash
-   which go
-   ```
+    ```bash
+    which go
+    ```
 
-   If it's not at `/usr/local/bin/go`, update the plist file with the correct path.
+    If it's not at `/usr/local/bin/go`, update the plist file with the correct path.
 
 3. Make sure the working directory path is correct
 4. Check permissions on the lottery directory
@@ -182,7 +182,7 @@ provides better integration with macOS including:
   ```bash
   sqlite3 lottery/jackpots.db \
     "SELECT datetime(checked_at), game FROM jackpots \
-     ORDER BY checked_at DESC LIMIT 5;"
+      ORDER BY checked_at DESC LIMIT 5;"
   ```
 
 - Logs are appended, not rotated - you may want to clean them periodically

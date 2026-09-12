@@ -1,27 +1,26 @@
-name: Lint GitHub Actions
+name: GHA security analysis with zizmor
 
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - '.github/**'
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
     paths:
       - '.github/**'
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # global permissions
 permissions: {}
 
 jobs:
-  actionlint:
+  zizmor:
     runs-on: ubuntu-latest
     permissions:
+      security-events: write
       contents: read
+      actions: read
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
@@ -31,7 +30,5 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - name: Check workflow files
-        uses: docker://rhysd/actionlint:1.7.12@sha256:9d36088643581e728c969f35141f88139fec77280b2be23c1f66f8e40e1025e7  # v1.7.12
-        with:
-          args: -color
+      - name: Run zizmor
+        uses: zizmorcore/zizmor-action@70fb788f84895a7701f5643d103d587e460b5c99 # v0.6.3

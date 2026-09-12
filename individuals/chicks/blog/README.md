@@ -65,15 +65,15 @@ The post counter:
 3. Optionally limits the graph to the last N months
 4. Calculates 6-month running average for trend visualization
 5. Generates high-resolution PNG graph with:
-   - Blue line showing 6-month running average
-   - Dark purple points showing actual monthly counts
-   - Grid lines for readability
-   - Axis labels (months on X-axis, post count on Y-axis)
-   - GitHub-inspired color scheme
-   - Publication-quality output (12×6 inches, 300 DPI)
+    - Blue line showing 6-month running average
+    - Dark purple points showing actual monthly counts
+    - Grid lines for readability
+    - Axis labels (months on X-axis, post count on Y-axis)
+    - GitHub-inspired color scheme
+    - Publication-quality output (12×6 inches, 300 DPI)
 6. Outputs PNG file with naming pattern:
-   - All months: `blog-monthly-YYYYMMDD-chart.png`
-   - Limited months: `blog-monthly-YYYYMMDD-chart-Nmo.png` (e.g., `chart-36mo.png`)
+    - All months: `blog-monthly-YYYYMMDD-chart.png`
+    - Limited months: `blog-monthly-YYYYMMDD-chart-Nmo.png` (e.g., `chart-36mo.png`)
 
 **Legacy implementation (`graph-generator.go`)** - kept for reference:
 

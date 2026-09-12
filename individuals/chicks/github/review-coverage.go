@@ -528,9 +528,9 @@ func storePullRequest(db *sql.DB, repo Repository, pr PullRequest, openedCount, 
 	totalPushes := openedCount + syncCount
 
 	_, err := db.Exec(`
-		INSERT OR REPLACE INTO pull_requests 
-		(repo_full_name, pr_number, title, state, created_at, merged_at, closed_at, author_login, 
-		 opened_events, synchronize_events, total_pushes, fetched_at)
+		INSERT OR REPLACE INTO pull_requests
+		(repo_full_name, pr_number, title, state, created_at, merged_at, closed_at, author_login,
+		opened_events, synchronize_events, total_pushes, fetched_at)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`, repo.FullName, pr.Number, pr.Title, pr.State, pr.CreatedAt.Format(time.RFC3339),
 		mergedAt, closedAt, pr.AuthorLogin, openedCount, syncCount, totalPushes, time.Now().Format(time.RFC3339))

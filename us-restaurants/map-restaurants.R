@@ -195,7 +195,7 @@ generate_map <- function(output_file = "restaurant-density-map.png") {
   message("\nTop 5 counties by restaurant density:")
   for (i in 1:min(5, nrow(top_counties))) {
     county_label <- paste0(tools::toTitleCase(top_counties$subregion[i]), ", ", 
-                           tools::toTitleCase(top_counties$region[i]))
+                            tools::toTitleCase(top_counties$region[i]))
     message(sprintf("  %d. %s (%.1f per 10k)", i, county_label, top_counties$restaurants_per_10k[i]))
   }
   
@@ -209,3 +209,4 @@ if (!interactive() && identical(environment(), globalenv())) {
   message(sprintf("Generating restaurant density map to: %s\n", output_file))
   generate_map(output_file)
 }
+

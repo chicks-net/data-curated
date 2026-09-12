@@ -7,15 +7,15 @@ A collection of US city data from the Census Bureau, combining geographic coordi
 This project pulls data from two Census Bureau sources:
 
 1. **2020 Census Gazetteer Files** - Geographic reference data including:
-   - City names and locations
-   - Latitude and longitude coordinates
-   - Land and water area measurements
-   - [Census Gazetteer Files](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html)
+    - City names and locations
+    - Latitude and longitude coordinates
+    - Land and water area measurements
+    - [Census Gazetteer Files](https://www.census.gov/geographies/reference-files/time-series/geo/gazetteer-files.html)
 
 2. **2010-2020 Population Estimates** - Decennial census and annual estimates:
-   - 2010 Census population counts
-   - 2020 Census population counts
-   - [City and Town Population Totals: 2010-2020](https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html)
+    - 2010 Census population counts
+    - 2020 Census population counts
+    - [City and Town Population Totals: 2010-2020](https://www.census.gov/programs-surveys/popest/technical-documentation/research/evaluation-estimates/2020-evaluation-estimates/2010s-cities-and-towns-total.html)
 
 ## Database Schema
 

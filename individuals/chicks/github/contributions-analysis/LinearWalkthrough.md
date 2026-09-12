@@ -132,9 +132,9 @@ plot_data <- contributions %>% filter(date >= plot_start)
 
 p <- ggplot(plot_data, aes(x = date)) +
   geom_point(aes(y = contribution_count),
-             alpha = 0.3,
-             size = 1,
-             color = "gray50") +
+              alpha = 0.3,
+              size = 1,
+              color = "gray50") +
   geom_line(aes(y = avg_14day, color = "14-day average"), linewidth = 0.5) +
   geom_line(aes(y = avg_30day, color = "30-day average"), linewidth = 0.8) +
   geom_line(aes(y = avg_90day, color = "90-day average"), linewidth = 0.8) +
@@ -152,8 +152,8 @@ p <- ggplot(plot_data, aes(x = date)) +
     x = "Date",
     y = "Contributions per Day",
     caption = paste0("Total contributions (last 2 years): ", 
-                     format(plot_total_contributions, big.mark = ","), 
-                     " | Database last updated: ", last_updated_formatted)
+                      format(plot_total_contributions, big.mark = ","), 
+                      " | Database last updated: ", last_updated_formatted)
   ) +
   theme_minimal() +
   scale_x_date(date_breaks = "3 months", date_labels = "%b %Y")
@@ -179,11 +179,11 @@ p <- ggplot(plot_data, aes(x = date)) +
 geom_vline(xintercept = as.Date("2025-03-10"), linetype = "dashed", color = "red", alpha = 0.6) +
 geom_vline(xintercept = as.Date("2025-08-29"), linetype = "dashed", color = "red", alpha = 0.6) +
 annotate("text", x = as.Date("2025-03-10"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.95,
-         label = "commitment to daily github", angle = 90, hjust = 1, vjust = -1.5,
-         size = 3, color = "red", alpha = 0.7) +
+          label = "commitment to daily github", angle = 90, hjust = 1, vjust = -1.5,
+          size = 3, color = "red", alpha = 0.7) +
 annotate("text", x = as.Date("2025-08-29"), y = max(plot_data$contribution_count, na.rm = TRUE) * 0.85,
-         label = "started using Claude Code", angle = 90, hjust = 1, vjust = -1.5,
-         size = 3, color = "red", alpha = 0.7)
+          label = "started using Claude Code", angle = 90, hjust = 1, vjust = -1.5,
+          size = 3, color = "red", alpha = 0.7)
 ```
 
 These vertical lines mark significant changes in contribution behavior. The text is rotated 90° so it fits alongside the line without overlapping the data.
@@ -308,8 +308,8 @@ for (company in names(logos)) {
       logo_y <- plot_max_y * 0.90
     }
     p2 <- p2 + annotation_custom(img_grob,
-                                 xmin = x_pos - 120, xmax = x_pos + 120,
-                                 ymin = logo_y - logo_height, ymax = logo_y)
+                                  xmin = x_pos - 120, xmax = x_pos + 120,
+                                  ymin = logo_y - logo_height, ymax = logo_y)
   }
 }
 ```
@@ -419,37 +419,37 @@ The 14-inch width for weekly/monthly plots accommodates 14+ years of data, while
 
 ```text
 contributions.db
-       │
-       ▼
+        │
+        ▼
 ┌──────────────────────┐
 │ Load & deduplicate   │  (MAX fetched_at per date)
 └──────────────────────┘
-       │
-       ▼
+        │
+        ▼
 ┌──────────────────────┐
 │ Calculate running    │  (14/30/90-day for daily)
 │ averages             │  (4/13/26-week for weekly)
 └──────────────────────┘        (6/12-month for monthly)
-       │
-       ├─── Plot 1: Daily (last 2 years)
-       │
-       ├─── Plot 2: Weekly (all time) + employment overlay
-       │
-       └─── Plot 3: Monthly (all time) + projection
+        │
+        ├─── Plot 1: Daily (last 2 years)
+        │
+        ├─── Plot 2: Weekly (all time) + employment overlay
+        │
+        └─── Plot 3: Monthly (all time) + projection
 
 job_history.csv
-       │
-       ▼
+        │
+        ▼
 ┌──────────────────────┐
 │ Merge roles by       │
 │ company              │
 └──────────────────────┘
-       │
-       ▼
+        │
+        ▼
 ┌──────────────────────┐
 │ Load logos for       │
 │ known companies      │
 └──────────────────────┘
-       │
-       └─── Overlay on plots 2 & 3
+        │
+        └─── Overlay on plots 2 & 3
 ```

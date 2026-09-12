@@ -85,11 +85,11 @@ p1 <- ggplot(plot_data, aes(x = reorder(emojis, n), y = n)) +
   geom_text(aes(label = comma_format()(n)),
             hjust = -0.2, size = 3) +
   scale_y_continuous(labels = comma_format(),
-                     expand = expansion(mult = c(0, 0.15))) +
+                      expand = expansion(mult = c(0, 0.15))) +
   labs(
     title = "Top 20 Most Frequently Used Emojis in Commit Messages",
     subtitle = paste("Analysis of", comma_format()(nrow(all_emojis)),
-                     "emojis across", comma_format()(nrow(commits)), "commits"),
+                      "emojis across", comma_format()(nrow(commits)), "commits"),
     x = "Emoji",
     y = "Frequency"
   ) +
@@ -127,8 +127,8 @@ if (nrow(all_emojis) > 0) {
     labs(
       title = "Average Emojis Per Commit Over Time",
       subtitle = paste("Monthly trend from",
-                       format(min(emoji_timeline$month), "%Y-%m"), "to",
-                       format(max(emoji_timeline$month), "%Y-%m")),
+                        format(min(emoji_timeline$month), "%Y-%m"), "to",
+                        format(max(emoji_timeline$month), "%Y-%m")),
       x = "Month",
       y = "Emojis Per Commit"
     ) +
@@ -160,7 +160,7 @@ p3 <- ggplot(emoji_by_repo, aes(x = reorder(repo_full_name, emoji_count), y = em
   geom_text(aes(label = paste0(comma_format()(emoji_count), " (", round(emojis_per_commit, 1), "/commit)")),
             hjust = -0.1, size = 3) +
   scale_y_continuous(labels = comma_format(),
-                     expand = expansion(mult = c(0, 0.2))) +
+                      expand = expansion(mult = c(0, 0.2))) +
   labs(
     title = "Emoji Usage by Repository",
     subtitle = "Top 15 repositories by emoji count (with average emojis per commit)",

@@ -10,21 +10,21 @@ It seems like the Helpfulness counter for me has been stuck at
 ```ShellSession
 % ./process-reviews.sh
 many len sum note
-   1 242 51 enough?
-   1 237 52 enough?
-   1 235 53 enough?
-   1 234 54 enough?
-   1 230 55 enough?
-   1 229 56 enough?
-   1 228 57 enough?
-   2 226 59 enough?
-   2 222 61 enough?
-   1 219 62 enough?
-   1 214 63 enough?
-   1 213 64 enough?
-   1 209 65 enough?
-   1 207 66 enough?
-   1 205 67 enough?
+    1 242 51 enough?
+    1 237 52 enough?
+    1 235 53 enough?
+    1 234 54 enough?
+    1 230 55 enough?
+    1 229 56 enough?
+    1 228 57 enough?
+    2 226 59 enough?
+    2 222 61 enough?
+    1 219 62 enough?
+    1 214 63 enough?
+    1 213 64 enough?
+    1 209 65 enough?
+    1 207 66 enough?
+    1 205 67 enough?
 ```
 
 The columns are:

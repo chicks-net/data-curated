@@ -175,7 +175,7 @@ func main() {
 }
 
 // escapeTOMLString escapes single quotes for TOML single-quoted strings
-// In TOML, single quotes inside a single-quoted string are escaped as ''
+// In TOML, single quotes inside a single-quoted string are escaped as ”
 func escapeTOMLString(s string) string {
 	return strings.ReplaceAll(s, "'", "''")
 }

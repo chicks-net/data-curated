@@ -9,11 +9,11 @@ library(tidyverse)
 # Read the Powerball data
 cat("Reading Powerball data...\n")
 lottery_data <- read_csv("../Lottery_Powerball_Winning_Numbers__Beginning_2010.csv",
-                         col_types = cols(
-                           `Draw Date` = col_date(format = "%m/%d/%Y"),
-                           `Winning Numbers` = col_character(),
-                           Multiplier = col_character()
-                         ))
+                          col_types = cols(
+                            `Draw Date` = col_date(format = "%m/%d/%Y"),
+                            `Winning Numbers` = col_character(),
+                            Multiplier = col_character()
+                          ))
 
 cat(sprintf("Loaded %d drawings from %s to %s\n",
             nrow(lottery_data),
@@ -24,9 +24,9 @@ cat(sprintf("Loaded %d drawings from %s to %s\n",
 # Split each row into 6 numbers, then separate main numbers from Powerball
 all_numbers <- lottery_data %>%
   separate(`Winning Numbers`,
-           into = c("n1", "n2", "n3", "n4", "n5", "powerball"),
-           sep = " ",
-           convert = TRUE)
+            into = c("n1", "n2", "n3", "n4", "n5", "powerball"),
+            sep = " ",
+            convert = TRUE)
 
 # Extract main numbers (first 5 numbers, range 1-69)
 main_numbers <- all_numbers %>%
@@ -79,9 +79,9 @@ if (!isTRUE(getOption("skip.plots"))) {
   p1 <- ggplot(main_freq, aes(x = reorder(Number, -Count), y = Count)) +
     geom_col(fill = "firebrick") +
     labs(title = "Powerball Main Numbers Frequency",
-         subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
-         x = "Number",
-         y = "Times Drawn") +
+          subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
+          x = "Number",
+          y = "Times Drawn") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 90, hjust = 1, size = 6))
 
@@ -91,9 +91,9 @@ if (!isTRUE(getOption("skip.plots"))) {
   p2 <- ggplot(powerball_freq, aes(x = reorder(Powerball, -Count), y = Count)) +
     geom_col(fill = "red") +
     labs(title = "Powerball Frequency",
-         subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
-         x = "Powerball Number",
-         y = "Times Drawn") +
+          subtitle = sprintf("Based on %d drawings", nrow(lottery_data)),
+          x = "Powerball Number",
+          y = "Times Drawn") +
     theme_minimal() +
     theme(axis.text.x = element_text(size = 10))
 

@@ -43,12 +43,12 @@ The full development cycle works via the command line.
 
 1. Starting with a cloned repo, run `just branch $some-name`
 1. Make some changes and make sure your last commit message conveys your
-   overall purpose.
+    overall purpose.
 1. Run `just pr` and it will create a PR based on your last commit message.
 1. Optionally, you can make other commits or update the PR description.
 1. Finally, `just merge` will merge the PR with squashed commit history and
-   cleaned up branches locally and remotely.  You'll end up with a repo back
-   on `main` (release) branch with the latest `git pull`ed.
+    cleaned up branches locally and remotely.  You'll end up with a repo back
+    on `main` (release) branch with the latest `git pull`ed.
 
 Run `just` anywhere in the repo to see which subcommands are available here.
 You should get a more colorful version of this:

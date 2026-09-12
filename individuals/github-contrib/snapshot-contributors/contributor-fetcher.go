@@ -23,12 +23,12 @@ const (
 // ContributorStats represents a contributor's statistics from the GitHub API
 type ContributorStats struct {
 	Author struct {
-		Login             string `json:"login"`
-		ID                int    `json:"id"`
-		AvatarURL         string `json:"avatar_url"`
-		GravatarID        string `json:"gravatar_id"`
-		Type              string `json:"type"`
-		SiteAdmin         bool   `json:"site_admin"`
+		Login      string `json:"login"`
+		ID         int    `json:"id"`
+		AvatarURL  string `json:"avatar_url"`
+		GravatarID string `json:"gravatar_id"`
+		Type       string `json:"type"`
+		SiteAdmin  bool   `json:"site_admin"`
 	} `json:"author"`
 	Total int `json:"total"`
 	Weeks []struct {
@@ -41,16 +41,16 @@ type ContributorStats struct {
 
 // EnrichedContributor holds contributor data with calculated totals and rankings
 type EnrichedContributor struct {
-	Login          string
-	UserID         int
-	AvatarURL      string
-	Type           string
-	SiteAdmin      bool
-	TotalCommits   int
-	TotalAdditions int
-	TotalDeletions int
-	WeeksActive    int
-	RankByCommits  int
+	Login           string
+	UserID          int
+	AvatarURL       string
+	Type            string
+	SiteAdmin       bool
+	TotalCommits    int
+	TotalAdditions  int
+	TotalDeletions  int
+	WeeksActive     int
+	RankByCommits   int
 	RankByAdditions int
 	RankByDeletions int
 }

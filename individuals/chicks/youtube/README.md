@@ -183,13 +183,13 @@ How it works:
 1. Queries the database for videos without `blog_url` that are at least 6 months old
 2. Reads the `template.md` file for blog post structure
 3. Fills in template variables with video metadata:
-   - `${TITLE}` → Video title
-   - `${POST_DATA_ISO}` → Upload date in ISO 8601 format
-   - `${SOMETHING_FUNNY}` → Auto-generated description
-   - `${YOUTUBE_URL}` → Full YouTube URL
-   - `${FILENAME}` → Sanitized filename from title
-   - `${YOUTUBE_DESCRIPTION}` → Video description
-   - `${YOUTUBE_ID}` → YouTube video ID
+    - `${TITLE}` → Video title
+    - `${POST_DATA_ISO}` → Upload date in ISO 8601 format
+    - `${SOMETHING_FUNNY}` → Auto-generated description
+    - `${YOUTUBE_URL}` → Full YouTube URL
+    - `${FILENAME}` → Sanitized filename from title
+    - `${YOUTUBE_DESCRIPTION}` → Video description
+    - `${YOUTUBE_ID}` → YouTube video ID
 4. Generates markdown files in `individuals/chicks/youtube/generated/` directory
 5. Creates filenames from titles (lowercase, alphanumeric, hyphen-separated)
 

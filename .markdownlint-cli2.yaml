@@ -1,0 +1,5 @@
+ignores:
+  - .github/pull_request_template.md
+  - duolingo/character_reference.md
+  - .opencode/**
+config: .markdownlint.yml

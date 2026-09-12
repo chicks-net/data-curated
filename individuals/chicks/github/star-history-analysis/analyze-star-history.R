@@ -16,11 +16,11 @@ library(jsonlite)
 # Use names without hyphens as keys; org name is stored explicitly below.
 orgs <- list(
   list(org = "chicks-net",
-       repos = c("megamap", "fbdata-forensics", "smokeping-config",
-                 "chicks-home", "google-plus-posts-dumper", "data-curated")),
+        repos = c("megamap", "fbdata-forensics", "smokeping-config",
+                  "chicks-home", "google-plus-posts-dumper", "data-curated")),
   list(org = "fini-net",
-       repos = c("fini-coredns-example", "template-repo",
-                 "fini-infra", "gh-observer"))
+        repos = c("fini-coredns-example", "template-repo",
+                  "fini-infra", "gh-observer"))
 )
 
 # Fetch stargazers (with starredAt timestamps) for one repo via gh api graphql.
@@ -57,22 +57,22 @@ fetch_repo_stargazers <- function(org, repo) {
     if (!is.null(attr(json_out, "status"))) {
       if (attr(json_out, "status") != 0) {
         stop("gh api graphql failed for ", org, "/", repo, ":\n",
-             paste(json_out, collapse = "\n"))
+              paste(json_out, collapse = "\n"))
       }
     }
     payload <- tryCatch(
       jsonlite::fromJSON(paste(json_out, collapse = "\n")),
       error = function(e) {
         stop("Failed to parse GraphQL JSON for ", org, "/", repo,
-             " (stdout/stderr may have interleaved):\n",
-             paste(json_out, collapse = "\n"), "\n",
-             "Parse error: ", conditionMessage(e))
+              " (stdout/stderr may have interleaved):\n",
+              paste(json_out, collapse = "\n"), "\n",
+              "Parse error: ", conditionMessage(e))
       }
     )
     sg <- payload$data$repository$stargazers
     if (is.null(sg)) {
       stop("No stargazers returned for ", org, "/", repo,
-           " (API error?): ", paste(json_out, collapse = "\n"))
+            " (API error?): ", paste(json_out, collapse = "\n"))
     }
     total <- sg$totalCount
     if (length(sg$edges) > 0) {
@@ -160,13 +160,13 @@ plot_star_history <- function(events, org, out_file) {
     labs(
       title = paste0("Star History for ", org),
       subtitle = paste0(nrow(repo_total),
-                       " repos with stars | Total: ",
-                       sum(repo_total$total), " stars"),
+                        " repos with stars | Total: ",
+                        sum(repo_total$total), " stars"),
       x = "Date",
       y = "Cumulative Stars",
       color = "Repository",
       caption = paste0("Source: GitHub GraphQL stargazers API | Updated: ",
-                       last_updated)
+                        last_updated)
     ) +
     theme_minimal() +
     theme(
