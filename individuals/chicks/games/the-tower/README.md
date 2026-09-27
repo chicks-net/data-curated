@@ -67,6 +67,8 @@ Graphs generated from playlog data:
 
 ![Minutes per Billion Coins by Tier — last 2 months and log scale for coins](analysis/minutes-per-billion-by-tier-2mo.png)
 
+![Billions per Minute by Tier — log scale](analysis/billions-per-minute-by-tier.png)
+
 ![Time to Finish Levels](analysis/time-to-finish.png)
 
 ![Billions Earned per Day](analysis/billions-per-day.png)

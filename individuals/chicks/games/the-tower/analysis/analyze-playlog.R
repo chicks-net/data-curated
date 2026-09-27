@@ -10,6 +10,14 @@ library(lubridate)
 
 data_path <- "../the_tower_playlog.tsv"
 
+parse_numeric <- function(x) {
+  cleaned <- trimws(gsub("[^0-9.]", "", x))
+  # Spreadsheet error tokens (#N/A, #DIV/0!, #VALUE!) and blanks must become
+  # NA, not the 0 that a plain gsub produces (#DIV/0! -> 0)
+  cleaned[grepl("#", x) | !nzchar(cleaned)] <- NA_character_
+  suppressWarnings(as.numeric(cleaned))
+}
+
 cat("Reading data from:", data_path, "\n")
 
 df <- read.delim(data_path, header = TRUE, sep = "\t", stringsAsFactors = FALSE, check.names = FALSE)
@@ -24,6 +32,7 @@ df <- df %>%
     `Finish Wave` = as.integer(`Finish Wave`),
     Percentage = as.numeric(gsub("[^0-9.]", "", Percentage)),
     `Minutes/Billion` = as.numeric(gsub("[^0-9.]", "", `Minutes/Billion`)),
+    `Billion/Minute` = parse_numeric(`Billion/Minute`),
     `Time (minutes)` = as.numeric(`Time (minutes)`),
     `Total Coins (B)` = as.numeric(`Total Coins (B)`),
     `Dissonant Run` = ifelse(is.na(`Dissonant Run`) | `Dissonant Run` == "", NA_character_, `Dissonant Run`)
@@ -60,6 +69,7 @@ tier_summary <- df %>%
   summarise(
     count = n(),
     avg_min_per_b = mean(`Minutes/Billion`, na.rm = TRUE),
+    avg_b_per_min = mean(`Billion/Minute`, na.rm = TRUE),
     median_min_per_b = median(`Minutes/Billion`, na.rm = TRUE),
     min_val = min(`Minutes/Billion`, na.rm = TRUE),
     max_val = max(`Minutes/Billion`, na.rm = TRUE),
@@ -247,6 +257,59 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
   )
 
 ggsave("minutes-per-billion-by-tier-2mo.png", p_2mo, width = 14, height = 10, dpi = 300)
+
+df_rate <- df %>% filter(!is.na(`Billion/Minute`))
+
+df_tier10plus_rate <- df_rate %>%
+  filter(Tier >= 10) %>%
+  group_by(Tier) %>%
+  filter(n() >= 20) %>%
+  ungroup()
+
+tier_labels_rate <- df_tier10plus_rate %>%
+  group_by(Tier) %>%
+  arrange(desc(Date)) %>%
+  slice_head(n = 30) %>%
+  summarise(
+    end_date = max(Date),
+    avg_last_30 = mean(`Billion/Minute`, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(label = sprintf("T%d: %.2f", Tier, avg_last_30))
+
+p_rate <- ggplot(df_rate, aes(x = Date, y = `Billion/Minute`, color = Tier_Factor)) +
+  geom_point(size = 1.5, alpha = 0.7) +
+  geom_smooth(data = df_tier10plus_rate, aes(group = Tier_Factor),
+              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
+  geom_text(data = tier_labels_rate, aes(x = end_date, y = avg_last_30,
+              label = paste0("  ", label), color = factor(Tier)),
+            hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
+  scale_color_manual(
+    name = "Tier",
+    values = tier_colors,
+    drop = FALSE
+  ) +
+  scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
+  scale_y_log10(labels = label_number(accuracy = 0.01)) +
+  labs(
+    title = "The Tower: Billions per Minute by Tier",
+    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded, log scale)", nrow(df_rate)),
+    x = "Date",
+    y = "Billions per Minute (log scale)",
+    caption = sprintf("Trend lines shown for tiers 10+ with \u226520 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d dissonant run(s) excluded.", outliers_count, dissonant_count)
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(size = 16, face = "bold"),
+    plot.subtitle = element_text(size = 11),
+    plot.caption = element_text(size = 9, hjust = 0),
+    axis.text.x = element_text(angle = 45, hjust = 1),
+    legend.position = "right",
+    legend.title = element_text(face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+
+ggsave("billions-per-minute-by-tier.png", p_rate, width = 14, height = 10, dpi = 300)
 
 daily_summary <- df_all %>%
   group_by(Date) %>%
@@ -530,6 +593,7 @@ cat("\nAnalysis complete! Generated visualizations:\n")
   cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
   cat("  - minutes-per-billion-by-tier-zoom.png: Zoomed view (since Sep 2025, < 20 min/billion)\n")
   cat("  - minutes-per-billion-by-tier-2mo.png: Last 2 months, auto-scaled y-axis\n")
+  cat("  - billions-per-minute-by-tier.png: Coin rate (billions/minute) by tier, log scale\n")
   cat("  - billions-per-day.png: Total billions earned per day\n")
   cat("  - hours-per-day.png: Hours played per day\n")
   cat("  - time-to-finish.png: Scatter plot of time to finish levels\n")
