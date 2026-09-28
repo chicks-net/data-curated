@@ -61,6 +61,16 @@ df <- df %>% filter(is.na(`Dissonant Run`))
 
 df$Tier_Factor <- factor(df$Tier)
 
+# Attack dissonant runs overlay: same tier color, triangle shape.
+# Non-attack dissonant runs (Defense/Utility/Ultimate Weapons) stay excluded.
+df_attack <- df_all %>%
+  filter(`Dissonant Run` == "Attack") %>%
+  mutate(Tier_Factor = factor(Tier, levels = levels(df$Tier_Factor)))
+
+dissonant_excluded_count <- dissonant_count - nrow(df_attack)
+attack_time_outliers_count <- sum(df_attack$`Time (minutes)` / 60 > 10, na.rm = TRUE)
+cat("Attack dissonant runs included in graphs:", nrow(df_attack), "\n")
+
 cat("Filtered to", nrow(df), "valid records\n\n")
 
 cat("=== TIER SUMMARY ===\n\n")
@@ -108,7 +118,9 @@ tier_labels_mp <- df_tier10plus_mp %>%
   mutate(label = sprintf("T%d: %.1f", Tier, avg_last_30))
 
 p <- ggplot(df, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
-  geom_point(size = 1.5, alpha = 0.7) +
+  geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
+  geom_point(data = df_attack, aes(shape = "Attack dissonant run"),
+              size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_mp, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp, aes(x = end_date, y = avg_last_30, 
@@ -117,16 +129,23 @@ p <- ggplot(df, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
-    drop = FALSE
+    drop = FALSE,
+    guide = guide_legend(override.aes = list(shape = 19))
+  ) +
+  scale_shape_manual(
+    name = "Run type",
+    values = c("Regular run" = 19, "Attack dissonant run" = 17),
+    breaks = c("Regular run", "Attack dissonant run"),
+    guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 100)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier",
-    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded)", nrow(df)),
+    subtitle = sprintf("n = %d regular plays + %d attack dissonant runs (triangles)", nrow(df), nrow(df_attack)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = sprintf("Trend lines shown for tiers 10+ with ≥20 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d dissonant run(s) excluded.", outliers_count, dissonant_count)
+    caption = sprintf("Trend lines shown for tiers 10+ with ≥20 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d non-attack dissonant run(s) excluded. Trend lines and labels use regular runs only.", outliers_count, dissonant_excluded_count)
   ) +
   theme_minimal() +
   theme(
@@ -147,6 +166,9 @@ df_zoom <- df %>%
 zoom_excluded_date <- nrow(df) - nrow(df %>% filter(Date >= as.Date("2025-09-01")))
 zoom_excluded_efficiency <- nrow(df %>% filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` >= 20 & `Minutes/Billion` < 100))
 
+df_attack_zoom <- df_attack %>%
+  filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` < 20)
+
 df_tier10plus_mp_zoom <- df_zoom %>%
   filter(Tier >= 10) %>%
   group_by(Tier) %>%
@@ -165,7 +187,9 @@ tier_labels_mp_zoom <- df_tier10plus_mp_zoom %>%
   mutate(label = sprintf("T%d: %.1f", Tier, avg_last_30))
 
 p_zoom <- ggplot(df_zoom, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
-  geom_point(size = 1.5, alpha = 0.7) +
+  geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
+  geom_point(data = df_attack_zoom, aes(shape = "Attack dissonant run"),
+              size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_mp_zoom, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp_zoom, aes(x = end_date, y = avg_last_30,
@@ -174,16 +198,23 @@ p_zoom <- ggplot(df_zoom, aes(x = Date, y = `Minutes/Billion`, color = Tier_Fact
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
-    drop = FALSE
+    drop = FALSE,
+    guide = guide_legend(override.aes = list(shape = 19))
+  ) +
+  scale_shape_manual(
+    name = "Run type",
+    values = c("Regular run" = 19, "Attack dissonant run" = 17),
+    breaks = c("Regular run", "Attack dissonant run"),
+    guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 20)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier (Zoomed, < 20 min/B)",
-    subtitle = sprintf("n = %d plays | Since Sep 2025 | Dissonant runs excluded", nrow(df_zoom)),
+    subtitle = sprintf("n = %d regular + %d attack (triangles) | Since Sep 2025 | Non-attack dissonant runs excluded", nrow(df_zoom), nrow(df_attack_zoom)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = sprintf("Trend lines for tiers 10+ with >=20 points in range. %d pre-Sep-2025 point(s) and %d point(s) >= 20 min/billion excluded from view.", zoom_excluded_date, zoom_excluded_efficiency)
+    caption = sprintf("Trend lines for tiers 10+ with >=20 points in range. %d pre-Sep-2025 point(s) and %d point(s) >= 20 min/billion excluded from view. Trend lines and labels use regular runs only.", zoom_excluded_date, zoom_excluded_efficiency)
   ) +
   theme_minimal() +
   theme(
@@ -202,6 +233,8 @@ two_mo_cutoff <- floor_date(max(df$Date) - months(2), "month")
 df_2mo <- df %>% filter(Date >= two_mo_cutoff)
 
 two_mo_excluded_count <- nrow(df) - nrow(df_2mo)
+
+df_attack_2mo <- df_attack %>% filter(Date >= two_mo_cutoff)
 
 # Narrower 2-month window has fewer points per tier, so threshold is 10 (vs 20 elsewhere)
 df_tier10plus_mp_2mo <- df_2mo %>%
@@ -225,7 +258,9 @@ two_mo_start_label <- format(two_mo_cutoff, "%b %d, %Y")
 two_mo_end_label <- format(max(df$Date), "%b %d, %Y")
 
 p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
-  geom_point(size = 1.5, alpha = 0.7) +
+  geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
+  geom_point(data = df_attack_2mo, aes(shape = "Attack dissonant run"),
+              size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_mp_2mo, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_mp_2mo, aes(x = end_date, y = avg_last_30,
@@ -234,16 +269,23 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
-    drop = FALSE
+    drop = FALSE,
+    guide = guide_legend(override.aes = list(shape = 19))
+  ) +
+  scale_shape_manual(
+    name = "Run type",
+    values = c("Regular run" = 19, "Attack dissonant run" = 17),
+    breaks = c("Regular run", "Attack dissonant run"),
+    guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %d", date_breaks = "1 week", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_log10(labels = label_number(accuracy = 0.01)) +
   labs(
     title = "The Tower: Minutes per Billion Coins by Tier (Last ~2 Months)",
-    subtitle = sprintf("n = %d plays | %s \u2013 %s | Dissonant runs excluded", nrow(df_2mo), two_mo_start_label, two_mo_end_label),
+    subtitle = sprintf("n = %d regular + %d attack (triangles) | %s \u2013 %s | Non-attack dissonant runs excluded", nrow(df_2mo), nrow(df_attack_2mo), two_mo_start_label, two_mo_end_label),
     x = "Date",
     y = "Minutes per Billion Coins (log scale)",
-    caption = sprintf("Trend lines for tiers 10+ with >=10 points in range. Labels show avg of last 30 plays. %d older point(s) excluded from view.", two_mo_excluded_count)
+    caption = sprintf("Trend lines for tiers 10+ with >=10 points in range. Labels show avg of last 30 plays. %d older point(s) excluded from view. Trend lines and labels use regular runs only.", two_mo_excluded_count)
   ) +
   theme_minimal() +
   theme(
@@ -259,6 +301,8 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
 ggsave("minutes-per-billion-by-tier-2mo.png", p_2mo, width = 14, height = 10, dpi = 300)
 
 df_rate <- df %>% filter(!is.na(`Billion/Minute`))
+
+df_attack_rate <- df_attack %>% filter(!is.na(`Billion/Minute`))
 
 df_tier10plus_rate <- df_rate %>%
   filter(Tier >= 10) %>%
@@ -278,7 +322,9 @@ tier_labels_rate <- df_tier10plus_rate %>%
   mutate(label = sprintf("T%d: %.2f", Tier, avg_last_30))
 
 p_rate <- ggplot(df_rate, aes(x = Date, y = `Billion/Minute`, color = Tier_Factor)) +
-  geom_point(size = 1.5, alpha = 0.7) +
+  geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
+  geom_point(data = df_attack_rate, aes(shape = "Attack dissonant run"),
+              size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_rate, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels_rate, aes(x = end_date, y = avg_last_30,
@@ -287,16 +333,23 @@ p_rate <- ggplot(df_rate, aes(x = Date, y = `Billion/Minute`, color = Tier_Facto
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
-    drop = FALSE
+    drop = FALSE,
+    guide = guide_legend(override.aes = list(shape = 19))
+  ) +
+  scale_shape_manual(
+    name = "Run type",
+    values = c("Regular run" = 19, "Attack dissonant run" = 17),
+    breaks = c("Regular run", "Attack dissonant run"),
+    guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_log10(labels = label_number(accuracy = 0.01)) +
   labs(
     title = "The Tower: Billions per Minute by Tier",
-    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded, log scale)", nrow(df_rate)),
+    subtitle = sprintf("n = %d regular + %d attack runs (triangles), log scale", nrow(df_rate), nrow(df_attack_rate)),
     x = "Date",
     y = "Billions per Minute (log scale)",
-    caption = sprintf("Trend lines shown for tiers 10+ with \u226520 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d dissonant run(s) excluded.", outliers_count, dissonant_count)
+    caption = sprintf("Trend lines shown for tiers 10+ with \u226520 points. Labels show avg of last 30 plays. %d outlier(s) excluded (>=100 min/billion). %d non-attack dissonant run(s) excluded. Trend lines and labels use regular runs only.", outliers_count, dissonant_excluded_count)
   ) +
   theme_minimal() +
   theme(
@@ -400,7 +453,9 @@ tier_labels <- df_tier10plus %>%
   )
 
 p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) +
-  geom_point(size = 1.5, alpha = 0.7) +
+  geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
+  geom_point(data = df_attack, aes(shape = "Attack dissonant run"),
+              size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus, aes(group = Tier_Factor), 
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels, aes(x = end_date, y = end_hours, 
@@ -409,17 +464,24 @@ p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) 
   scale_color_manual(
     name = "Tier",
     values = tier_colors,
-    drop = FALSE
+    drop = FALSE,
+    guide = guide_legend(override.aes = list(shape = 19))
+  ) +
+  scale_shape_manual(
+    name = "Run type",
+    values = c("Regular run" = 19, "Attack dissonant run" = 17),
+    breaks = c("Regular run", "Attack dissonant run"),
+    guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
   scale_y_continuous(labels = comma_format(accuracy = 1)) +
   coord_cartesian(ylim = c(0, 10)) +
   labs(
     title = "The Tower: Time to Finish Levels",
-    subtitle = sprintf("n = %d plays (regular tiers, dissonant runs excluded)", nrow(df)),
+    subtitle = sprintf("n = %d regular plays + %d attack dissonant runs (triangles)", nrow(df), nrow(df_attack)),
     x = "Date",
     y = "Time (Hours)",
-    caption = sprintf("Trend lines shown for tiers 10+ only. %d outlier(s) not shown (>10 hours). Dissonant runs excluded.", time_outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ only. %d regular outlier(s) and %d attack run(s) not shown (>10 hours). Non-attack dissonant runs excluded. Trend lines use regular runs only.", time_outliers_count, attack_time_outliers_count)
   ) +
   theme_minimal() +
   theme(

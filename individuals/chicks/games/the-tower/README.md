@@ -61,6 +61,9 @@ this repo.
 
 Graphs generated from playlog data:
 
+Attack dissonant runs appear as triangles; trend lines and labels use
+regular runs only.
+
 ![Minutes per Billion Coins by Tier](analysis/minutes-per-billion-by-tier.png)
 
 ![Minutes per Billion Coins by Tier — Zoomed (< 20 min/B, since Sep 2025)](analysis/minutes-per-billion-by-tier-zoom.png)
