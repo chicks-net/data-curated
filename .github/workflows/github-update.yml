@@ -9,12 +9,55 @@ on:
     - cron: '42 11 * * *'
   workflow_dispatch:
 
+# Serialize schedule + workflow_dispatch runs. A newer pending run replaces an
+# older pending one, but an in-progress run is never killed mid-step (it pushes
+# branches and creates PRs; preemption could orphan a branch). Duplicate same-day
+# work is stopped by the guard job instead. To preempt a stuck run, cancel it
+# manually first. See issue #544 for context and observed collisions.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
 # global permissions
 permissions: {}
 
 jobs:
-  github-update:
+  guard:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pull-requests: read
+    outputs:
+      skip: ${{ steps.check.outputs.skip }}
+      today: ${{ steps.check.outputs.today }}
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@e14015d583714f6e62063499dc959a02595150a1 # v2.21.1
+        with:
+          egress-policy: audit
+
+      - name: Check for existing update PR
+        id: check
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          TODAY="$(date -u +%Y-%m-%d)"
+          echo "today=$TODAY" >> "$GITHUB_OUTPUT"
+          if gh pr list --state open --limit 100 --json headRefName \
+               --jq '.[].headRefName' \
+             | grep -q "^automation/${TODAY}-github-update"; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "Open github-update PR for $TODAY already exists — skipping."
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  github-update:
+    needs: guard
+    if: needs.guard.outputs.skip != 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
@@ -59,8 +102,10 @@ jobs:
 
       - name: Create update branch
         id: branch
+        env:
+          TODAY: ${{ needs.guard.outputs.today }}
         run: |
-          BRANCH_NAME="automation/$(date -u +%Y-%m-%d)-github-update-${GITHUB_RUN_NUMBER}"
+          BRANCH_NAME="automation/${TODAY}-github-update-${GITHUB_RUN_NUMBER}"
           git checkout -b "$BRANCH_NAME"
           echo "branch_name=$BRANCH_NAME" >> "$GITHUB_OUTPUT"
 
@@ -98,10 +143,11 @@ jobs:
         if: steps.changes.outputs.has_changes == 'true'
         env:
           RANDOM_EMOJI: ${{ steps.emoji.outputs.emoji }}
+          TODAY: ${{ needs.guard.outputs.today }}
         run: |
           git config user.name 'Christopher Hicks'
           git config user.email 'chicks@chicks.net'
-          git commit -m "$RANDOM_EMOJI [github] Update GitHub data ($(date -u +%Y-%m-%d))"
+          git commit -m "$RANDOM_EMOJI [github] Update GitHub data ($TODAY)"
 
       - name: Create Pull Request
         if: steps.changes.outputs.has_changes == 'true'
@@ -109,10 +155,11 @@ jobs:
           GH_TOKEN: ${{ secrets.PR_CREATION }}
           BRANCH_NAME: ${{ steps.branch.outputs.branch_name }}
           RANDOM_EMOJI: ${{ steps.emoji.outputs.emoji }}
+          TODAY: ${{ needs.guard.outputs.today }}
         run: |
           git push -u origin "$BRANCH_NAME"
           gh pr create \
-            --title "$RANDOM_EMOJI [github] Update GitHub data ($(date -u +%Y-%m-%d))" \
+            --title "$RANDOM_EMOJI [github] Update GitHub data ($TODAY)" \
             --body "## Summary
 
           Automated daily GitHub data update.
