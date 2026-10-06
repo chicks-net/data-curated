@@ -42,11 +42,14 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
+          # Note: if `gh pr list` itself fails (transient API error), the if
+          # condition falls through to else and sets skip=false — a deliberate
+          # fail-open so a blip in the API can't wedge the daily automation.
           TODAY="$(date -u +%Y-%m-%d)"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
           if gh pr list --state open --limit 100 --json headRefName \
-               --jq '.[].headRefName' \
-             | grep -q "^automation/${TODAY}-github-update"; then
+            --jq '.[].headRefName' \
+            | grep -q "^automation/${TODAY}-github-update"; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "Open github-update PR for $TODAY already exists — skipping."
           else
