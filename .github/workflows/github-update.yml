@@ -8,6 +8,12 @@ on:
     # 13:22-17:00 UTC in Sep-Oct 2026. See Apr-May 2026: 11:00 UTC ran on time.
     - cron: '42 11 * * *'
   workflow_dispatch:
+    inputs:
+      force:
+        description: 'Bypass the same-day duplicate guard (run even if today''s update PR exists or is merged)'
+        required: false
+        default: false
+        type: boolean
 
 # Serialize schedule + workflow_dispatch runs. A newer pending run replaces an
 # older pending one, but an in-progress run is never killed mid-step (it pushes
@@ -40,6 +46,7 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE: ${{ github.event.inputs.force }}
         run: |
           set -euo pipefail
           # Note: if `gh pr list` itself fails (transient API error), the if
@@ -47,11 +54,24 @@ jobs:
           # fail-open so a blip in the API can't wedge the daily automation.
           TODAY="$(date -u +%Y-%m-%d)"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
-          if gh pr list --state open --limit 100 --json headRefName \
-            --jq '.[].headRefName' \
+          if [ "${FORCE:-}" = "true" ]; then
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+            echo "force=true — bypassing the same-day duplicate guard."
+            exit 0
+          fi
+          # Skip when today's update PR is in a state that means "done or in
+          # flight". OPEN means an update is pending review (the #545 behavior).
+          # MERGED means today's update already landed — a same-day re-run
+          # would only re-record the merge commit itself (the #546/#547 dupe:
+          # a backlogged scheduled run started after #546 was merged, so the
+          # open-PR-only guard saw nothing and recreated the update from the
+          # #546 squash-merge commit alone). CLOSED (unmerged) stays allowed,
+          # so a failed run + manual retry (the Oct 3/Oct 5 pattern) still works.
+          if gh pr list --state all --limit 200 --json headRefName,state \
+            --jq '.[] | select(.state == "OPEN" or .state == "MERGED") | .headRefName' \
             | grep -q "^automation/${TODAY}-github-update"; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "Open github-update PR for $TODAY already exists — skipping."
+            echo "Open or already-merged github-update PR for $TODAY exists — skipping."
           else
             echo "skip=false" >> "$GITHUB_OUTPUT"
           fi
