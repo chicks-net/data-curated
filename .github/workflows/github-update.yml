@@ -1,5 +1,6 @@
 ---
 name: GitHub Update
+# checkov:skip=CKV_GHA_7:force input deliberately bypasses the same-day duplicate guard for rare manual re-runs (regenerating after a bad merge)
 on:
   schedule:
     # 11:42 UTC = 4:42am Pacific (PDT) / 3:42am (PST). Counterintuitively, scheduling
