@@ -47,12 +47,22 @@ jobs:
         id: check
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gh needs no checkout when the repo is named explicitly
+          # (#551: without this, `gh pr list` failed with "failed to run
+          # git: fatal: not a git repository" in every guard run, the if
+          # fell through to fail-open skip=false, and the guard never
+          # skipped anything).
+          GH_REPO: ${{ github.repository }}
           FORCE: ${{ github.event.inputs.force }}
         run: |
           set -euo pipefail
-          # Note: if `gh pr list` itself fails (transient API error), the if
-          # condition falls through to else and sets skip=false — a deliberate
-          # fail-open so a blip in the API can't wedge the daily automation.
+          # Note: an error from `gh pr list` itself is treated as "skip the
+          # run" (fail-closed): the update re-fetches cumulatively, so a
+          # skipped day costs nothing tomorrow, while a fail-open duplicate
+          # (#546/#547/#551) is the demonstrated pain. The deterministic
+          # git-context failure behind #551 is fixed by GH_REPO above; this
+          # now only triggers for genuine API errors, which should not
+          # create a possibly-duplicate PR.
           TODAY="$(date -u +%Y-%m-%d)"
           echo "today=$TODAY" >> "$GITHUB_OUTPUT"
           if [ "${FORCE:-}" = "true" ]; then
@@ -68,9 +78,19 @@ jobs:
           # open-PR-only guard saw nothing and recreated the update from the
           # #546 squash-merge commit alone). CLOSED (unmerged) stays allowed,
           # so a failed run + manual retry (the Oct 3/Oct 5 pattern) still works.
-          if gh pr list --state all --limit 200 --json headRefName,state \
-            --jq '.[] | select(.state == "OPEN" or .state == "MERGED") | .headRefName' \
-            | grep -q "^automation/${TODAY}-github-update"; then
+          # stderr flows to the log unfiltered: the failure detail is the
+          # diagnostic (it's how #551 was root-caused from old run logs).
+          set +e
+          PRS=$(gh pr list --state all --limit 200 --json headRefName,state \
+            --jq '.[] | select(.state == "OPEN" or .state == "MERGED") | .headRefName')
+          GH_RC=$?
+          set -e
+          if [ "$GH_RC" -ne 0 ]; then
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+            echo "::warning::gh pr list failed (rc=$GH_RC) — failing closed: skipping today's run to avoid a possible duplicate PR."
+            exit 0
+          fi
+          if echo "$PRS" | grep -q "^automation/${TODAY}-github-update"; then
             echo "skip=true" >> "$GITHUB_OUTPUT"
             echo "Open or already-merged github-update PR for $TODAY exists — skipping."
           else
