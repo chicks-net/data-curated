@@ -32,6 +32,6 @@ jobs:
         with:
           persist-credentials: false
       - name: Check workflow files
-        uses: docker://rhysd/actionlint:1.7.12@sha256:9d36088643581e728c969f35141f88139fec77280b2be23c1f66f8e40e1025e7  # v1.7.12
+        uses: docker://rhysd/actionlint:1.7.12@sha256:9d36088643581e728c969f35141f88139fec77280b2be23c1f66f8e40e1025e7
         with:
           args: -color
