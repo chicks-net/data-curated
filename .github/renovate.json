@@ -2,6 +2,24 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended"],
   "schedule": ["every weekday"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^\\.github/workflows/actionlint\\.ya?ml$"],
+      "matchStrings": ["ACTIONLINT_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "github-releases",
+      "depNameTemplate": "rhysd/actionlint",
+      "extractVersionTemplate": "^v(?<version>.*)$",
+      "versioningTemplate": "semver"
+    },
+    {
+      "customType": "regex",
+      "managerFilePatterns": ["^\\.github/workflows/actionlint\\.ya?ml$"],
+      "matchStrings": ["PYFLAKES_VERSION:\\s*(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "pypi",
+      "depNameTemplate": "pyflakes"
+    }
+  ],
   "minimumReleaseAge": "4 days",
   "gomod": {
     "enabled": true
