@@ -19,6 +19,47 @@ fetch-youtube-videos:
 
     just link-youtube-blog-posts ""
 
+# Download YouTube playlist metadata as a JSON file (flat playlist, no videos downloaded)
+# Accepts a full playlist URL or a bare playlist ID:
+#   just download-youtube-playlist 'https://youtube.com/playlist?list=PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV' cover_songs.json
+#   just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+download-youtube-playlist PLAYLIST OUTPUT:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check if yt-dlp is installed using helper
+    INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
+    just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
+
+    URL='{{PLAYLIST}}'
+    OUTPUT='{{OUTPUT}}'
+
+    # Accept either a full playlist URL or a bare playlist ID
+    if [[ "$URL" != http* ]]; then
+        URL="https://youtube.com/playlist?list=$URL"
+    fi
+
+    echo "{{GREEN}}Downloading playlist metadata from $URL to $OUTPUT...{{NORMAL}}"
+
+    # Download to a temp file first so a failed fetch doesn't clobber the output
+    TMP_FILE="$OUTPUT.tmp"
+    trap 'rm -f "$TMP_FILE"' EXIT
+    yt-dlp --flat-playlist --dump-single-json "$URL" > "$TMP_FILE"
+    mv "$TMP_FILE" "$OUTPUT"
+
+    echo "{{GREEN}}✓ Playlist metadata saved to $OUTPUT{{NORMAL}}"
+
+# Recreate all four playlist metadata JSON files at once
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+download-youtube-playlists:
+    just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
+    just download-youtube-playlist PL2B065C08C418EC58 fun_songs.json
+    just download-youtube-playlist PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr learning_spanish_songs.json
+    just download-youtube-playlist PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 music_videos_by_chicks.json
+
 # View YouTube video database in Datasette
 [group('youtube')]
 youtube-db:
