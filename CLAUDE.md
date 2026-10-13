@@ -102,6 +102,8 @@ imports modules from `.just/` directory:
 
 ### YouTube commands
 
+- `just download-youtube-playlist <PLAYLIST> <OUTPUT>` - Download YouTube playlist metadata as JSON (accepts a full playlist URL or bare playlist ID)
+- `just download-youtube-playlists` - Recreate all playlist metadata JSON files (cover, fun, learning Spanish, music videos)
 - `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
 - `just link-youtube-blog-posts [DRY_RUN]` - Link videos to blog posts (defaults to --dry-run, pass "" to update)
 - `just generate-blog-posts [DRY_RUN]` - Generate blog posts for videos without posts (6+ months old, defaults to --dry-run, pass "" to generate)

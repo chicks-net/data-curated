@@ -9,6 +9,10 @@ Database of public videos and shorts from the
 # Fetch video metadata and create/update database
 just fetch-youtube-videos
 
+# Download playlist metadata as JSON
+just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
+just download-youtube-playlists   # Recreate all playlist JSON files
+
 # Link videos to blog posts on chicks.net
 just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
 just link-youtube-blog-posts ""     # Actually update the database
@@ -28,6 +32,7 @@ just youtube-status
 
 - Python 3.x
 - yt-dlp: `pip install yt-dlp` or `brew install yt-dlp`
+- jq (pretty-prints playlist JSON): `brew install jq`
 - SQLite3 (usually pre-installed)
 - Go (for blog post linking): `brew install go` or see <https://go.dev/doc/install>
 - Git (for blog post linking, usually pre-installed)
@@ -120,6 +125,38 @@ Video type classification:
 
 - **short**: Videos ≤60 seconds or with `/shorts/` in URL
 - **video**: All other videos
+
+## Playlist Metadata
+
+YouTube playlist metadata can be saved as JSON files (playlist info plus a
+flat list of entries, without downloading any videos):
+
+```bash
+# Both a bare playlist ID and a full playlist URL work
+just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
+just download-youtube-playlist 'https://youtube.com/playlist?list=PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV' cover_songs.json
+```
+
+Downloads go to a temp file first, so a failed fetch never clobbers an
+existing JSON file. The JSON is yt-dlp's raw `--dump-single-json` output,
+pretty-printed through `jq` so diffs stay readable. Note the raw format
+includes per-request signed thumbnail URLs and current view counts, so
+re-downloading an unchanged playlist still produces a large diff.
+
+To recreate all playlist files at once:
+
+```bash
+just download-youtube-playlists
+```
+
+Current playlist files:
+
+| File | Title | Playlist ID |
+| ---- | ----- | ----------- |
+| `cover_songs.json` | Cover songs | PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV |
+| `fun_songs.json` | Fun songs | PL2B065C08C418EC58 |
+| `learning_spanish_songs.json` | Learning Spanish Songs | PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr |
+| `music_videos_by_chicks.json` | Music Videos by Chicks | PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 |
 
 ## Blog Post Linking
 
@@ -223,6 +260,7 @@ current data.
 - `generate-blog-posts.go` - Go program to generate blog posts from template
 - `template.md` - Blog post template with variable placeholders
 - `videos.db` - SQLite database (created after first run)
+- `*.json` - Downloaded playlist metadata files (see Playlist Metadata)
 - `generated/` - Directory for generated blog posts (excluded from git)
 - `go.mod`, `go.sum` - Go module dependencies
 - `README.md` - This file
