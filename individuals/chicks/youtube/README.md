@@ -11,7 +11,7 @@ just fetch-youtube-videos
 
 # Download playlist metadata as JSON
 just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
-just download-youtube-playlists   # Recreate all four playlist JSON files
+just download-youtube-playlists   # Recreate all playlist JSON files
 
 # Link videos to blog posts on chicks.net
 just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
@@ -32,6 +32,7 @@ just youtube-status
 
 - Python 3.x
 - yt-dlp: `pip install yt-dlp` or `brew install yt-dlp`
+- jq (pretty-prints playlist JSON): `brew install jq`
 - SQLite3 (usually pre-installed)
 - Go (for blog post linking): `brew install go` or see <https://go.dev/doc/install>
 - Git (for blog post linking, usually pre-installed)
@@ -137,9 +138,12 @@ just download-youtube-playlist 'https://youtube.com/playlist?list=PLj1L6ffGFWPsN
 ```
 
 Downloads go to a temp file first, so a failed fetch never clobbers an
-existing JSON file.
+existing JSON file. The JSON is yt-dlp's raw `--dump-single-json` output,
+pretty-printed through `jq` so diffs stay readable. Note the raw format
+includes per-request signed thumbnail URLs and current view counts, so
+re-downloading an unchanged playlist still produces a large diff.
 
-To recreate all four playlist files at once:
+To recreate all playlist files at once:
 
 ```bash
 just download-youtube-playlists

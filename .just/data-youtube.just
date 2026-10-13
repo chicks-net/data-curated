@@ -33,8 +33,12 @@ download-youtube-playlist PLAYLIST OUTPUT:
     INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
     just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
 
-    URL='{{PLAYLIST}}'
-    OUTPUT='{{OUTPUT}}'
+    # Check if jq is installed (pretty-prints the JSON so diffs are readable)
+    INSTALL_CMD=$(just _get_install_cmd jq jq)
+    just _require_command jq "Install with:\n  $INSTALL_CMD"
+
+    URL="{{PLAYLIST}}"
+    OUTPUT="{{OUTPUT}}"
 
     # Accept either a full playlist URL or a bare playlist ID
     if [[ "$URL" != http* ]]; then
@@ -43,15 +47,17 @@ download-youtube-playlist PLAYLIST OUTPUT:
 
     echo "{{GREEN}}Downloading playlist metadata from $URL to $OUTPUT...{{NORMAL}}"
 
-    # Download to a temp file first so a failed fetch doesn't clobber the output
+    # Download to a temp file first so a failed fetch doesn't clobber the
+    # output. jq pretty-prints the single-line yt-dlp JSON (content is
+    # unchanged) so future diffs are readable in review.
     TMP_FILE="$OUTPUT.tmp"
     trap 'rm -f "$TMP_FILE"' EXIT
-    yt-dlp --flat-playlist --dump-single-json "$URL" > "$TMP_FILE"
+    yt-dlp --flat-playlist --dump-single-json "$URL" | jq . > "$TMP_FILE"
     mv "$TMP_FILE" "$OUTPUT"
 
     echo "{{GREEN}}✓ Playlist metadata saved to $OUTPUT{{NORMAL}}"
 
-# Recreate all four playlist metadata JSON files at once
+# Recreate all the playlist metadata JSON files at once
 [working-directory("individuals/chicks/youtube")]
 [group('youtube')]
 download-youtube-playlists:
