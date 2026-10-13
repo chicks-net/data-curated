@@ -11,6 +11,12 @@ lottery/jackpot-checker.log
 # Generated YouTube blog posts
 individuals/chicks/youtube/generated/
 
+# PDF scans OAuth secrets (credentials.json is user-provided; token.json is cached)
+individuals/chicks/pdf-scans/credentials.json
+individuals/chicks/pdf-scans/token.json
+# PDF scans uv virtualenv (auto-created by `uv run`)
+individuals/chicks/pdf-scans/.venv/
+
 # Compiled binaries
 individuals/github-contrib/daily-ranking/daily-ranking
 individuals/github-contrib/daily-ranking-viewer/daily-ranking-viewer

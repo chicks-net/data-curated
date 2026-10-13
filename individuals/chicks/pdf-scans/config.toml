@@ -1,0 +1,8 @@
+# Default Google Drive folder to scan.
+# The folder ID is the last path segment of the folder's Drive URL, e.g.:
+#   https://drive.google.com/drive/folders/1CtwXpXMMv06srY3z94KtGPQz7zCELhGP
+folder_id = "1CtwXpXMMv06srY3z94KtGPQz7zCELhGP"
+
+# Whether to recurse into subfolders by default.
+# Override per-run with: just fetch-pdf-metadata -- --no-recurse
+recurse = true
