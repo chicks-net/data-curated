@@ -11,8 +11,8 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type ContributorRank struct {
@@ -203,11 +203,11 @@ func (m model) Init() tea.Cmd {
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case " ":
+		case "space":
 			if m.done {
 				m.done = false
 				m.countdown = 0
@@ -286,9 +286,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if len(m.dailyStats) == 0 {
-		return "No data to display\n"
+		return tea.NewView("No data to display\n")
 	}
 
 	var b strings.Builder
@@ -392,7 +392,9 @@ func (m model) View() string {
 	b.WriteString("\n\n")
 	b.WriteString(m.progressStyle.Render(controlsLine))
 
-	return b.String()
+	v := tea.NewView(b.String())
+	v.AltScreen = true
+	return v
 }
 
 func (m model) renderProgressBar(progress float64) string {
@@ -484,7 +486,6 @@ func main() {
 
 	p := tea.NewProgram(
 		initialModel(stats, *topN, *speed),
-		tea.WithAltScreen(),
 	)
 
 	if _, err := p.Run(); err != nil {
