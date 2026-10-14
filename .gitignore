@@ -15,6 +15,9 @@ individuals/chicks/youtube/generated/
 individuals/github-contrib/daily-ranking/daily-ranking
 individuals/github-contrib/daily-ranking-viewer/daily-ranking-viewer
 
+# Python bytecode
+__pycache__/
+
 # opencode tool state
 .git/opencode
 .opencode/
