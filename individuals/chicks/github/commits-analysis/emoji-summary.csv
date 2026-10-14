@@ -1,9 +1,9 @@
 metric,value
-Total commits,5594
-Commits with emojis,2295
-Total emojis,3293
+Total commits,5599
+Commits with emojis,2299
+Total emojis,3301
 Unique emojis,751
-Percentage of commits with emojis,41
-Average emojis per commit (when used),1.43
+Percentage of commits with emojis,41.1
+Average emojis per commit (when used),1.44
 Most common emoji,🐛
 Most common emoji frequency,48
