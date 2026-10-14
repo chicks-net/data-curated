@@ -8,6 +8,7 @@ import (
 	"time"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 // ---------------------------------------------------------------------------
@@ -190,26 +191,34 @@ func TestReadDailyStatsMissingFile(t *testing.T) {
 }
 
 func TestReadDailyStatsStdin(t *testing.T) {
+	old := os.Stdin
+	defer func() { os.Stdin = old }()
+
 	r, w, err := os.Pipe()
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer func() { os.Stdin = nil }()
-	old := os.Stdin
+	defer r.Close()
 	os.Stdin = r
 
+	// Report the pipe write error from the main test goroutine: t.Errorf
+	// after the test has returned would panic.
+	writeErr := make(chan error, 1)
 	go func() {
 		defer w.Close()
-		w.WriteString(`{"date":"2026-01-01"}` + "\n" + `{"date":"2026-01-02"}` + "\n")
+		_, err := w.WriteString(`{"date":"2026-01-01"}` + "\n" + `{"date":"2026-01-02"}` + "\n")
+		writeErr <- err
 	}()
 
 	stats, err := readDailyStats("-")
-	os.Stdin = old
 	if err != nil {
 		t.Fatalf("readDailyStats(\"-\") error: %v", err)
 	}
 	if len(stats) != 2 {
 		t.Fatalf("got %d days from stdin, want 2", len(stats))
+	}
+	if werr := <-writeErr; werr != nil {
+		t.Errorf("writing fixture to pipe: %v", werr)
 	}
 }
 
@@ -268,6 +277,13 @@ func TestCalculateLayout(t *testing.T) {
 		{"wide 200x60", 200, 60, 120, 30, 49},
 		{"short terminal clamps rows", 100, 12, 61, 10, 3},
 	}
+	// Expected values are characterization tests for calculateLayout, derived
+	// as follows:
+	//   progressWidth: len(controlsLine) - 7
+	//   barWidth:      termWidth - 39 when that lands in (20, 120), clamped to
+	//                  120 when larger, left at the default 40 when smaller
+	//   nameWidth:     termWidth - (43 + barWidth), clamped to [10, 30]
+	//   displayRows:   termHeight - 11, minimum 3
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			m := initialModel(testStats(), 100, 100*time.Millisecond)
@@ -444,6 +460,12 @@ func TestUpdateKeysChangeSpeed(t *testing.T) {
 }
 
 func TestUpdateSpaceTogglesPause(t *testing.T) {
+	// Document the v2 key contract that the "space" case below relies on:
+	// in bubbletea v2 the space key reports as "space" (v1 reported " ").
+	if got := keyPress(' ', " ").String(); got != "space" {
+		t.Fatalf("space key String() = %q, want %q", got, "space")
+	}
+
 	m := initialModel(testStats(), 100, 100*time.Millisecond)
 
 	m, _ = update(m, keyPress(' ', " "))
@@ -572,11 +594,12 @@ func TestViewDoneShowsCountdown(t *testing.T) {
 }
 
 func TestViewRelaxingContributor(t *testing.T) {
-	// Build 105 days where "oldtimer" only committed on day 0.
+	// Build 105 consecutive days where "oldtimer" only committed on day 0.
+	start := time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC)
 	days := make([]DailyStats, 105)
 	for i := range days {
 		days[i] = DailyStats{
-			Date: "2026-01-01",
+			Date: start.AddDate(0, 0, i).Format("2006-01-02"),
 			Contributors: []ContributorRank{
 				{Login: "alice", CumulativeCommits: 100 + i, CommitsToday: 1, Rank: 1},
 				{Login: "oldtimer", CumulativeCommits: 5, CommitsToday: 0, Rank: 2},
@@ -598,19 +621,36 @@ func TestViewRelaxingContributor(t *testing.T) {
 func TestRenderNameStyles(t *testing.T) {
 	m := initialModel(testStats(), 100, 100*time.Millisecond)
 
-	highlighted := m.renderName("Chicks", false)
-	if !strings.Contains(highlighted, "Chicks") {
-		t.Errorf("highlighted render lost the name: %q", highlighted)
+	cases := []struct {
+		label    string
+		name     string
+		relaxing bool
+	}{
+		{"highlighted", "Chicks", false}, // matches the [CT]h highlight regex
+		{"normal", "someone", false},
+		{"relaxing", "oldtimer", true},
 	}
 
-	normal := m.renderName("someone", false)
-	if !strings.Contains(normal, "someone") {
-		t.Errorf("normal render lost the name: %q", normal)
-	}
-
-	relaxing := m.renderName("oldtimer", true)
-	if !strings.Contains(relaxing, "oldtimer") {
-		t.Errorf("relaxing render lost the name: %q", relaxing)
+	// Each render must be visibly distinct from the others, so a style
+	// regression (e.g. every path collapsing onto one style) is caught.
+	seen := make(map[string]string)
+	for _, c := range cases {
+		rendered := m.renderName(c.name, c.relaxing)
+		t.Run(c.label, func(t *testing.T) {
+			if !strings.Contains(rendered, c.name) {
+				t.Errorf("render lost the name: %q", rendered)
+			}
+			if !strings.Contains(rendered, "\x1b[") {
+				t.Errorf("render is unstyled: %q", rendered)
+			}
+			if w := lipgloss.Width(rendered); w != m.nameWidth {
+				t.Errorf("rendered width = %d, want padded to nameWidth %d", w, m.nameWidth)
+			}
+		})
+		if other, dup := seen[rendered]; dup {
+			t.Errorf("%s render duplicates the %s render: %q", c.label, other, rendered)
+		}
+		seen[rendered] = c.label
 	}
 }
 
