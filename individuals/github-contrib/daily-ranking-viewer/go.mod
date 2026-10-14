@@ -3,7 +3,7 @@ module github.com/chicks/data-curated/individuals/github-contrib/daily-ranking/v
 go 1.25.7
 
 require (
-	github.com/charmbracelet/bubbletea v1.3.10
+	github.com/charmbracelet/bubbletea/v2 v2.1.0
 	github.com/charmbracelet/lipgloss v1.1.0
 )
 
