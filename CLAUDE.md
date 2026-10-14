@@ -110,6 +110,12 @@ imports modules from `.just/` directory:
 - `just youtube-db` - Open videos.db in Datasette browser
 - `just youtube-status` - Show database statistics and recent videos
 
+### Music commands
+
+- `just fetch-lyrics [CSV]` - Fetch song lyrics from LRCLIB into SQLite (default: Liked Songs; accepts any Exportify CSV)
+- `just lyrics-status` - Show lyrics database statistics
+- `just lyrics-db` - Open lyrics.db in Datasette browser
+
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
@@ -260,6 +266,13 @@ The repository contains Python programs for data fetching and processing:
   - No YouTube API key required (uses yt-dlp scraping)
   - Companion Go program `link-blog-posts.go` links videos to blog posts on chicks.net
   - See individuals/chicks/youtube/README.md for full documentation
+- `individuals/chicks/music/spotify/fetch-lyrics.py` - Fetches song lyrics from LRCLIB for Spotify playlist CSVs
+  - Run with: `just fetch-lyrics` (preferred) or `cd individuals/chicks/music/spotify && uv run fetch-lyrics.py`
+  - Stores plain and time-synced lyrics in `individuals/chicks/music/spotify/lyrics.db` SQLite database
+  - Matching waterfall: LRCLIB exact match (artist/track/album/duration), then search validated by duration
+  - Instrumentals tracked with their own status; the database caches results for incremental runs
+  - No API key required; stdlib only
+  - See individuals/chicks/music/spotify/README.md for full documentation
 
 ### R analysis scripts
 

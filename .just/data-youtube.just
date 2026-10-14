@@ -89,8 +89,9 @@ youtube-status:
     echo "{{GREEN}}YouTube Video Database Status{{NORMAL}}"
     echo ""
 
-    # Show database file age using helper
-    just _show_db_age "$DB_FILE"
+    # Show database file age using helper (the helper runs from the repo
+    # root, so it needs a root-relative path)
+    just _show_db_age "individuals/chicks/youtube/videos.db"
 
     # Show last fetch time
     LAST_FETCH=$(sqlite3 "$DB_FILE" "SELECT fetched_at FROM fetch_history ORDER BY id DESC LIMIT 1;" 2>/dev/null || echo "")
