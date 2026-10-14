@@ -20,7 +20,7 @@ fetch-lyrics CSV="Liked_Songs.csv":
 
     echo "{{GREEN}}Fetching song lyrics from LRCLIB...{{NORMAL}}"
     # shellcheck disable=SC1083
-    uv run fetch-lyrics.py --csv {{CSV}}
+    uv run fetch-lyrics.py --csv "{{CSV}}"
 
 # View song lyrics database in Datasette
 [group('music')]
