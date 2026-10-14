@@ -571,7 +571,7 @@ func TestViewContent(t *testing.T) {
 			t.Errorf("view missing %q", want)
 		}
 	}
-	if v.AltScreen != true {
+	if !v.AltScreen {
 		t.Error("view should declare the alternate screen")
 	}
 }
