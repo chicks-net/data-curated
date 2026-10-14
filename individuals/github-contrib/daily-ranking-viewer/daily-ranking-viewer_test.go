@@ -191,6 +191,7 @@ func TestReadDailyStatsMissingFile(t *testing.T) {
 }
 
 func TestReadDailyStatsStdin(t *testing.T) {
+	// Swaps the process-global os.Stdin: do not add t.Parallel() here.
 	old := os.Stdin
 	defer func() { os.Stdin = old }()
 
@@ -535,6 +536,9 @@ func TestViewEmpty(t *testing.T) {
 	v := model{}.View()
 	if v.Content != "No data to display\n" {
 		t.Errorf("empty view = %q", v.Content)
+	}
+	if !v.AltScreen {
+		t.Error("empty view should also declare the alternate screen")
 	}
 }
 

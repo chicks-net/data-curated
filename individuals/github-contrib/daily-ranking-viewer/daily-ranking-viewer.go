@@ -288,7 +288,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m model) View() tea.View {
 	if len(m.dailyStats) == 0 {
-		return tea.NewView("No data to display\n")
+		return newView("No data to display\n")
 	}
 
 	var b strings.Builder
@@ -392,7 +392,13 @@ func (m model) View() tea.View {
 	b.WriteString("\n\n")
 	b.WriteString(m.progressStyle.Render(controlsLine))
 
-	v := tea.NewView(b.String())
+	return newView(b.String())
+}
+
+// newView wraps content in a tea.View that declares the alternate screen on
+// every view path, matching the v1 behavior of tea.WithAltScreen().
+func newView(content string) tea.View {
+	v := tea.NewView(content)
 	v.AltScreen = true
 	return v
 }
