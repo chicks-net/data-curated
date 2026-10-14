@@ -43,3 +43,25 @@ previous errors. Pass `--force` to re-fetch everything:
 ```sh
 uv run fetch-lyrics.py --force
 ```
+
+## Language detection
+
+`detect-languages.py` runs [langdetect](https://pypi.org/project/langdetect/)
+over the stored lyrics and records the top-2 language guesses per track
+in the `track_languages` table, per the guidance in
+[chicks-net/chicks-projects#127](https://github.com/chicks-net/chicks-projects/issues/127):
+
+- `just detect-languages` - detect languages for new tracks (idempotent;
+  uv auto-installs langdetect from the script's inline metadata)
+- `just language-breakdown` - print the breakdown and write
+  `language-breakdown.csv`
+
+Instrumentals and tracks without lyrics get no `track_languages` row,
+so the breakdown reports them as their own buckets (`instrumental`,
+`unknown`) instead of a made-up language. Results are deterministic
+(seeded) and detection is local, so re-runs are free.
+
+A track is tagged low confidence when its lyrics are short (< 200
+chars), repetitive, or the detector itself is unsure (probability
+< 0.9). Choruses, bilingual songs and gibberish vocals skew a single
+label, so check the `language_2` column for those.

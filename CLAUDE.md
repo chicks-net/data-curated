@@ -113,6 +113,8 @@ imports modules from `.just/` directory:
 ### Music commands
 
 - `just fetch-lyrics [CSV]` - Fetch song lyrics from LRCLIB into SQLite (default: Liked Songs; accepts any Exportify CSV)
+- `just detect-languages` - Detect lyric languages with langdetect and store in lyrics.db
+- `just language-breakdown` - Print language breakdown and write language-breakdown.csv
 - `just lyrics-status` - Show lyrics database statistics
 - `just lyrics-db` - Open lyrics.db in Datasette browser
 
@@ -272,6 +274,13 @@ The repository contains Python programs for data fetching and processing:
   - Matching waterfall: LRCLIB exact match (artist/track/album/duration), then search validated by duration
   - Instrumentals tracked with their own status; the database caches results for incremental runs
   - No API key required; stdlib only
+  - See individuals/chicks/music/spotify/README.md for full documentation
+- `individuals/chicks/music/spotify/detect-languages.py` - Detects lyric languages with langdetect
+  - Run with: `just detect-languages` (preferred) or `cd individuals/chicks/music/spotify && uv run detect-languages.py`
+  - Stores top-2 language guesses with probabilities in the `track_languages` table in `lyrics.db`
+  - Tags short, repetitive or low-probability results as low confidence; seeded for deterministic runs
+  - Instrumentals and misses get no row, so `just language-breakdown` reports them as their own buckets
+  - langdetect dependency declared via PEP 723 inline metadata (uv auto-installs)
   - See individuals/chicks/music/spotify/README.md for full documentation
 
 ### R analysis scripts

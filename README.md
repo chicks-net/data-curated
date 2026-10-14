@@ -26,7 +26,7 @@ Each directory could be something interesting....
   - 🐙 [**chicks/github/**](individuals/chicks/github/) - GitHub activity data with charts (commits, contributions, reviews)
   - 📍 [**chicks/google-maps/**](individuals/chicks/google-maps/) - Google Maps review data processing
   - 💼 [**chicks/jobs/**](individuals/chicks/jobs/) - Career history and employer data
-  - 🎵 [**chicks/music/**](individuals/chicks/music/) - Spotify playlists with lyrics fetched from LRCLIB
+  - 🎵 [**chicks/music/**](individuals/chicks/music/) - Spotify playlists with LRCLIB lyrics and language detection
   - 🎬 [**chicks/youtube/**](individuals/chicks/youtube/) - YouTube video metadata with blog linking
   - 🏆 [**github-contrib/**](individuals/github-contrib/) - Contributor ranking tools and visualizations
 - 📊 [**lottery/**](lottery/) - NY lottery winning numbers (CSV) and CA jackpot tracker (Go/SQLite) with charts
