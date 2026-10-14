@@ -59,7 +59,8 @@ in the `track_languages` table, per the guidance in
 Instrumentals and tracks without lyrics get no `track_languages` row,
 so the breakdown reports them as their own buckets (`instrumental`,
 `unknown`) instead of a made-up language. Results are deterministic
-(seeded) and detection is local, so re-runs are free.
+(seeded) and detection is local, so re-runs are free. Pass `--force` to
+re-detect everything (`uv run detect-languages.py --force`).
 
 A track is tagged low confidence when its lyrics are short (< 200
 chars), repetitive, or the detector itself is unsure (probability

@@ -146,6 +146,8 @@ def detect_language(text: str) -> Optional[Dict[str, Any]]:
         "language_2_probability": None,
     }
     if len(ranked) > 1:
+        # zh-cn and zh-tw both normalize to zh, so language_2 can equal
+        # language for Chinese tracks
         result["language_2"] = normalize_language(ranked[1].lang)
         result["language_2_probability"] = round(ranked[1].prob, 4)
 
@@ -214,7 +216,7 @@ def process_tracks(conn: sqlite3.Connection, force: bool) -> Tuple[Dict[str, int
 
     rows = conn.execute(
         """
-        SELECT t.track_id, t.track_name, t.artist_names,
+        SELECT t.track_id,
             l.plain_lyrics, l.synced_lyrics
         FROM tracks t
         JOIN lyrics l USING(track_id)
@@ -225,9 +227,7 @@ def process_tracks(conn: sqlite3.Connection, force: bool) -> Tuple[Dict[str, int
     ).fetchall()
     print(f"{len(rows)} tracks to analyze")
 
-    for i, (track_id, track_name, artist_names, plain, synced) in enumerate(
-        rows, 1
-    ):
+    for i, (track_id, plain, synced) in enumerate(rows, 1):
         text = clean_lyrics(plain, synced)
         result = detect_language(text) if text else None
 

@@ -135,15 +135,16 @@ language-breakdown:
 
     # One query, two renderings: CSV for the committed report, pretty
     # table for the terminal. Languages come from track_languages;
-    # instrumentals, misses and undetectable lyrics get their own
-    # buckets so instrumentals never count as unknown language.
+    # instrumentals, misses, undetectable lyrics and fetch errors each
+    # get their own bucket so instrumentals never count as unknown
+    # language.
     BREAKDOWN_SQL="SELECT
     CASE
         WHEN tl.track_id IS NOT NULL AND tl.language IS NOT NULL THEN tl.language
         WHEN tl.track_id IS NOT NULL THEN 'undetectable'
         WHEN l.status = 'instrumental' THEN 'instrumental'
         WHEN l.status = 'not_found' THEN 'unknown'
-        ELSE 'pending'
+        ELSE 'fetch_error'
     END AS language,
     SUM(CASE WHEN tl.language IS NOT NULL AND tl.confidence = 'low' THEN 1 ELSE 0 END) AS low_confidence,
     COUNT(*) AS count,
