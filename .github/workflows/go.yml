@@ -1,0 +1,126 @@
+---
+name: Go
+
+# Builds, vets, and tests every Go module in the repository (discovered via
+# go.mod), plus the two standalone Go programs in individuals/chicks/blog
+# that live outside any module, and checks gofmt formatting.  Path-filtered
+# so data-only changes skip the run.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
+  pull_request:
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
+  workflow_dispatch:
+
+# global permissions
+permissions: {}
+
+jobs:
+  go-build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # go-version: stable installs the newest Go release, which can build
+      # every module here (they all pin older versions).  A future module
+      # pinning a newer toolchain is covered by Go's automatic toolchain
+      # download, which the audit egress policy above permits.
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache-dependency-path: '**/go.sum'
+
+      - name: Build, vet, and test all Go modules
+        run: |
+          set -euo pipefail
+
+          modules=$(find . -name go.mod -not -path './.git/*' |
+            sed -e 's|^\./||' -e 's|/go.mod$||' -e 's|^go.mod$|.|' | sort)
+
+          if [ -z "$modules" ]; then
+            echo "No Go modules found" >&2
+            exit 1
+          fi
+
+          echo "Go modules:"
+          echo "$modules"
+
+          for module in $modules; do
+            echo ""
+            echo "=== Module: ${module}"
+
+            # Modules that hold several standalone programs in one directory
+            # (multiple 'func main' declarations) cannot be built with
+            # './...'; compile and vet those programs individually instead.
+            mains=0
+            for f in "$module"/*.go; do
+              if grep -q '^func main(' "$f"; then
+                mains=$((mains + 1))
+              fi
+            done
+
+            if [ "$mains" -gt 1 ]; then
+              (cd "$module" && for f in *.go; do
+                echo "--- go vet ${module}/${f}"
+                go vet "$f"
+                go build -o /dev/null "$f"
+              done)
+            else
+              # -o /dev/null: 'go build' drops binaries in the module dir
+              # otherwise, dirtying the working tree.
+              (cd "$module" &&
+                go build -o /dev/null ./... &&
+                go vet ./... &&
+                go test -race ./...)
+            fi
+          done
+        shell: bash
+
+      - name: Build and vet standalone Go programs (no go.mod)
+        run: |
+          set -euo pipefail
+
+          # individuals/chicks/blog holds two one-file Go programs that are
+          # run with 'go run'; they live outside any module and each has its
+          # own main(), so build them one file at a time.
+          for f in post-counter.go graph-generator.go; do
+            echo "=== Standalone program: individuals/chicks/blog/${f}"
+            (cd individuals/chicks/blog &&
+              go vet "$f" &&
+              go build -o /dev/null "$f")
+          done
+        shell: bash
+
+      - name: Check gofmt formatting
+        run: |
+          set -euo pipefail
+
+          unformatted=$(git ls-files '*.go' | xargs gofmt -l)
+          if [ -n "$unformatted" ]; then
+            echo "Files not gofmt-formatted:"
+            echo "$unformatted"
+            exit 1
+          fi
+          echo "All Go files are gofmt-formatted."
+        shell: bash

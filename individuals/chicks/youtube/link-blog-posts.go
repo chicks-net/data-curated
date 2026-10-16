@@ -119,7 +119,7 @@ func main() {
 		}
 	}
 
-	fmt.Printf("\n" + strings.Repeat("=", 50) + "\n")
+	fmt.Print("\n" + strings.Repeat("=", 50) + "\n")
 	fmt.Printf("Summary: Matched %d out of %d videos\n", matched, len(videos))
 	if *dryRun {
 		fmt.Println("Run without --dry-run to update the database")
@@ -127,7 +127,7 @@ func main() {
 
 	// Show unmatched videos
 	if len(unmatched) > 0 {
-		fmt.Printf("\n" + strings.Repeat("=", 50) + "\n")
+		fmt.Print("\n" + strings.Repeat("=", 50) + "\n")
 		fmt.Printf("Videos without blog posts (%d):\n\n", len(unmatched))
 		for _, video := range unmatched {
 			// Format upload date as YYYY-MM-DD

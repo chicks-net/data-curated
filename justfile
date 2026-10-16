@@ -366,6 +366,74 @@ cities-db:
 add_sound_to_movie input_video input_audio:
     ffmpeg -i "{{ input_video }}" -i "{{ input_audio }}" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{{ input_video }}-withsound.mp4"
 
+# Build, vet, and test all Go code; mirrors .github/workflows/go.yml
+[group('Utility')]
+go-test:
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+
+    just _require_command go "Install with: brew install go"
+
+    echo "{{GREEN}}Building, vetting, and testing all Go modules{{NORMAL}}"
+    echo ""
+
+    modules=$(find . -name go.mod -not -path './.git/*' |
+        sed -e 's|^\./||' -e 's|/go.mod$||' -e 's|^go.mod$|.|' | sort)
+
+    if [ -z "$modules" ]; then
+        echo "{{RED}}Error: no Go modules found{{NORMAL}}"
+        exit 1
+    fi
+
+    for module in $modules; do
+        echo "{{BLUE}}=== Module: {{NORMAL}}$module"
+
+        # Modules that hold several standalone programs in one directory
+        # (multiple 'func main' declarations) cannot be built with './...';
+        # compile and vet those programs individually instead.
+        mains=0
+        for f in "$module"/*.go; do
+            if grep -q '^func main(' "$f"; then
+                mains=$((mains + 1))
+            fi
+        done
+
+        if [ "$mains" -gt 1 ]; then
+            (cd "$module" && for f in *.go; do
+                echo "--- vet + build: $module/$f"
+                go vet "$f"
+                go build -o /dev/null "$f"
+            done)
+        else
+            # -o /dev/null: 'go build' drops binaries in the module dir
+            # otherwise, dirtying the working tree.
+            (cd "$module" &&
+                go build -o /dev/null ./... &&
+                go vet ./... &&
+                go test -race ./...)
+        fi
+    done
+
+    echo ""
+    echo "{{BLUE}}=== Standalone programs: {{NORMAL}}individuals/chicks/blog"
+    for f in post-counter.go graph-generator.go; do
+        echo "--- vet + build: individuals/chicks/blog/$f"
+        (cd individuals/chicks/blog &&
+            go vet "$f" &&
+            go build -o /dev/null "$f")
+    done
+
+    echo ""
+    echo "{{BLUE}}Checking gofmt formatting...{{NORMAL}}"
+    unformatted=$(git ls-files '*.go' | xargs gofmt -l)
+    if [ -n "$unformatted" ]; then
+        echo "{{RED}}Files not gofmt-formatted:{{NORMAL}}"
+        echo "$unformatted"
+        exit 1
+    fi
+
+    echo "{{GREEN}}✓ All Go builds, vets, tests, and formatting checks passed{{NORMAL}}"
+
 # Analyze US restaurant density by county
 [working-directory("us-restaurants")]
 [group('restaurants')]

@@ -158,6 +158,13 @@ SVG-template string in `graph-generator.go`).  Local check:
 zizmor (GitHub Actions security analysis) runs via `zizmor.yml`, configured
 by `zizmor.yml` at repo root.  Local check: `zizmor -q .github/workflows`
 
+Go code is guarded by `go.yml`: every module found via `go.mod` runs
+`go build ./...`, `go vet ./...`, and `go test -race ./...` (modules that
+hold several standalone `main()` programs are compiled per file instead),
+the two standalone programs in `individuals/chicks/blog` are built
+individually, and `gofmt` checks every tracked `.go` file.  Local check:
+`just go-test`
+
 Other automated workflows:
 
 - `claude.yml` - Claude Code responds to @claude mentions in issues/PRs/comments
@@ -168,6 +175,7 @@ Other automated workflows:
 - `scorecards.yml` - OpenSSF Scorecard security posture analysis
 - `auto-assign.yml` - Automatically assigns PRs to the repo owner
 - `codeql.yml` - CodeQL security scanning (Go, Python)
+- `go.yml` - Builds, vets, and tests all Go modules (`go test -race`), plus a gofmt check
 - `dependency-review.yml` - Scans dependency changes in PRs for vulnerabilities
 - `gitleaks.yml` - Secret detection
 - `renovate-validate.yml` - Validates `.github/renovate.json`
