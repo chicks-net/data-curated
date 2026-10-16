@@ -122,11 +122,10 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: '1.27'
-          cache-dependency-path: |
-            lottery/go.sum
-            individuals/chicks/github/go.sum
-            individuals/chicks/youtube/go.sum
-            individuals/chicks/ccusage/go.sum
+          # Glob instead of a hand-maintained list: the ccusage entry went
+          # stale after that module was removed (#578), and the newer
+          # github-contrib modules were missing from the list altogether.
+          cache-dependency-path: '**/go.sum'
 
       - name: Setup R
         uses: r-lib/actions/setup-r@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
