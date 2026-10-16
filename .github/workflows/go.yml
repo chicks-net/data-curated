@@ -1,0 +1,69 @@
+---
+name: Go
+
+# Builds, vets, and tests every Go module in the repository (discovered via
+# go.mod), plus the standalone Go programs in individuals/chicks/blog that
+# live outside any module, and checks gofmt formatting.  The logic lives in
+# the 'go-test' just recipe so CI and local runs cannot drift; this workflow
+# is a thin wrapper.  Path-filtered so data-only changes skip the run.
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
+      - 'justfile'
+      - '.just/**'
+  pull_request:
+    paths:
+      - '**/*.go'
+      - '**/go.mod'
+      - '**/go.sum'
+      - '.github/workflows/go.yml'
+      - 'justfile'
+      - '.just/**'
+  workflow_dispatch:
+
+# global permissions
+permissions: {}
+
+jobs:
+  go-build-test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@ccd8616d44fd3846e67624a50d5aad6d37bf2d25 # v2.22.1
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # go-version: stable installs the newest Go release, which can build
+      # every module here (they all pin older versions).  A future module
+      # pinning a newer toolchain is covered by Go's automatic toolchain
+      # download, which the audit egress policy above permits.
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache-dependency-path: '**/go.sum'
+
+      - name: Set up just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+        with:
+          just-version: '1'
+
+      # The go-test recipe discovers modules via go.mod, builds/vets/tests
+      # each one (go test -race), handles the multi-main modules and the
+      # standalone blog programs, and checks gofmt - the same command as
+      # the local 'just go-test'.
+      - name: Build, vet, and test all Go code
+        run: just go-test

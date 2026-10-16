@@ -675,7 +675,8 @@ func getBotType(login string) string {
 }
 
 func generateReport(db *sql.DB) {
-	fmt.Println("\n=== Code Review Bot Coverage Analysis ===\n")
+	fmt.Println("\n=== Code Review Bot Coverage Analysis ===")
+	fmt.Println()
 
 	totalRepos, totalPRs := getTotals(db)
 	fmt.Printf("Repositories Analyzed: %d\n", totalRepos)

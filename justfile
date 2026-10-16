@@ -366,6 +366,96 @@ cities-db:
 add_sound_to_movie input_video input_audio:
     ffmpeg -i "{{ input_video }}" -i "{{ input_audio }}" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{{ input_video }}-withsound.mp4"
 
+# Build, vet, and test all Go code; run by CI (.github/workflows/go.yml)
+# and locally - keep this the single source of truth so the two cannot drift.
+[group('Utility')]
+go-test:
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+    shopt -s nullglob
+
+    just _require_command go "Install with: brew install go"
+
+    echo "{{GREEN}}Building, vetting, and testing all Go modules{{NORMAL}}"
+    echo ""
+
+    modules=$(find . -name go.mod -not -path './.git/*' |
+        sed -e 's|^\./||' -e 's|/go.mod$||' -e 's|^go.mod$|.|' | sort)
+
+    if [ -z "$modules" ]; then
+        echo "{{RED}}Error: no Go modules found{{NORMAL}}"
+        exit 1
+    fi
+
+    for module in $modules; do
+        echo "{{BLUE}}=== Module: {{NORMAL}}$module"
+
+        # Modules that hold several standalone programs in one directory
+        # (multiple 'func main' declarations) cannot be built with './...';
+        # compile and vet those programs individually instead.
+        mains=0
+        for f in "$module"/*.go; do
+            case "$f" in
+                *_test.go) continue ;;  # match the skip in the loop below
+            esac
+            if grep -q '^func main(' "$f"; then
+                mains=$((mains + 1))
+            fi
+        done
+
+        if [ "$mains" -gt 1 ]; then
+            # Tests cannot run in this layout (see issue #577); make the
+            # gap visible in CI logs and GitHub run annotations.
+            echo "::warning::$module: several standalone programs share one directory; go test cannot run here (issue #577)"
+            # Skip *_test.go: a test file cannot be vetted or built
+            # standalone (it only compiles as part of its package).
+            (cd "$module" && for f in *.go; do
+                case "$f" in
+                    *_test.go) continue ;;
+                esac
+                echo "--- vet + build: $module/$f"
+                go vet "$f"
+                go build -o /dev/null "$f"
+            done)
+        else
+            # -o /dev/null: 'go build' drops binaries in the module dir
+            # otherwise, dirtying the working tree.
+            (cd "$module" &&
+                go build -o /dev/null ./... &&
+                go vet ./... &&
+                go test -race ./...)
+        fi
+    done
+
+    echo ""
+    echo "{{BLUE}}=== Standalone programs: {{NORMAL}}individuals/chicks/blog"
+    # These live outside any go.mod, so module discovery misses them; glob
+    # the directory so a new standalone program is covered automatically.
+    # (nullglob makes the guard below catch an accidentally emptied dir.)
+    standalone=(individuals/chicks/blog/*.go)
+    if [ "${#standalone[@]}" -eq 0 ]; then
+        echo "{{RED}}Error: no standalone Go programs found in individuals/chicks/blog{{NORMAL}}"
+        exit 1
+    fi
+    for f in "${standalone[@]}"; do
+        name=$(basename "$f")
+        echo "--- vet + build: $f"
+        (cd individuals/chicks/blog &&
+            go vet "$name" &&
+            go build -o /dev/null "$name")
+    done
+
+    echo ""
+    echo "{{BLUE}}Checking gofmt formatting...{{NORMAL}}"
+    unformatted=$(git ls-files '*.go' | xargs gofmt -l)
+    if [ -n "$unformatted" ]; then
+        echo "{{RED}}Files not gofmt-formatted:{{NORMAL}}"
+        echo "$unformatted"
+        exit 1
+    fi
+
+    echo "{{GREEN}}✓ All Go builds, vets, tests, and formatting checks passed{{NORMAL}}"
+
 # Analyze US restaurant density by county
 [working-directory("us-restaurants")]
 [group('restaurants')]
