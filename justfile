@@ -395,17 +395,20 @@ go-test:
         # compile and vet those programs individually instead.
         mains=0
         for f in "$module"/*.go; do
+            case "$f" in
+                *_test.go) continue ;;  # match the skip in the loop below
+            esac
             if grep -q '^func main(' "$f"; then
                 mains=$((mains + 1))
             fi
         done
 
         if [ "$mains" -gt 1 ]; then
+            # Tests cannot run in this layout (see issue #577); make the
+            # gap visible in CI logs and GitHub run annotations.
+            echo "::warning::$module: several standalone programs share one directory; go test cannot run here (issue #577)"
             # Skip *_test.go: a test file cannot be vetted or built
-            # standalone (it only compiles as part of its package), and
-            # 'go test' cannot run at all in a multi-main module - that is
-            # inherent to the layout, and is why these modules should
-            # eventually be restructured into one program per package.
+            # standalone (it only compiles as part of its package).
             (cd "$module" && for f in *.go; do
                 case "$f" in
                     *_test.go) continue ;;

@@ -17,6 +17,7 @@ on:
       - '**/go.sum'
       - '.github/workflows/go.yml'
       - 'justfile'
+      - '.just/**'
   pull_request:
     paths:
       - '**/*.go'
@@ -24,6 +25,7 @@ on:
       - '**/go.sum'
       - '.github/workflows/go.yml'
       - 'justfile'
+      - '.just/**'
   workflow_dispatch:
 
 # global permissions
