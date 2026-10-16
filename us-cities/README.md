@@ -35,6 +35,11 @@ The SQLite database contains a single `cities` table with the following fields:
 | ansi_code | TEXT | ANSI feature code |
 | geoid | TEXT | Census GEOID |
 
+The `cities` table is a SQLite `STRICT` table: values that cannot be losslessly
+converted to the declared column type are rejected at insert time instead of
+being silently coerced. Reading and writing the database requires SQLite >= 3.37
+(2021-11) or newer, including the `sqlite3` CLI and Python's stdlib `sqlite3`.
+
 ## Quick Start
 
 The easiest way to work with US cities data is using the `just` commands:

@@ -135,7 +135,7 @@ def create_database(db_path):
             ansi_code TEXT,
             geoid TEXT,
             UNIQUE(name, state_abbrev)
-        )
+        ) STRICT
     ''')
 
     # Create indexes for common queries
