@@ -158,10 +158,11 @@ SVG-template string in `graph-generator.go`).  Local check:
 zizmor (GitHub Actions security analysis) runs via `zizmor.yml`, configured
 by `zizmor.yml` at repo root.  Local check: `zizmor -q .github/workflows`
 
-Go code is guarded by `go.yml`: every module found via `go.mod` runs
+Go code is guarded by `go.yml`, which runs the `go-test` just recipe so
+CI and local checks cannot drift: every module found via `go.mod` runs
 `go build ./...`, `go vet ./...`, and `go test -race ./...` (modules that
 hold several standalone `main()` programs are compiled per file instead),
-the two standalone programs in `individuals/chicks/blog` are built
+the standalone programs in `individuals/chicks/blog` are built
 individually, and `gofmt` checks every tracked `.go` file.  Local check:
 `just go-test`
 

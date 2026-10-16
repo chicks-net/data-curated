@@ -366,11 +366,13 @@ cities-db:
 add_sound_to_movie input_video input_audio:
     ffmpeg -i "{{ input_video }}" -i "{{ input_audio }}" -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 "{{ input_video }}-withsound.mp4"
 
-# Build, vet, and test all Go code; mirrors .github/workflows/go.yml
+# Build, vet, and test all Go code; run by CI (.github/workflows/go.yml)
+# and locally - keep this the single source of truth so the two cannot drift.
 [group('Utility')]
 go-test:
     #!/usr/bin/env bash
     set -euo pipefail # strict mode
+    shopt -s nullglob
 
     just _require_command go "Install with: brew install go"
 
@@ -399,7 +401,15 @@ go-test:
         done
 
         if [ "$mains" -gt 1 ]; then
+            # Skip *_test.go: a test file cannot be vetted or built
+            # standalone (it only compiles as part of its package), and
+            # 'go test' cannot run at all in a multi-main module - that is
+            # inherent to the layout, and is why these modules should
+            # eventually be restructured into one program per package.
             (cd "$module" && for f in *.go; do
+                case "$f" in
+                    *_test.go) continue ;;
+                esac
                 echo "--- vet + build: $module/$f"
                 go vet "$f"
                 go build -o /dev/null "$f"
@@ -416,11 +426,20 @@ go-test:
 
     echo ""
     echo "{{BLUE}}=== Standalone programs: {{NORMAL}}individuals/chicks/blog"
-    for f in post-counter.go graph-generator.go; do
-        echo "--- vet + build: individuals/chicks/blog/$f"
+    # These live outside any go.mod, so module discovery misses them; glob
+    # the directory so a new standalone program is covered automatically.
+    # (nullglob makes the guard below catch an accidentally emptied dir.)
+    standalone=(individuals/chicks/blog/*.go)
+    if [ "${#standalone[@]}" -eq 0 ]; then
+        echo "{{RED}}Error: no standalone Go programs found in individuals/chicks/blog{{NORMAL}}"
+        exit 1
+    fi
+    for f in "${standalone[@]}"; do
+        name=$(basename "$f")
+        echo "--- vet + build: $f"
         (cd individuals/chicks/blog &&
-            go vet "$f" &&
-            go build -o /dev/null "$f")
+            go vet "$name" &&
+            go build -o /dev/null "$name")
     done
 
     echo ""

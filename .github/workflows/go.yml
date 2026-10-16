@@ -2,9 +2,10 @@
 name: Go
 
 # Builds, vets, and tests every Go module in the repository (discovered via
-# go.mod), plus the two standalone Go programs in individuals/chicks/blog
-# that live outside any module, and checks gofmt formatting.  Path-filtered
-# so data-only changes skip the run.
+# go.mod), plus the standalone Go programs in individuals/chicks/blog that
+# live outside any module, and checks gofmt formatting.  The logic lives in
+# the 'go-test' just recipe so CI and local runs cannot drift; this workflow
+# is a thin wrapper.  Path-filtered so data-only changes skip the run.
 
 on:
   push:
@@ -15,12 +16,14 @@ on:
       - '**/go.mod'
       - '**/go.sum'
       - '.github/workflows/go.yml'
+      - 'justfile'
   pull_request:
     paths:
       - '**/*.go'
       - '**/go.mod'
       - '**/go.sum'
       - '.github/workflows/go.yml'
+      - 'justfile'
   workflow_dispatch:
 
 # global permissions
@@ -51,76 +54,14 @@ jobs:
           go-version: stable
           cache-dependency-path: '**/go.sum'
 
-      - name: Build, vet, and test all Go modules
-        run: |
-          set -euo pipefail
+      - name: Set up just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+        with:
+          just-version: '1'
 
-          modules=$(find . -name go.mod -not -path './.git/*' |
-            sed -e 's|^\./||' -e 's|/go.mod$||' -e 's|^go.mod$|.|' | sort)
-
-          if [ -z "$modules" ]; then
-            echo "No Go modules found" >&2
-            exit 1
-          fi
-
-          echo "Go modules:"
-          echo "$modules"
-
-          for module in $modules; do
-            echo ""
-            echo "=== Module: ${module}"
-
-            # Modules that hold several standalone programs in one directory
-            # (multiple 'func main' declarations) cannot be built with
-            # './...'; compile and vet those programs individually instead.
-            mains=0
-            for f in "$module"/*.go; do
-              if grep -q '^func main(' "$f"; then
-                mains=$((mains + 1))
-              fi
-            done
-
-            if [ "$mains" -gt 1 ]; then
-              (cd "$module" && for f in *.go; do
-                echo "--- go vet ${module}/${f}"
-                go vet "$f"
-                go build -o /dev/null "$f"
-              done)
-            else
-              # -o /dev/null: 'go build' drops binaries in the module dir
-              # otherwise, dirtying the working tree.
-              (cd "$module" &&
-                go build -o /dev/null ./... &&
-                go vet ./... &&
-                go test -race ./...)
-            fi
-          done
-        shell: bash
-
-      - name: Build and vet standalone Go programs (no go.mod)
-        run: |
-          set -euo pipefail
-
-          # individuals/chicks/blog holds two one-file Go programs that are
-          # run with 'go run'; they live outside any module and each has its
-          # own main(), so build them one file at a time.
-          for f in post-counter.go graph-generator.go; do
-            echo "=== Standalone program: individuals/chicks/blog/${f}"
-            (cd individuals/chicks/blog &&
-              go vet "$f" &&
-              go build -o /dev/null "$f")
-          done
-        shell: bash
-
-      - name: Check gofmt formatting
-        run: |
-          set -euo pipefail
-
-          unformatted=$(git ls-files '*.go' | xargs gofmt -l)
-          if [ -n "$unformatted" ]; then
-            echo "Files not gofmt-formatted:"
-            echo "$unformatted"
-            exit 1
-          fi
-          echo "All Go files are gofmt-formatted."
-        shell: bash
+      # The go-test recipe discovers modules via go.mod, builds/vets/tests
+      # each one (go test -race), handles the multi-main modules and the
+      # standalone blog programs, and checks gofmt - the same command as
+      # the local 'just go-test'.
+      - name: Build, vet, and test all Go code
+        run: just go-test
