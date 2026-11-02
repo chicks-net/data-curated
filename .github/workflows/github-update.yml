@@ -132,6 +132,23 @@ jobs:
         with:
           r-version: '4.4'
 
+      - name: Cache apt system dependencies
+        # The sysreqs pak resolves from DESCRIPTION Imports and apt-installs on
+        # every run (18 packages, 51 with deps, ~50 MB). On bad
+        # azure.archive.ubuntu.com days this download stalls (2026-11-02 run:
+        # 28 min for this step, 14.5 min on cmake alone). Cache the .deb
+        # closure so pak's own apt-get no-ops. Bump `version` to force a
+        # rebuild against the current runner image and mirror versions.
+        uses: awalsh128/cache-apt-pkgs-action@553a35bb8ebd9fcabcb1c9451aa4c98e1b4ca8a9 # v1.6.3
+        with:
+          packages: >-
+            cmake libcurl4-openssl-dev libfontconfig1-dev libfreetype6-dev
+            libfribidi-dev libharfbuzz-dev libicu-dev libjpeg-dev libpng-dev
+            libssl-dev libtiff-dev libuv1-dev libwebp-dev libx11-dev libxml2-dev
+            make pandoc zlib1g-dev
+          version: v1
+          execute_install_scripts: true
+
       - name: Install R package dependencies
         uses: r-lib/actions/setup-r-dependencies@f9a764fea8d5c63df6ef9a5c7795bf7deb5d7e05 # v2.14.0
 
