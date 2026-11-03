@@ -371,9 +371,9 @@ if (current_month %in% monthly_data$month) {
     filter(month == current_month) %>%
     pull(contributions)
 
-  # Project full month total. In the first week of the month, scaling
-  # month-to-date contributions extrapolates from too little data (a huge
-  # multiplier on just a few days), so use the average daily pace over a
+  # Estimate the daily pace for the unknown remainder of the month. In the
+  # first week, the month-to-date average extrapolates from too little data
+  # (a huge multiplier on a few days), so use the average daily pace over a
   # trailing window that spans back into the prior month instead. The
   # database holds a row for every day (zero-contribution days included),
   # so rows are days with data - a missing day means the fetch lagged, not
@@ -383,26 +383,25 @@ if (current_month %in% monthly_data$month) {
     trailing_window <- contributions %>%
       filter(date > data_date - trailing_window_days, date <= data_date)
     pace <- sum(trailing_window$contribution_count) / max(nrow(trailing_window), 1)
-    projected_total <- pace * total_days_in_month
   } else {
-    projected_total <- actual_contributions * (total_days_in_month / days_elapsed)
+    pace <- actual_contributions / days_elapsed
   }
+
+  # Project full month total: what is banked so far plus the remainder at
+  # that pace. Always at least the month-to-date contributions, so the grey
+  # cap is never inverted.
+  projected_total <- actual_contributions +
+    pace * (total_days_in_month - days_elapsed)
   cat("Current month projection:", format(round(projected_total), big.mark = ","),
       "projected vs", format(actual_contributions, big.mark = ","), "actual\n")
 
-  # Create projection data frame for geom_rect. Skip the grey cap when the
-  # projected total falls below the month-to-date contributions - an inverted
-  # cap would be misleading.
-  if (projected_total > actual_contributions) {
-    monthly_projection <- data.frame(
-      xmin = current_month - projection_bar_width / 2,
-      xmax = current_month + projection_bar_width / 2,
-      ymin = actual_contributions,
-      ymax = projected_total
-    )
-  } else {
-    monthly_projection <- empty_projection
-  }
+  # Grey cap spans from the month-to-date total to the projected month-end total
+  monthly_projection <- data.frame(
+    xmin = current_month - projection_bar_width / 2,
+    xmax = current_month + projection_bar_width / 2,
+    ymin = actual_contributions,
+    ymax = projected_total
+  )
 } else {
   # No projection needed if current month not in data
   monthly_projection <- empty_projection

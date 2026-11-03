@@ -39,12 +39,11 @@ Shows monthly contribution totals with multi-month running averages to
 identify seasonal patterns and long-term trends.
 
 - **Blue bars**: Monthly contribution totals
-- **Grey cap**: Projected month-end total for the current (incomplete) month.
-  In the first week, the projection uses the average daily pace over a
-  trailing 10-day window (which spans back into the prior month) since
-  extrapolating from a couple of days is noisy; after that it scales
-  month-to-date contributions by `days in month / days elapsed`. The cap is
-  omitted if the projected total falls below what the month has accumulated.
+- **Grey cap**: Projected month-end total for the current (incomplete) month:
+  the month-to-date total plus the remaining days projected at an estimated
+  daily pace. In the first week the pace is the average over a trailing
+  10-day window (which spans back into the prior month) since extrapolating
+  from a couple of days is noisy; after that it is the month-to-date average.
 - **Purple line**: 6-month running average (semi-annual trend)
 - **Orange line**: 12-month running average (annual trend)
 
