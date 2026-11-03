@@ -3,7 +3,7 @@ module github-commit-history
 go 1.25.5
 
 require (
-	github.com/mattn/go-sqlite3 v1.14.45
+	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/rs/zerolog v1.35.1
 )
 
