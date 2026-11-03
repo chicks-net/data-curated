@@ -134,6 +134,7 @@ imports modules from `.just/` directory:
 
 - `just datasette <DB>` - Open any SQLite database in Datasette browser
 - `just db-status` - Show age and status of all databases
+- `just go-update-modules [MODULE]` - Update Go module dependencies in all modules, or a single one (e.g. lottery), then verify with go-test; complements Renovate's dependency PRs
 - `just add_sound_to_movie <input_video> <input_audio>` - Merge audio into a video file
 - `just walkthrough-pdf` - Convert LinearWalkthrough.md to PDF
 - `just prweb` - Open current branch's PR in browser
