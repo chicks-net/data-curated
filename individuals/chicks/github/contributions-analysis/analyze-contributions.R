@@ -349,7 +349,7 @@ monthly_data <- contributions %>%
 current_month <- floor_date(Sys.Date(), "month")
 if (current_month %in% monthly_data$month) {
   # Get days elapsed in current month
-  days_in_current_month <- day(Sys.Date())
+  days_elapsed <- day(Sys.Date())
   total_days_in_month <- days_in_month(current_month)
 
   # Get actual contributions so far this month
@@ -357,20 +357,42 @@ if (current_month %in% monthly_data$month) {
     filter(month == current_month) %>%
     pull(contributions)
 
-  # Project full month total
-  projected_total <- actual_contributions * (total_days_in_month / days_in_current_month)
-  projected_additional <- projected_total - actual_contributions
+  # Project full month total. In the first week of the month, scaling
+  # month-to-date contributions extrapolates from too little data (a huge
+  # multiplier on just a few days), so use the average daily pace over a
+  # trailing 10-day window that spans back into the prior month instead.
+  if (days_elapsed <= 7) {
+    trailing_window <- contributions %>%
+      filter(date > Sys.Date() - 10, date <= Sys.Date())
+    pace <- sum(trailing_window$contribution_count) / max(nrow(trailing_window), 1)
+    projected_total <- pace * total_days_in_month
+  } else {
+    projected_total <- actual_contributions * (total_days_in_month / days_elapsed)
+  }
+  cat("Current month projection:", format(round(projected_total), big.mark = ","),
+      "projected vs", format(actual_contributions, big.mark = ","), "actual\n")
 
   # Calculate bar width (approximately one month in days)
   bar_width <- 25
 
-  # Create projection data frame for geom_rect
-  monthly_projection <- data.frame(
-    xmin = current_month - bar_width / 2,
-    xmax = current_month + bar_width / 2,
-    ymin = actual_contributions,
-    ymax = projected_total
-  )
+  # Create projection data frame for geom_rect. Skip the grey cap when the
+  # projected total falls below the month-to-date contributions - an inverted
+  # cap would be misleading.
+  if (projected_total > actual_contributions) {
+    monthly_projection <- data.frame(
+      xmin = current_month - bar_width / 2,
+      xmax = current_month + bar_width / 2,
+      ymin = actual_contributions,
+      ymax = projected_total
+    )
+  } else {
+    monthly_projection <- data.frame(
+      xmin = as.Date(character()),
+      xmax = as.Date(character()),
+      ymin = numeric(),
+      ymax = numeric()
+    )
+  }
 } else {
   # No projection needed if current month not in data
   monthly_projection <- data.frame(
