@@ -32,10 +32,15 @@ library(grid)
 
 ---
 
-## 2. Database Connection & Data Loading (lines 18-35)
+## 2. Database Connection & Data Loading (lines 18-40)
 
 ```r
 db_path <- "../contributions.db"
+
+# Projection settings for the current month's grey cap
+first_week_days <- 7        # days 1-7 project from a trailing pace
+trailing_window_days <- 10  # size of the trailing pace window
+projection_bar_width <- 25  # grey cap width in days (approximately one month)
 
 cat("Connecting to database:", db_path, "\n")
 con <- dbConnect(SQLite(), db_path)
@@ -58,9 +63,11 @@ The `WHERE fetched_at = (SELECT MAX(fetched_at)...)` subquery handles incrementa
 
 **Why the relative path?** The script assumes it's run from the `contributions-analysis/` directory, so `../contributions.db` correctly resolves to `individuals/chicks/github/contributions.db`.
 
+**Projection tunables:** The three constants next to the path configure the current-month projection (see section 9): `first_week_days` is how many days count as the "first week" (where the projection uses a trailing pace), `trailing_window_days` is the size of that pace window, and `projection_bar_width` is the width of the grey cap rectangle.
+
 ---
 
-## 3. Database Metadata & Timestamp Formatting (lines 37-41)
+## 3. Database Metadata & Timestamp Formatting (lines 42-47)
 
 ```r
 last_updated <- dbGetQuery(con, "SELECT MAX(fetched_at) as last_updated FROM contributions")$last_updated
@@ -76,7 +83,7 @@ dbDisconnect(con)
 
 ---
 
-## 4. Running Average Calculations (lines 46-58)
+## 4. Running Average Calculations (lines 51-63)
 
 ```r
 contributions$date <- as.Date(contributions$date)
@@ -102,7 +109,7 @@ contributions <- contributions %>%
 
 ---
 
-## 5. Summary Statistics Output (lines 60-81)
+## 5. Summary Statistics Output (lines 65-85)
 
 ```r
 cat("=== SUMMARY STATISTICS ===\n\n")
@@ -124,14 +131,19 @@ cat("Days with contributions:", sum(contributions$contribution_count > 0), "\n\n
 
 ---
 
-## 6. First Plot: Two-Year Timeline (lines 82-144)
+## 6. First Plot: Two-Year Timeline (lines 87-153)
 
 ```r
 plot_start <- max(min(contributions$date), Sys.Date() - 730)
 plot_data <- contributions %>% filter(date >= plot_start)
+plot_total_contributions <- sum(plot_data$contribution_count)
+
+today <- Sys.Date()
+points_data <- plot_data %>% filter(!(date == today & contribution_count == 0))
 
 p <- ggplot(plot_data, aes(x = date)) +
-  geom_point(aes(y = contribution_count),
+  geom_point(data = points_data,
+              aes(y = contribution_count),
               alpha = 0.3,
               size = 1,
               color = "gray50") +
@@ -159,6 +171,8 @@ p <- ggplot(plot_data, aes(x = date)) +
   scale_x_date(date_breaks = "3 months", date_labels = "%b %Y")
 ```
 
+**Why drop today when it's quiet?** A zero for today usually means the day just isn't over yet, so that point is excluded from the daily scatter rather than drawn as a misleading zero. (The running-average lines still include it.)
+
 **Layer ordering matters:** Points are drawn first (layered behind the lines), making the trend lines more prominent.
 
 **Transparency (`alpha`):** Daily points are semi-transparent so you can see density when multiple points overlap.
@@ -173,7 +187,7 @@ p <- ggplot(plot_data, aes(x = date)) +
 | 30-day | Purple | `#A23B72` |
 | 90-day | Orange | `#F18F01` |
 
-### Milestone Annotations (lines 131-139)
+### Milestone Annotations (lines 141-153)
 
 ```r
 geom_vline(xintercept = as.Date("2025-03-10"), linetype = "dashed", color = "red", alpha = 0.6) +
@@ -194,7 +208,7 @@ These vertical lines mark significant changes in contribution behavior. The text
 
 ---
 
-## 7. Job History Loading & Processing (lines 165-213)
+## 7. Job History Loading & Processing (lines 179-207)
 
 ```r
 jobs_csv <- "../../jobs/job_history.csv"
@@ -218,7 +232,7 @@ jobs <- jobs %>%
 
 **Handling current employment:** If `End.Date` is empty, it means the job is current, so we fill with `Sys.Date()`.
 
-### Logo Handling (lines 195-213)
+### Logo Handling (lines 209-227)
 
 ```r
 logos_dir <- "../../jobs/"
@@ -245,7 +259,7 @@ jobs_filtered$has_logo <- jobs_filtered$Company %in% names(logos)
 
 ---
 
-## 8. Second Plot: Weekly Aggregation (lines 147-313)
+## 8. Second Plot: Weekly Aggregation (lines 163-327)
 
 ```r
 weekly_data <- contributions %>%
@@ -268,7 +282,7 @@ weekly_data <- contributions %>%
 
 **Why calculate average per day?** The running averages are based on daily averages within weeks, then multiplied by 7 when plotting to show "contributions per week" on the y-axis.
 
-### Employment Period Overlays (lines 217-235)
+### Employment Period Overlays (lines 229-249)
 
 ```r
 geom_rect(data = jobs_filtered,
@@ -295,20 +309,22 @@ geom_text(data = subset(jobs_filtered, !has_logo),
 
 **Alternating colors:** The `fill_color` column uses modulo arithmetic to alternate between two muted colors (`#7B9FCC` and `#C8BFB0`), making adjacent employment periods visually distinct.
 
-### Logo Placement (lines 238-256)
+### Logo Placement (lines 251-283)
 
 ```r
+plot_max_y <- max(weekly_data$contributions, na.rm = TRUE)
 for (company in names(logos)) {
   job_row <- jobs_filtered[jobs_filtered$Company == company, ]
   if (nrow(job_row) > 0) {
     img <- logos[[company]]
     img_grob <- rasterGrob(img, interpolate = TRUE)
     x_pos <- job_row$midpoint
+    # Telmate logo is smaller and needs label
     if (company == "Telmate") {
       logo_height <- plot_max_y * 0.24
       logo_y <- plot_max_y * 0.92
     } else {
-      logo_height <- plot_max_y * 0.60
+      logo_height <- plot_max_y * 0.20
       logo_y <- plot_max_y * 0.90
     }
     p2 <- p2 + annotation_custom(img_grob,
@@ -318,11 +334,11 @@ for (company in names(logos)) {
 }
 ```
 
-**Why different logo sizes?** The Telmate logo is smaller and needs a text label below it. Other logos are scaled to 60% of the plot height. The `xmin/xmax` spans 240 days width (±120 from midpoint).
+**Why different logo sizes?** The Telmate logo is scaled to 24% of the plot height and gets an extra "Telmate" text annotation above it; the other logos use 20%. The `xmin/xmax` spans 240 days of width (±120 from the employment-period midpoint). The same placement code is repeated for the monthly plot (`p3`), scaled to that plot's maximum.
 
 ---
 
-## 9. Third Plot: Monthly Aggregation (lines 315-477)
+## 9. Third Plot: Monthly Aggregation (lines 329-513)
 
 ```r
 monthly_data <- contributions %>%
@@ -345,35 +361,103 @@ monthly_data <- contributions %>%
 
 **Why 6 and 12-month windows?** Monthly data is smoother than daily, so longer averaging windows make more sense. These show semi-annual and annual trends.
 
-### Incomplete Month Projection (lines 339-373)
+### Moving Averages for Last Month (lines 347-351)
+
+```r
+mutate(
+  avg_6month = ifelse(month == max(month), NA, avg_6month),
+  avg_12month = ifelse(month == max(month), NA, avg_12month)
+)
+```
+
+**Why exclude the current month?** The last month is typically incomplete, so its running average would be misleadingly low. We set it to `NA` so the lines stop before the final month.
+
+### Incomplete Month Projection (lines 353-408)
 
 ```r
 current_month <- floor_date(Sys.Date(), "month")
+empty_projection <- data.frame(
+  xmin = as.Date(character()),
+  xmax = as.Date(character()),
+  ymin = numeric(),
+  ymax = numeric()
+)
 if (current_month %in% monthly_data$month) {
-  days_in_current_month <- day(Sys.Date())
+  data_date <- max(contributions$date)
+  days_elapsed <- day(data_date)
   total_days_in_month <- days_in_month(current_month)
-  
+
   actual_contributions <- monthly_data %>%
     filter(month == current_month) %>%
     pull(contributions)
-  
-  projected_total <- actual_contributions * (total_days_in_month / days_in_current_month)
-  projected_additional <- projected_total - actual_contributions
-  
-  bar_width <- 25
-  
+
+  if (days_elapsed <= first_week_days) {
+    trailing_window <- contributions %>%
+      filter(date > data_date - trailing_window_days, date <= data_date)
+    pace <- sum(trailing_window$contribution_count) / max(nrow(trailing_window), 1)
+  } else {
+    pace <- actual_contributions / days_elapsed
+  }
+
+  projected_total <- actual_contributions +
+    pace * (total_days_in_month - days_elapsed)
+  cat("Current month projection:", format(round(projected_total), big.mark = ","),
+      "projected vs", format(actual_contributions, big.mark = ","), "actual\n")
+
   monthly_projection <- data.frame(
-    xmin = current_month - bar_width / 2,
-    xmax = current_month + bar_width / 2,
+    xmin = current_month - projection_bar_width / 2,
+    xmax = current_month + projection_bar_width / 2,
     ymin = actual_contributions,
     ymax = projected_total
   )
+} else {
+  monthly_projection <- empty_projection
 }
 ```
 
-**How projection works:** If we're in the middle of a month, we calculate what the total would be if contributions continue at the same rate. For example, if 15 days into a 30-day month we have 30 contributions, the projected total is `30 * (30/15) = 60`.
+**How projection works:** The projected month-end total is what has already been banked plus the unknown remainder at an estimated daily pace:
 
-**Bar width calculation:** `bar_width = 25` days ensures the projection rectangle aligns with the monthly bar width.
+```text
+projected_total = actual_contributions + pace * (total_days_in_month - days_elapsed)
+```
+
+Because the banked month-to-date total is never scaled, the projection can never
+fall below it - the grey cap is never inverted, and no special-case guard is
+needed. On the last day of a completed month the remainder is zero, so the cap
+has zero height and simply does not show.
+
+**Two pace estimates:**
+
+- **Days 1-7** (`days_elapsed <= first_week_days`): the average over a trailing
+  10-day window that reaches back into the prior month. On the 2nd of the
+  month, month-to-date scaling would multiply a two-day sample by 15; the
+  trailing window smooths that out. The database stores a row for every day
+  (zero-contribution days included), so rows are days with data - a missing
+  row means the fetch lagged, and it is excluded from the average rather
+  than counted as a zero.
+- **Day 8 onward:** the month-to-date average
+  (`actual_contributions / days_elapsed`), which by then rests on enough days
+  to be a reasonable estimate.
+
+**Why anchor to `max(contributions$date)`?** If the fetch job has not run yet
+today, the wall clock would claim more elapsed days than the data contains.
+Anchoring both `days_elapsed` and the window filter to the latest date in the
+data keeps the formula and the data consistent.
+
+**Worked examples:**
+
+- 15 days into a 30-day month with 30 contributions: pace = 30/15 = 2/day, so
+  the projection is `30 + 2 * 15 = 60`.
+- November 2nd with 23 contributions banked and a trailing 10-day window
+  totaling 171: pace = 17.1/day, so the projection is `23 + 17.1 * 28 = 501.8`
+  (printed as 502).
+
+**The `cat()` line** prints the projection on every run (e.g. `Current month
+projection: 502 projected vs 23 actual`) so the estimate is visible without
+squinting at the chart.
+
+**Bar width calculation:** `projection_bar_width = 25` days keeps the cap
+aligned with the monthly bar.
 
 ```r
 geom_rect(data = monthly_projection,
@@ -384,18 +468,9 @@ geom_rect(data = monthly_projection,
           inherit.aes = FALSE)
 ```
 
-**Visual distinction:** The projected portion is drawn in semi-transparent gray (`alpha = 0.3`) to clearly show it's an estimate, not actual data.
-
-### Moving Averages for Last Month (lines 333-337)
-
-```r
-mutate(
-  avg_6month = ifelse(month == max(month), NA, avg_6month),
-  avg_12month = ifelse(month == max(month), NA, avg_12month)
-)
-```
-
-**Why exclude the current month?** The last month is typically incomplete, so its running average would be misleadingly low. We set it to `NA` so the lines stop before the final month.
+**Visual distinction:** The projected portion is drawn in semi-transparent
+gray (`alpha = 0.3`) after the blue bars, so it caps the month-to-date total.
+It clearly reads as an estimate, not actual data.
 
 ---
 
