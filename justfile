@@ -456,6 +456,48 @@ go-test:
 
     echo "{{GREEN}}✓ All Go builds, vets, tests, and formatting checks passed{{NORMAL}}"
 
+# Update dependencies in all Go modules, or one module (e.g. MODULE=lottery);
+# complements Renovate, which only bumps direct deps and skips indirect-only
+# modules (e.g. youtube).  Verifies the result by running go-test.
+[group('Utility')]
+go-update-modules MODULE="":
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+
+    just _require_command go "Install with: brew install go"
+
+    # same module discovery as go-test
+    modules=$(find . -name go.mod -not -path './.git/*' |
+        sed -e 's|^\./||' -e 's|/go.mod$||' -e 's|^go.mod$|.|' | sort)
+
+    # optional single-module filter, with a helpful error if unknown
+    # (assign the template arg to a shell var first: shellcheck lints the
+    # raw '{{MODULE}}' literal and would otherwise flag SC2157)
+    module_arg='{{MODULE}}'
+    if [ -n "$module_arg" ]; then
+        if ! echo "$modules" | grep -qx "$module_arg"; then
+            echo "{{RED}}Error: '$module_arg' is not a Go module in this repo{{NORMAL}}"
+            echo "Known modules:"
+            while IFS= read -r m; do echo "  $m"; done <<< "$modules"
+            exit 1
+        fi
+        modules="$module_arg"
+    fi
+
+    for module in $modules; do
+        echo "{{BLUE}}=== Module: {{NORMAL}}$module"
+        # -t: update test deps too since go-test runs 'go test -race';
+        # tidy then cleans go.sum and drops unused pins
+        (cd "$module" && go get -u -t ./... && go mod tidy)
+    done
+
+    echo ""
+    echo "{{BLUE}}Changed files:{{NORMAL}}"
+    git diff --stat -- '**/go.mod' '**/go.sum'
+    echo ""
+
+    just go-test
+
 # Analyze US restaurant density by county
 [working-directory("us-restaurants")]
 [group('restaurants')]
