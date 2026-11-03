@@ -458,7 +458,9 @@ go-test:
 
 # Update dependencies in all Go modules, or one module (e.g. MODULE=lottery);
 # complements Renovate, which only bumps direct deps and skips indirect-only
-# modules (e.g. youtube).  Verifies the result by running go-test.
+# modules (e.g. youtube).  Verifies the result by running go-test.  Note that
+# 'go get -u' also raises the 'go' directive when a newer dependency requires
+# a newer Go version (e.g. x/sys v0.49.0 forced 1.26.0 here).
 [group('Utility')]
 go-update-modules MODULE="":
     #!/usr/bin/env bash
@@ -493,7 +495,9 @@ go-update-modules MODULE="":
 
     echo ""
     echo "{{BLUE}}Changed files:{{NORMAL}}"
-    git diff --stat -- '**/go.mod' '**/go.sum'
+    # :(glob) makes ** match zero directories too, so a root-level go.mod
+    # is not missed (plain '**/go.mod' needs at least one directory)
+    git diff --stat -- ':(glob)**/go.mod' ':(glob)**/go.sum'
     echo ""
 
     just go-test
