@@ -18,6 +18,11 @@ library(grid)
 # Database path (relative to script location)
 db_path <- "../contributions.db"
 
+# Projection settings for the current month's grey cap
+first_week_days <- 7        # days 1-7 project from a trailing pace
+trailing_window_days <- 10  # size of the trailing pace window
+projection_bar_width <- 25  # grey cap width in days (approximately one month)
+
 # Connect to database
 cat("Connecting to database:", db_path, "\n")
 con <- dbConnect(SQLite(), db_path)
@@ -347,9 +352,18 @@ monthly_data <- contributions %>%
 
 # Calculate projection for current (incomplete) month
 current_month <- floor_date(Sys.Date(), "month")
+empty_projection <- data.frame(
+  xmin = as.Date(character()),
+  xmax = as.Date(character()),
+  ymin = numeric(),
+  ymax = numeric()
+)
 if (current_month %in% monthly_data$month) {
-  # Get days elapsed in current month
-  days_in_current_month <- day(Sys.Date())
+  # Anchor to the latest date in the data rather than the wall clock - the
+  # fetch job may not have run yet today, and days_elapsed must match the
+  # days actually present in the database.
+  data_date <- max(contributions$date)
+  days_elapsed <- day(data_date)
   total_days_in_month <- days_in_month(current_month)
 
   # Get actual contributions so far this month
@@ -357,28 +371,40 @@ if (current_month %in% monthly_data$month) {
     filter(month == current_month) %>%
     pull(contributions)
 
-  # Project full month total
-  projected_total <- actual_contributions * (total_days_in_month / days_in_current_month)
-  projected_additional <- projected_total - actual_contributions
+  # Estimate the daily pace for the unknown remainder of the month. In the
+  # first week, the month-to-date average extrapolates from too little data
+  # (a huge multiplier on a few days), so use the average daily pace over a
+  # trailing window that spans back into the prior month instead. The
+  # database holds a row for every day (zero-contribution days included),
+  # so rows are days with data - a missing day means the fetch lagged, not
+  # that contributions were zero, and it is excluded from the pace rather
+  # than counted as a zero.
+  if (days_elapsed <= first_week_days) {
+    trailing_window <- contributions %>%
+      filter(date > data_date - trailing_window_days, date <= data_date)
+    pace <- sum(trailing_window$contribution_count) / max(nrow(trailing_window), 1)
+  } else {
+    pace <- actual_contributions / days_elapsed
+  }
 
-  # Calculate bar width (approximately one month in days)
-  bar_width <- 25
+  # Project full month total: what is banked so far plus the remainder at
+  # that pace. Always at least the month-to-date contributions, so the grey
+  # cap is never inverted.
+  projected_total <- actual_contributions +
+    pace * (total_days_in_month - days_elapsed)
+  cat("Current month projection:", format(round(projected_total), big.mark = ","),
+      "projected vs", format(actual_contributions, big.mark = ","), "actual\n")
 
-  # Create projection data frame for geom_rect
+  # Grey cap spans from the month-to-date total to the projected month-end total
   monthly_projection <- data.frame(
-    xmin = current_month - bar_width / 2,
-    xmax = current_month + bar_width / 2,
+    xmin = current_month - projection_bar_width / 2,
+    xmax = current_month + projection_bar_width / 2,
     ymin = actual_contributions,
     ymax = projected_total
   )
 } else {
   # No projection needed if current month not in data
-  monthly_projection <- data.frame(
-    xmin = as.Date(character()),
-    xmax = as.Date(character()),
-    ymin = numeric(),
-    ymax = numeric()
-  )
+  monthly_projection <- empty_projection
 }
 
 p3 <- ggplot(monthly_data, aes(x = month)) +
