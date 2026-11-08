@@ -145,8 +145,10 @@ def find_env_file() -> Optional[Path]:
 def load_env_file() -> Optional[Path]:
     """Export missing SPOTIPY_* variables from a .env file.
 
-    Existing environment variables win, so a real env var can override the
-    file. Values may be quoted ("http://..." style); one layer of matching
+    Only simple KEY=VALUE lines are supported (no `export` prefix, no
+    inline comments; blank lines and # comments are skipped). Existing
+    environment variables win, so a real env var can override the file.
+    Values may be quoted ("http://..." style); one layer of matching
     quotes is stripped.
 
     Returns:
