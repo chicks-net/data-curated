@@ -91,13 +91,23 @@ cat("\n")
 cat("Generating visualization...\n")
 
 tier_colors <- c(
-  "15" = "#6A0DAD", "14" = "#7B2D8E", "13" = "#8B4D6F", "12" = "#9B6D50",
-  "11" = "#AB8D31", "10" = "#DAA520", "9" = "#CD853F", "8" = "#D2691E",
-  "7" = "#228B22", "6" = "#2E8B57", "5" = "#20B2AA", "4" = "#5F9EA0",
-  "3" = "#4682B4", "2" = "#6495ED", "1" = "#87CEEB"
+  "16" = "#4B0082", "15" = "#6A0DAD", "14" = "#7B2D8E", "13" = "#8B4D6F",
+  "12" = "#9B6D50", "11" = "#AB8D31", "10" = "#DAA520", "9" = "#CD853F",
+  "8" = "#D2691E", "7" = "#228B22", "6" = "#2E8B57", "5" = "#20B2AA",
+  "4" = "#5F9EA0", "3" = "#4682B4", "2" = "#6495ED", "1" = "#87CEEB"
 )
 
 present_tiers <- unique(df$Tier_Factor)
+
+# Safety net: auto-assign colors for tiers beyond the hand-picked palette
+# (17+ when they show up) so new tiers never silently render grey.
+missing_tiers <- setdiff(as.character(present_tiers), names(tier_colors))
+if (length(missing_tiers) > 0) {
+  extra <- setNames(scales::hue_pal()(length(missing_tiers)), missing_tiers)
+  tier_colors <- c(tier_colors, extra)
+  cat("Auto-assigned colors for tiers not in palette:", paste(missing_tiers, collapse = ", "), "\n")
+}
+
 tier_colors <- tier_colors[names(tier_colors) %in% present_tiers]
 
 df_tier10plus_mp <- df %>% 
@@ -161,13 +171,13 @@ p <- ggplot(df, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor)) +
 ggsave("minutes-per-billion-by-tier.png", p, width = 14, height = 10, dpi = 300)
 
 df_zoom <- df %>%
-  filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` < 20)
+  filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` < 2)
 
 zoom_excluded_date <- nrow(df) - nrow(df %>% filter(Date >= as.Date("2025-09-01")))
-zoom_excluded_efficiency <- nrow(df %>% filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` >= 20 & `Minutes/Billion` < 100))
+zoom_excluded_efficiency <- nrow(df %>% filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` >= 2 & `Minutes/Billion` < 100))
 
 df_attack_zoom <- df_attack %>%
-  filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` < 20)
+  filter(Date >= as.Date("2025-09-01") & `Minutes/Billion` < 2)
 
 df_tier10plus_mp_zoom <- df_zoom %>%
   filter(Tier >= 10) %>%
@@ -208,13 +218,13 @@ p_zoom <- ggplot(df_zoom, aes(x = Date, y = `Minutes/Billion`, color = Tier_Fact
     guide = guide_legend(override.aes = list(color = "black"))
   ) +
   scale_x_date(date_labels = "%b %Y", date_breaks = "1 month", expand = c(0.05, 0, 0.1, 0)) +
-  scale_y_continuous(labels = comma_format(accuracy = 1), limits = c(0, 20)) +
+  scale_y_continuous(labels = label_number(accuracy = 0.1), limits = c(0, 2)) +
   labs(
-    title = "The Tower: Minutes per Billion Coins by Tier (Zoomed, < 20 min/B)",
+    title = "The Tower: Minutes per Billion Coins by Tier (Zoomed, < 2 min/B)",
     subtitle = sprintf("n = %d regular + %d attack (triangles) | Since Sep 2025 | Non-attack dissonant runs excluded", nrow(df_zoom), nrow(df_attack_zoom)),
     x = "Date",
     y = "Minutes per Billion Coins",
-    caption = sprintf("Trend lines for tiers 10+ with >=20 points in range. %d pre-Sep-2025 point(s) and %d point(s) >= 20 min/billion excluded from view. Trend lines and labels use regular runs only.", zoom_excluded_date, zoom_excluded_efficiency)
+    caption = sprintf("Trend lines for tiers 10+ with >=20 points in range. %d pre-Sep-2025 point(s) and %d point(s) >= 2 min/billion excluded from view. Trend lines and labels use regular runs only.", zoom_excluded_date, zoom_excluded_efficiency)
   ) +
   theme_minimal() +
   theme(
@@ -236,11 +246,19 @@ two_mo_excluded_count <- nrow(df) - nrow(df_2mo)
 
 df_attack_2mo <- df_attack %>% filter(Date >= two_mo_cutoff)
 
-# Narrower 2-month window has fewer points per tier, so threshold is 10 (vs 20 elsewhere)
+# Narrower 2-month window has far fewer points per tier (play has moved up
+# to higher tiers), so threshold is 5 (vs 20 elsewhere)
 df_tier10plus_mp_2mo <- df_2mo %>%
   filter(Tier >= 10) %>%
   group_by(Tier) %>%
-  filter(n() >= 10) %>%
+  filter(n() >= 5) %>%
+  ungroup()
+
+# Attack dissonant trend lines: dashed, same tier color as regular trends
+df_tier10plus_attack_2mo <- df_attack_2mo %>%
+  filter(Tier >= 10) %>%
+  group_by(Tier) %>%
+  filter(n() >= 5) %>%
   ungroup()
 
 tier_labels_mp_2mo <- df_tier10plus_mp_2mo %>%
@@ -262,7 +280,9 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
   geom_point(data = df_attack_2mo, aes(shape = "Attack dissonant run"),
               size = 2, alpha = 0.7) +
   geom_smooth(data = df_tier10plus_mp_2mo, aes(group = Tier_Factor),
-              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
+              method = "loess", se = FALSE, linewidth = 1, span = 1) +
+  geom_smooth(data = df_tier10plus_attack_2mo, aes(group = Tier_Factor),
+              method = "loess", se = FALSE, linewidth = 1, linetype = "dashed", span = 1) +
   geom_text(data = tier_labels_mp_2mo, aes(x = end_date, y = avg_last_30,
               label = paste0("  ", label), color = factor(Tier)),
             hjust = 0, size = 3, fontface = "bold", show.legend = FALSE) +
@@ -285,7 +305,7 @@ p_2mo <- ggplot(df_2mo, aes(x = Date, y = `Minutes/Billion`, color = Tier_Factor
     subtitle = sprintf("n = %d regular + %d attack (triangles) | %s \u2013 %s | Non-attack dissonant runs excluded", nrow(df_2mo), nrow(df_attack_2mo), two_mo_start_label, two_mo_end_label),
     x = "Date",
     y = "Minutes per Billion Coins (log scale)",
-    caption = sprintf("Trend lines for tiers 10+ with >=10 points in range. Labels show avg of last 30 plays. %d older point(s) excluded from view. Trend lines and labels use regular runs only.", two_mo_excluded_count)
+    caption = sprintf("Trend lines for tiers 10+ with >=5 points of that run type in range: solid = regular, dashed = attack dissonant. Labels show avg of last 30 regular plays. %d older point(s) excluded from view. Labels use regular runs only.", two_mo_excluded_count)
   ) +
   theme_minimal() +
   theme(
@@ -433,6 +453,14 @@ ggsave("hours-per-day.png", p3, width = 14, height = 6, dpi = 300)
 
 df_tier10plus <- df %>% filter(Tier >= 10)
 
+# Trend-line dataset needs a minimum-points guard like the min/billion plots:
+# loess over a handful of points (e.g. new tier 16 with 5 plays) is degenerate
+# and spams warnings. Labels below still use all tiers 10+.
+df_tier10plus_trend <- df_tier10plus %>%
+  group_by(Tier) %>%
+  filter(n() >= 20) %>%
+  ungroup()
+
 time_outliers_count <- df %>%
   filter(`Time (minutes)` / 60 > 10) %>%
   nrow()
@@ -456,7 +484,7 @@ p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) 
   geom_point(aes(shape = "Regular run"), size = 1.5, alpha = 0.7) +
   geom_point(data = df_attack, aes(shape = "Attack dissonant run"),
               size = 2, alpha = 0.7) +
-  geom_smooth(data = df_tier10plus, aes(group = Tier_Factor), 
+  geom_smooth(data = df_tier10plus_trend, aes(group = Tier_Factor),
               method = "loess", se = FALSE, linewidth = 1, linetype = "dashed") +
   geom_text(data = tier_labels, aes(x = end_date, y = end_hours, 
               label = paste0("  ", label)), 
@@ -481,7 +509,7 @@ p4 <- ggplot(df, aes(x = Date, y = `Time (minutes)` / 60, color = Tier_Factor)) 
     subtitle = sprintf("n = %d regular plays + %d attack dissonant runs (triangles)", nrow(df), nrow(df_attack)),
     x = "Date",
     y = "Time (Hours)",
-    caption = sprintf("Trend lines shown for tiers 10+ only. %d regular outlier(s) and %d attack run(s) not shown (>10 hours). Non-attack dissonant runs excluded. Trend lines use regular runs only.", time_outliers_count, attack_time_outliers_count)
+    caption = sprintf("Trend lines shown for tiers 10+ with >=20 plays. %d regular outlier(s) and %d attack run(s) not shown (>10 hours). Non-attack dissonant runs excluded. Trend lines use regular runs only.", time_outliers_count, attack_time_outliers_count)
   ) +
   theme_minimal() +
   theme(
@@ -653,7 +681,7 @@ if (nrow(tournament_df) > 0) {
 
 cat("\nAnalysis complete! Generated visualizations:\n")
   cat("  - minutes-per-billion-by-tier.png: Scatter plot of minutes/billion by tier\n")
-  cat("  - minutes-per-billion-by-tier-zoom.png: Zoomed view (since Sep 2025, < 20 min/billion)\n")
+  cat("  - minutes-per-billion-by-tier-zoom.png: Zoomed view (since Sep 2025, < 2 min/billion)\n")
   cat("  - minutes-per-billion-by-tier-2mo.png: Last 2 months, auto-scaled y-axis\n")
   cat("  - billions-per-minute-by-tier.png: Coin rate (billions/minute) by tier, log scale\n")
   cat("  - billions-per-day.png: Total billions earned per day\n")
@@ -679,33 +707,41 @@ if (nrow(df_recent) == 0) {
 recent_start_label <- format(recent_cutoff, "%b %Y")
 recent_end_label <- format(max(df$Date), "%b %Y")
 
-tier_stats <- df_recent %>%
-  group_by(Tier) %>%
-  summarise(
-    Games = n(),
-    `Avg Duration` = mean(`Time (minutes)`, na.rm = TRUE) / 60,
-    `Max Duration` = max(`Time (minutes)`, na.rm = TRUE) / 60,
-    `Avg Coins (B)` = mean(`Total Coins (B)`, na.rm = TRUE),
-    `Max Coins (B)` = max(`Total Coins (B)`, na.rm = TRUE),
-    `Avg Min/Billion` = mean(`Minutes/Billion`, na.rm = TRUE),
-    `Avg Coins/Hr` = mean(`Total Coins (B)` / (`Time (minutes)` / 60), na.rm = TRUE),
-    `Total Coins (B)` = sum(`Total Coins (B)`, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  arrange(desc(Tier))
+# Attack dissonant runs get their own rows next to the regular rows for the
+# same tier. df_attack already passed the same min/B and time filters as df.
+df_recent_attack <- df_attack %>% filter(Date >= recent_cutoff)
+df_recent_both <- bind_rows(
+  df_recent %>% mutate(Run = "Regular"),
+  df_recent_attack %>% mutate(Run = "Attack")
+) %>%
+  mutate(Run = factor(Run, levels = c("Regular", "Attack")))
 
-all_stats <- df_recent %>%
-  summarise(
-    Games = n(),
-    `Avg Duration` = mean(`Time (minutes)`, na.rm = TRUE) / 60,
-    `Max Duration` = max(`Time (minutes)`, na.rm = TRUE) / 60,
-    `Avg Coins (B)` = mean(`Total Coins (B)`, na.rm = TRUE),
-    `Max Coins (B)` = max(`Total Coins (B)`, na.rm = TRUE),
-    `Avg Min/Billion` = mean(`Minutes/Billion`, na.rm = TRUE),
-    # Avg Coins/Hr is mean-of-ratios: each game's rate weighted equally, not total/total
-    `Avg Coins/Hr` = mean(`Total Coins (B)` / (`Time (minutes)` / 60), na.rm = TRUE),
-    `Total Coins (B)` = sum(`Total Coins (B)`, na.rm = TRUE)
-  )
+summarise_recent <- function(d) {
+  d %>%
+    summarise(
+      Games = n(),
+      `Avg Duration` = mean(`Time (minutes)`, na.rm = TRUE) / 60,
+      `Max Duration` = max(`Time (minutes)`, na.rm = TRUE) / 60,
+      `Avg Coins (B)` = mean(`Total Coins (B)`, na.rm = TRUE),
+      `Max Coins (B)` = max(`Total Coins (B)`, na.rm = TRUE),
+      `Avg Min/Billion` = mean(`Minutes/Billion`, na.rm = TRUE),
+      # Avg Coins/Hr is mean-of-ratios: each game's rate weighted equally, not total/total
+      `Avg Coins/Hr` = mean(`Total Coins (B)` / (`Time (minutes)` / 60), na.rm = TRUE),
+      `Total Coins (B)` = sum(`Total Coins (B)`, na.rm = TRUE),
+      .groups = "drop"
+    )
+}
+
+tier_stats <- df_recent_both %>%
+  group_by(Tier, Run) %>%
+  summarise_recent() %>%
+  arrange(desc(Tier), Run)
+
+# One summary row per run type; Regular matches the pre-attack-rows "All" row
+all_stats <- df_recent_both %>%
+  group_by(Run) %>%
+  summarise_recent() %>%
+  arrange(Run)
 
 fmt_hrs <- function(x) {
   total_mins <- round(x * 60)
@@ -720,34 +756,33 @@ fmt_coins <- function(x) {
   format(round(x, 1), big.mark = ",", nsmall = 1, scientific = FALSE)
 }
 
-table_rows <- vapply(seq_len(nrow(tier_stats)), function(i) {
-  row <- tier_stats[i, ]
-  sprintf(
-    "| %d | %d | %s | %s | %s | %s | %s | %s | %s |",
-    row$Tier, row$Games,
+format_stats_row <- function(row, tier_label, bold = FALSE) {
+  cells <- c(
+    tier_label, as.character(row$Run), as.character(row$Games),
     fmt_coins(row$`Total Coins (B)`),
     fmt_hrs(row$`Avg Duration`), fmt_hrs(row$`Max Duration`),
     fmt_dec(row$`Avg Coins (B)`), fmt_dec(row$`Max Coins (B)`),
     fmt_dec(row$`Avg Min/Billion`, 2), fmt_dec(row$`Avg Coins/Hr`)
   )
+  if (bold) cells <- paste0("**", cells, "**")
+  paste0("| ", paste(cells, collapse = " | "), " |")
+}
+
+table_rows <- vapply(seq_len(nrow(tier_stats)), function(i) {
+  format_stats_row(tier_stats[i, ], as.character(tier_stats$Tier[i]))
 }, character(1))
 
-all_row <- sprintf(
-  "| **All** | **%d** | **%s** | **%s** | **%s** | **%s** | **%s** | **%s** | **%s** |",
-  all_stats$Games,
-  fmt_coins(all_stats$`Total Coins (B)`),
-  fmt_hrs(all_stats$`Avg Duration`), fmt_hrs(all_stats$`Max Duration`),
-  fmt_dec(all_stats$`Avg Coins (B)`), fmt_dec(all_stats$`Max Coins (B)`),
-  fmt_dec(all_stats$`Avg Min/Billion`, 2), fmt_dec(all_stats$`Avg Coins/Hr`)
-)
+all_rows <- vapply(seq_len(nrow(all_stats)), function(i) {
+  format_stats_row(all_stats[i, ], "All", bold = TRUE)
+}, character(1))
 
 stats_table <- c(
   sprintf("### Recent Statistics (%s \u2013 %s)", recent_start_label, recent_end_label),
   "",
-  "| Tier | Games | Total Coins (B) | Avg Duration | Max Duration | Avg Coins (B) | Max Coins (B) | Avg Min/B | Avg Coins/Hr |",
-  "| ----- | ------: | --------------: | -----------: | -----------: | --------------: | --------------: | ----------: | -------------: |",
+  "| Tier | Run | Games | Total Coins (B) | Avg Duration | Max Duration | Avg Coins (B) | Max Coins (B) | Avg Min/B | Avg Coins/Hr |",
+  "| ----- | ------- | ------: | --------------: | -----------: | -----------: | --------------: | --------------: | ----------: | -------------: |",
   table_rows,
-  all_row,
+  all_rows,
   ""
 )
 
