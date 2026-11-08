@@ -33,10 +33,9 @@ import argparse
 import os
 import sqlite3
 import sys
-from collections import OrderedDict
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Set, Tuple
+from typing import Any, Dict, List, Optional, Set
 
 import spotipy
 from spotipy.cache_handler import CacheFileHandler
@@ -66,7 +65,10 @@ def find_env_file() -> Optional[Path]:
     Returns:
         Path to the first .env file found, or None.
     """
-    starts = [Path.cwd(), Path(__file__).resolve().parent]
+    # The script's own tree first (the documented .env lives at the repo
+    # root), then the CWD, so running from an unrelated directory cannot
+    # shadow the credentials with some other project's .env
+    starts = [Path(__file__).resolve().parent, Path.cwd()]
     seen: Set[Path] = set()
     for start in starts:
         for directory in [start, *start.parents]:
@@ -113,7 +115,7 @@ def build_language_groups(
     include_english: bool,
     include_low_confidence: bool,
     languages_filter: Optional[Set[str]],
-) -> OrderedDict:
+) -> Dict[str, Dict[str, Any]]:
     """Group detected track URIs by language, applying the default filters.
 
     Args:
@@ -124,7 +126,7 @@ def build_language_groups(
         languages_filter: If set, only these language codes pass.
 
     Returns:
-        Ordered dict of language code -> list of `spotify:track:` URIs,
+        Dict of language code -> {"uris": [...], "excluded_low": int},
         largest bucket first. Tracks are ordered by added_at.
     """
     rows = conn.execute(
@@ -152,18 +154,19 @@ def build_language_groups(
     if not include_english:
         groups.pop("en", None)
 
-    # Drop buckets below the minimum, biggest bucket first
-    ordered = OrderedDict()
-    for code, uris in sorted(
-        ((c, u) for c, u in groups.items() if len(u) >= min_tracks),
-        key=lambda item: (-len(item[1]), item[0]),
-    ):
-        ordered[code] = uris
-
-    return OrderedDict(
-        (code, {"uris": uris, "excluded_low": excluded_low.get(code, 0)})
-        for code, uris in ordered.items()
-    )
+    # Keep buckets above the minimum, biggest bucket first (dicts preserve
+    # insertion order on modern Python)
+    planned = {
+        code: uris
+        for code, uris in sorted(
+            groups.items(), key=lambda item: (-len(item[1]), item[0])
+        )
+        if len(uris) >= min_tracks
+    }
+    return {
+        code: {"uris": uris, "excluded_low": excluded_low.get(code, 0)}
+        for code, uris in planned.items()
+    }
 
 
 def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> Dict[str, str]:
@@ -186,8 +189,14 @@ def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> Dict[str, str]:
         for playlist in page["items"]:
             owner = playlist.get("owner") or {}
             if owner.get("id") == user_id:
-                # Later duplicates win; Spotify allows same-named playlists,
-                # this tool manages only the one it last touched
+                if playlist["name"] in own:
+                    print(
+                        f"Warning: multiple playlists named "
+                        f"{playlist['name']!r}; managing the last one listed",
+                        file=sys.stderr,
+                    )
+                # Spotify allows same-named playlists; this keeps the last
+                # one listed in GET /me/playlists, whatever it is
                 own[playlist["name"]] = playlist["id"]
         if not page.get("next"):
             break
@@ -345,7 +354,10 @@ def main() -> None:
     parser.add_argument(
         "--dry-run",
         action="store_true",
-        help="Show what would happen without touching Spotify",
+        help=(
+            "Show what would happen without writing to Spotify (still "
+            "authenticates and reads current playlists)"
+        ),
     )
     args = parser.parse_args()
 
@@ -443,10 +455,28 @@ def main() -> None:
                 sp, code, group["uris"], existing.get(name), args.dry_run
             )
         except SpotifyException as e:
-            print(f"  {name}: FAILED - {e.http_status} {e.msg}")
+            print(
+                f"  {name}: FAILED - {e.http_status} {e.msg}; re-run to "
+                "finish any partially created or filled playlist"
+            )
             failures += 1
             continue
         stats[outcome] = stats.get(outcome, 0) + 1
+
+    # A Lang: playlist that is not in today's plan (language fell below the
+    # threshold or out of the filters) is left untouched, never emptied
+    planned_names = {PLAYLIST_PREFIX + code for code in groups}
+    stale = sorted(
+        name
+        for name in existing
+        if name.startswith(PLAYLIST_PREFIX) and name not in planned_names
+    )
+    if stale:
+        print()
+        print(
+            f"Note: existing but not in today's plan (left untouched): "
+            f"{', '.join(stale)}"
+        )
 
     print()
     print("=" * 50)

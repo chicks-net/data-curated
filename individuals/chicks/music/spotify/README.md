@@ -83,6 +83,12 @@ least 2 tracks — per the guidance in
   (skipped by default)
 - `--languages fr,pt` - restrict to specific languages
 
+Sync notes: a `Lang: *` playlist whose language falls below the track
+threshold or out of the filters is left untouched, not emptied — the
+output lists it as "not in today's plan". If back-to-back runs keep
+reporting the same add/remove pair, that track URI was likely relinked
+by Spotify (market substitution) and needs a one-time manual fix.
+
 One-time setup: create an app at
 <https://developer.spotify.com/dashboard> (check Web API, redirect URI
 `http://127.0.0.1:8888/callback` — Spotify rejects `localhost` for new
