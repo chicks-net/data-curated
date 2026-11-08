@@ -96,3 +96,18 @@ February 2026 Web API (spotipy ≥ 2.26: `/playlists/{id}/items` and
 `POST /me/playlists`) and only works while the app owner's Spotify
 Premium subscription is active. `unknown`, `instrumental` and
 `undetectable` never get playlists — they are not languages.
+
+### Collapsing the sidebar: a one-time folder
+
+Spotify playlist folders are the way to make the `Lang: *` playlists
+collapsible, but the Web API cannot create or even see folders (per
+Spotify's own docs), so the script cannot make one for you. Any client
+can do it once — desktop, web player, or mobile: Your Library → `+` →
+Folder, name it (e.g. `Non-English songs`), then drag the `Lang: *`
+playlists into it. They collapse on every device.
+
+Folders are invisible to the Web API, so syncing keeps working
+unchanged; the only manual part is dragging a playlist into the folder
+when a language first crosses the track threshold. If you ever run
+`--include-english` and keep `Lang: en` in the folder too, rename it to
+something like `Songs by language`.
