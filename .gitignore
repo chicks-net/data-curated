@@ -21,3 +21,8 @@ __pycache__/
 # opencode tool state
 .git/opencode
 .opencode/
+
+# Spotify API credentials (.env is loaded by language-playlists.py) and
+# the spotipy OAuth token cache it writes next to lyrics.db
+.env
+.spotify-token-cache

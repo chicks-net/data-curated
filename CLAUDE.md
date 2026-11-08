@@ -115,6 +115,7 @@ imports modules from `.just/` directory:
 - `just fetch-lyrics [CSV]` - Fetch song lyrics from LRCLIB into SQLite (default: Liked Songs; accepts any Exportify CSV)
 - `just detect-languages` - Detect lyric languages with langdetect and store in lyrics.db
 - `just language-breakdown` - Print language breakdown and write language-breakdown.csv
+- `just language-playlists [args]` - Sync private Spotify playlists per lyrics-detected language (e.g. `Lang: fr (French)`; needs .env credentials; `--dry-run` shows the plan)
 - `just lyrics-status` - Show lyrics database statistics
 - `just lyrics-db` - Open lyrics.db in Datasette browser
 
@@ -291,6 +292,12 @@ The repository contains Python programs for data fetching and processing:
   - Tags short, repetitive or low-probability results as low confidence; seeded for deterministic runs
   - Instrumentals and misses get no row, so `just language-breakdown` reports them as their own buckets
   - langdetect dependency declared via PEP 723 inline metadata (uv auto-installs)
+  - See individuals/chicks/music/spotify/README.md for full documentation
+- `individuals/chicks/music/spotify/language-playlists.py` - Syncs one private Spotify playlist per lyrics-detected language
+  - Run with: `just language-playlists` (preferred) or `cd individuals/chicks/music/spotify && uv run language-playlists.py`
+  - Reads track_languages in lyrics.db; creates/updates `Lang: <code> (<Language>)` playlists (e.g. `Lang: fr (French)`) idempotently (diff-based adds/removes; bare `Lang: <code>` names from earlier runs are renamed)
+  - Skips `en` and low-confidence detections by default (`--include-english` / `--include-low-confidence` opt in)
+  - spotipy dependency declared via PEP 723 inline metadata (uv auto-installs); Spotify credentials come from gitignored .env
   - See individuals/chicks/music/spotify/README.md for full documentation
 
 ### R analysis scripts

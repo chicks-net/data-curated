@@ -163,3 +163,37 @@ language-breakdown:
 
     echo ""
     echo "{{GREEN}}✓ Breakdown written to language-breakdown.csv{{NORMAL}}"
+
+# Sync one private Spotify playlist per lyrics-detected language
+# ('Lang: <code> (<Language>)' playlists, idempotent - re-runs only apply
+# the diff; bare-code names from earlier runs are renamed automatically)
+# uv auto-installs spotipy from the script's inline metadata; credentials
+# come from .env (see the script docstring for the Spotify app setup).
+# Examples: just language-playlists --dry-run
+#           just language-playlists --include-low-confidence
+#           just language-playlists --languages fr,pt --dry-run
+[working-directory("individuals/chicks/music/spotify")]
+[group('music')]
+language-playlists *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check if uv is installed using helper
+    just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    just _require_command sqlite3 "Install with: brew install sqlite"
+
+    # Check that the prerequisites exist before asking Spotify for anything
+    if [ ! -f "lyrics.db" ]; then
+        echo "{{RED}}Error: lyrics.db not found{{NORMAL}}"
+        echo "Run 'just fetch-lyrics' and 'just detect-languages' first."
+        exit 1
+    fi
+    if ! sqlite3 lyrics.db "SELECT 1 FROM sqlite_master WHERE type='table' AND name='track_languages';" | grep -q 1; then
+        echo "{{RED}}Error: language detection has not run yet{{NORMAL}}"
+        echo "Run 'just detect-languages' first."
+        exit 1
+    fi
+
+    echo "{{GREEN}}Syncing Spotify playlists per detected language...{{NORMAL}}"
+    # shellcheck disable=SC1083
+    uv run language-playlists.py {{ args }}
