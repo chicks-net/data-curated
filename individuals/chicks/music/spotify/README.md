@@ -84,7 +84,9 @@ guidance in
   (skipped by default)
 - `--languages fr,pt` - restrict to specific languages
 
-Sync notes: a `Lang: *` playlist whose language falls below the track
+Sync notes: the `Lang:` playlists are fully script-managed — anything
+added to one by hand (a track, an episode) is removed on the next run.
+A `Lang: *` playlist whose language falls below the track
 threshold or out of the filters is left untouched, not emptied — the
 output lists it as "not in today's plan". If back-to-back runs keep
 reporting the same add/remove pair, that track URI was likely relinked

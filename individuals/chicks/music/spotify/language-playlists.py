@@ -40,6 +40,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Tuple
 
+import requests  # spotipy's HTTP layer; its network errors surface as this
 import spotipy
 from spotipy.cache_handler import CacheFileHandler
 from spotipy.exceptions import SpotifyException
@@ -131,9 +132,29 @@ PLAYLIST_NAME_RE = re.compile(
 REQUIRED_ENV = ("SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI")
 
 
+def env_search_dirs(start: Path) -> List[Path]:
+    """Return directories from start upward, stopping at the repo root.
+
+    The nearest directory containing .git ends the walk (and is itself
+    included), so the search cannot keep reading dotfiles all the way to
+    the filesystem root; outside a git repository the full chain is kept.
+
+    Args:
+        start: Directory to start from.
+
+    Returns:
+        List of directories to check for a .env file, nearest first.
+    """
+    dirs = [start, *start.parents]
+    for i, directory in enumerate(dirs):
+        if (directory / ".git").exists():
+            return dirs[: i + 1]
+    return dirs
+
+
 def find_env_file() -> Optional[Path]:
     """Find a .env file, searching up from this script's directory, then
-    up from the CWD.
+    up from the CWD, each walk stopping at the repo root.
 
     Returns:
         Path to the first .env file found, or None.
@@ -141,10 +162,9 @@ def find_env_file() -> Optional[Path]:
     # The script's own tree first (the documented .env lives at the repo
     # root), then the CWD, so running from an unrelated directory cannot
     # shadow the credentials with some other project's .env
-    starts = [Path(__file__).resolve().parent, Path.cwd()]
     seen: Set[Path] = set()
-    for start in starts:
-        for directory in [start, *start.parents]:
+    for start in [Path(__file__).resolve().parent, Path.cwd()]:
+        for directory in env_search_dirs(start):
             if directory in seen:
                 continue
             seen.add(directory)
@@ -596,10 +616,16 @@ def main() -> None:
             outcome = sync_playlist(
                 sp, code, group["uris"], by_code.get(code), args.dry_run
             )
-        except SpotifyException as e:
+        except (SpotifyException, requests.RequestException) as e:
+            # spotipy raises SpotifyException for HTTP failures, but
+            # network-level errors (timeouts) surface as requests errors
+            if isinstance(e, SpotifyException):
+                detail = f"{e.http_status} {e.msg}"
+            else:
+                detail = f"network error: {e}"
             print(
-                f"  {name}: FAILED - {e.http_status} {e.msg}; re-run to "
-                "finish any partially created or filled playlist"
+                f"  {name}: FAILED - {detail}; re-run to finish any "
+                "partially created or filled playlist"
             )
             failures += 1
             continue
