@@ -123,6 +123,7 @@ imports modules from `.just/` directory:
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
 - `just update-the-tower` - Import the playlog export from ~/Downloads, regenerate analysis, stage the-tower changes (creates its own branch)
+- `just games-emojis [-v]` - Suggest 3 random emojis not yet used in commit titles touching individuals/chicks/games (`-v`/`--verbose` also lists used emojis with counts)
 
 ### GitHub contributor ranking commands
 
