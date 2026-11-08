@@ -27,8 +27,14 @@ them:
   errors. The recent stats table (regular and attack rows) already
   filters `Minutes/Billion` to under 100 and leaves out the non-attack
   dissonant categories, and the dissonant tables use Finish/Max Wave
-  instead of coin columns, so nothing needs excluding. (A wildly off value on a *regular* run
-  would still be worth a look.)
+  instead of coin columns, so nothing needs excluding. (A wildly off
+  value on a *regular* run would still be worth a look.)
+- **Huge coin values on attack dissonant runs are real, too.** Attack
+  dissonance goes the other way and boosts coin income, so the `Attack`
+  rows in the recent stats table legitimately show `Avg Min/B` around
+  0.01–0.05 and `Avg Coins/Hr` in the thousands, far beyond the regular
+  rows for the same tier. That's the whole point of farming them, not a
+  data-entry error.
 - **`#N/A` tokens and blank trailing rows are export artifacts.**
   `parse_numeric()` turns spreadsheet error tokens into NA, and rows
   without a Date are filtered out. The blank placeholder rows at the end
