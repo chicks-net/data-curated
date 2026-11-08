@@ -122,7 +122,7 @@ imports modules from `.just/` directory:
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
-- `just update-the-tower` - Update The Tower playlog analysis
+- `just update-the-tower` - Import the playlog export from ~/Downloads, regenerate analysis, stage everything (creates its own branch)
 
 ### GitHub contributor ranking commands
 
@@ -360,3 +360,52 @@ Most datasets follow a pattern of:
 4. README documentation explaining data sources and usage
 
 Lottery number CSVs may not be in chronological order due to upstream issues that we cannot fix.
+
+## Reviewing Routine Data-Update PRs
+
+PRs from recipes like `just update-the-tower` are automated data refreshes:
+new TSV rows, regenerated PNGs, and README tables replaced between
+`<!-- RECENT-...-START/END -->` markers. Unless `analyze-playlog.R`, the
+justfile, or a workflow file shows up in the diff, there's no code to
+review. The useful checks are internal consistency (README numbers vs. the
+new TSV rows) and that nothing changed outside the generated markers.
+Don't re-flag the quirks below — they're known and expected.
+
+### The Tower playlog
+
+The playlog is a manual spreadsheet export from the game, and
+`analyze-playlog.R` already accounts for that. All of these are by design:
+
+- **Tiny coin values on dissonant runs are real.** Dissonant Utility runs
+  legitimately produce values like `Total Coins (B)` = `0.000000036` and
+  `Minutes/Billion` in the hundreds of millions — dissonance suppresses
+  coin income by orders of magnitude. They're not unit or data-entry
+  errors. Regular stats already filter `Minutes/Billion` to under 100,
+  and the dissonant tables use Finish/Max Wave instead of coin columns,
+  so nothing needs excluding.
+- **`#N/A` tokens and blank trailing rows are export artifacts.**
+  `parse_numeric()` turns spreadsheet error tokens into NA, and rows
+  without a Date are filtered out. The blank placeholder rows at the end
+  of the TSV get filled in by future updates, so a near-zero net change
+  in TSV line count is normal.
+- **Rows aren't in strict chronological order.** The log is entered by
+  hand. The analysis sorts by date (`arrange()`) or lets ggplot2 order the
+  date axis, and "latest run" means max Date, not last row.
+- **`Pct of Max` above 100% is expected.** `Max Wave` is a
+  spreadsheet-computed column exported as-is, so a newer run in one
+  category can beat a max set by another category. The repo doesn't
+  recompute it.
+- **A blank `Dissonant Run` cell means a regular run.** The column is
+  only populated for dissonant runs (Attack, Defense, Utility, Ultimate
+  Weapons).
+- **Negative tiers are tournaments** (`-8`, `-12`, …), a long-standing
+  convention documented in the-tower README.
+- **README table windows shift every update.** "Recent" covers the
+  trailing 4 months (6 for tournaments), so counts and totals dropping
+  between PRs is the window moving, not lost data.
+- **PNG diffs are binary.** The graphs are regenerated artifacts of the
+  script; a visual spot-check can't be done from a diff and doesn't need
+  to be requested in review.
+
+If `analyze-playlog.R` itself changes in a PR, review it like any other
+code — these expectations cover the data refreshes, not the script.
