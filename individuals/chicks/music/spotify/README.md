@@ -66,3 +66,33 @@ A track is tagged low confidence when its lyrics are short (< 200
 chars), repetitive, or the detector itself is unsure (probability
 < 0.9). Choruses, bilingual songs and gibberish vocals skew a single
 label, so check the `language_2` column for those.
+
+## Language playlists
+
+`language-playlists.py` turns the detected languages into private
+Spotify playlists — one `Lang: <code>` playlist per language with at
+least 2 tracks — per the guidance in
+[chicks-net/chicks-projects#127](https://github.com/chicks-net/chicks-projects/issues/127):
+
+- `just language-playlists --dry-run` - show the plan without writing
+- `just language-playlists` - create/update the playlists (idempotent:
+  re-runs find the existing `Lang: *` playlists and only add/remove the
+  tracks the detection results changed)
+- `--include-english` / `--include-low-confidence` - opt into the `en`
+  bucket (~560 tracks, the baseline) and the low-confidence detections
+  (skipped by default)
+- `--languages fr,pt` - restrict to specific languages
+
+One-time setup: create an app at
+<https://developer.spotify.com/dashboard> (check Web API, redirect URI
+`http://127.0.0.1:8888/callback` — Spotify rejects `localhost` for new
+apps), then put `SPOTIPY_CLIENT_ID`, `SPOTIPY_CLIENT_SECRET` and
+`SPOTIPY_REDIRECT_URI` in `.env` at the repo root (gitignored). The
+first run opens a browser for Spotify consent; the token is cached in
+`.spotify-token-cache` (also gitignored).
+
+The Spotify app is a personal Development Mode app, so it targets the
+February 2026 Web API (spotipy ≥ 2.26: `/playlists/{id}/items` and
+`POST /me/playlists`) and only works while the app owner's Spotify
+Premium subscription is active. `unknown`, `instrumental` and
+`undetectable` never get playlists — they are not languages.
