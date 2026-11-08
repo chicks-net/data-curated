@@ -180,6 +180,7 @@ language-playlists *args:
 
     # Check if uv is installed using helper
     just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
+    just _require_command sqlite3 "Install with: brew install sqlite"
 
     # Check that the prerequisites exist before asking Spotify for anything
     if [ ! -f "lyrics.db" ]; then

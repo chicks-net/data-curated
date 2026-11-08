@@ -32,6 +32,7 @@ new `/playlists/{id}/items` endpoints and `POST /me/playlists`.
 
 import argparse
 import os
+import re
 import sqlite3
 import sys
 from datetime import datetime, timezone
@@ -116,6 +117,15 @@ LANGUAGE_NAMES = {
     "vi": "Vietnamese",
     "zh": "Chinese",
 }
+
+# Managed playlist names: 'Lang: fr (French)', legacy 'Lang: fr', or an
+# unknown-code 'Lang: zz'. The code is 2-3 lowercase letters (optionally
+# with a region suffix, e.g. zh-cn), and anything after it must be a
+# single parenthesized display name. A hand-renamed 'Lang: fr my
+# favourites' does not match, so the script leaves it alone.
+PLAYLIST_NAME_RE = re.compile(
+    rf"^{re.escape(PLAYLIST_PREFIX)}([a-z]{{2,3}}(?:-[a-z]+)?)(?: \([^)]*\))?$"
+)
 
 REQUIRED_ENV = ("SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI")
 
@@ -255,15 +265,14 @@ def extract_language_code(name: str) -> Optional[str]:
         name: Playlist name, e.g. 'Lang: fr (French)' or legacy 'Lang: fr'.
 
     Returns:
-        The code ('fr'), or None when the name is not a `Lang: ` playlist.
+        The code ('fr'), or None when the name is not a `Lang: ` playlist
+        in this script's format - a hand-renamed 'Lang: fr my favourites'
+        is left alone, not captured.
     """
-    if not name.startswith(PLAYLIST_PREFIX):
-        return None
-    rest = name[len(PLAYLIST_PREFIX):].strip()
-    if not rest:
-        return None
-    code = rest.split()[0].split("(")[0]
-    return code or None
+    match = PLAYLIST_NAME_RE.match(name)
+    if match:
+        return match.group(1)
+    return None
 
 
 def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> List[Tuple[str, str]]:
@@ -442,7 +451,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Sync one private Spotify playlist per lyrics-detected language "
-            "(named 'Lang: <code>')."
+            "(named 'Lang: <code> (<Language>)', e.g. 'Lang: fr (French)')."
         )
     )
     parser.add_argument(
