@@ -17,9 +17,10 @@ https://github.com/chicks-net/chicks-projects/issues/127:
 
 Spotify credentials are read from SPOTIPY_CLIENT_ID / _SECRET / _REDIRECT_URI
 environment variables, or from a `.env` file found next to this script or in
-any parent directory (including the repo root). The OAuth token is cached in
-.spotify-token-cache next to this script, so the browser consent prompt only
-appears on the first run (and after adding scopes).
+any parent directory (only SPOTIPY_* keys are honored; the repo root works).
+The OAuth token is cached in .spotify-token-cache next to this script, so
+the browser consent prompt only appears on the first run (and after adding
+scopes).
 
 This app was registered under Spotify's February 2026 Development Mode
 rules, so the script uses spotipy >= 2.26, whose playlist methods target the
@@ -131,7 +132,8 @@ REQUIRED_ENV = ("SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_
 
 
 def find_env_file() -> Optional[Path]:
-    """Find a .env file, searching up from the CWD then from this script.
+    """Find a .env file, searching up from this script's directory, then
+    up from the CWD.
 
     Returns:
         Path to the first .env file found, or None.
@@ -155,8 +157,11 @@ def find_env_file() -> Optional[Path]:
 def load_env_file() -> Optional[Path]:
     """Export missing SPOTIPY_* variables from a .env file.
 
-    Only simple KEY=VALUE lines are supported (no `export` prefix, no
-    inline comments; blank lines and # comments are skipped). Existing
+    Only `SPOTIPY_`-prefixed keys are honored, so an unrelated .env found
+    up a parent directory cannot inject other variables (proxy or TLS
+    settings) into this credentials-handling process. Only simple
+    KEY=VALUE lines are supported (no `export` prefix, no inline
+    comments; blank lines and # comments are skipped). Existing
     environment variables win, so a real env var can override the file.
     Values may be quoted ("http://..." style); one layer of matching
     quotes is stripped.
@@ -177,7 +182,7 @@ def load_env_file() -> Optional[Path]:
         value = value.strip()
         if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
             value = value[1:-1]
-        if key and key not in os.environ:
+        if key.startswith("SPOTIPY_") and key not in os.environ:
             os.environ[key] = value
     return env_path
 
