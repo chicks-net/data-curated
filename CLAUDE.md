@@ -122,7 +122,7 @@ imports modules from `.just/` directory:
 ### Games commands
 
 - `just analyze-the-tower` - Analyze The Tower playlog data (requires R)
-- `just update-the-tower` - Update The Tower playlog analysis
+- `just update-the-tower` - Import the playlog export from ~/Downloads, regenerate analysis, stage the-tower changes (creates its own branch)
 
 ### GitHub contributor ranking commands
 
@@ -360,3 +360,31 @@ Most datasets follow a pattern of:
 4. README documentation explaining data sources and usage
 
 Lottery number CSVs may not be in chronological order due to upstream issues that we cannot fix.
+
+## Reviewing Routine Data-Update PRs
+
+PRs from recipes like `just update-the-tower` are automated data refreshes:
+new TSV rows, regenerated PNGs, and README tables replaced between
+`<!-- RECENT-...-START/END -->` markers. Unless `analyze-playlog.R`, the
+justfile, or a workflow file shows up in the diff, there's no code to
+review. The useful checks are internal consistency (README numbers vs. the
+new TSV rows), that nothing changed outside the generated markers, and
+that the net TSV line count change is small — new rows should mostly
+replace blank placeholder rows, so a large jump is worth a look.
+
+The Tower playlog is a manual spreadsheet export with known quirks — tiny
+coin values on dissonant runs, `#N/A` tokens, trailing placeholder rows,
+manual-entry row order, and more — documented in the "Playlog quirks"
+section of `individuals/chicks/games/the-tower/README.md`. The analysis
+already handles them, so don't re-flag those quirks on routine update
+PRs. The exemption is scoped, though: implausible values on regular
+(non-dissonant) runs, README numbers that don't match the TSV, or edits
+outside the generated markers are still worth flagging.
+
+PNG diffs are binary — a visual spot-check can't be done from a diff, so
+don't request one in review.
+
+If `analyze-playlog.R` itself changes in a PR, review it like any other
+code, and update the README's "Playlog quirks" section if the behavior
+described there changed. These expectations cover the data refreshes,
+not the script.
