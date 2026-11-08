@@ -47,8 +47,15 @@ them:
 - **The stats windows shift every update.** "Recent" stats start on the
   first day of the month 4 months before the latest run, so they can
   span 5 calendar months (e.g. Jul–Nov); the tournament window uses the
-  same rule with a 6-month offset. Counts and totals dropping between
-  PRs is the window moving, not lost data.
+  same rule with a 6-month offset, and the 2-month graph
+  (`minutes-per-billion-by-tier-2mo.png`) uses a 2-month one. Counts and
+  totals dropping between PRs is the window moving, not lost data. (The
+  min/B zoom graph, `minutes-per-billion-by-tier-zoom.png`, is the
+  exception: it starts at a fixed 2025-09-01, so it grows but never
+  shifts.)
+
+If `analyze-playlog.R` changes any of this behavior, update this section
+in the same PR.
 
 ## Recent Statistics
 

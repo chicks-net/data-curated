@@ -368,7 +368,9 @@ new TSV rows, regenerated PNGs, and README tables replaced between
 `<!-- RECENT-...-START/END -->` markers. Unless `analyze-playlog.R`, the
 justfile, or a workflow file shows up in the diff, there's no code to
 review. The useful checks are internal consistency (README numbers vs. the
-new TSV rows) and that nothing changed outside the generated markers.
+new TSV rows), that nothing changed outside the generated markers, and
+that the net TSV line count change is small — new rows should mostly
+replace blank placeholder rows, so a large jump is worth a look.
 
 The Tower playlog is a manual spreadsheet export with known quirks — tiny
 coin values on dissonant runs, `#N/A` tokens, trailing placeholder rows,
@@ -383,4 +385,6 @@ PNG diffs are binary — a visual spot-check can't be done from a diff, so
 don't request one in review.
 
 If `analyze-playlog.R` itself changes in a PR, review it like any other
-code — these expectations cover the data refreshes, not the script.
+code, and update the README's "Playlog quirks" section if the behavior
+described there changed. These expectations cover the data refreshes,
+not the script.
