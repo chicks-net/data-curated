@@ -537,6 +537,45 @@ update-the-tower:
 
     git add individuals/chicks/games/the-tower
 
+# Suggest 3 unused emojis for games commit titles (-v lists the used ones)
+[group('games')]
+games-emojis VERBOSE="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    export LC_ALL=C
+
+    verbose_arg="{{ VERBOSE }}"
+    case "$verbose_arg" in
+        "") verbose=false ;;
+        -v|--verbose) verbose=true ;;
+        *) echo "{{RED}}Unknown option: $verbose_arg (use -v or --verbose){{NORMAL}}" >&2; exit 1 ;;
+    esac
+
+    # Sports and games emojis to pick suggestions from
+    pool=(⚽ ⚾ 🥎 🏀 🏐 🏈 🏉 🎾 🥏 🎳 🏏 🏑 🏒 🥍 🏓 🏸 🥊 🥋 🥅 ⛳ ⛸ 🎣 🤿 🎽 🎿 🛷 🥌 🎯 🪀 🪁 🎱 🔮 🪄 🎮 🕹 🎰 🎲 🧩 🧸 🪅 🪩 🪆 ♠ ♥ ♦ ♣ ♟ 🃏 🀄 🎴 🏆 🏅 🥇 🥈 🥉 🎖 🏁 🚩 🛹 🛼 🚲 🏍 🏎 🏃 🚴 🚵 ⛹ 🏋 🤸 🤺 🤾 🏌 🏇 🧗 🏄 🏊 🤽 🚣 🛶 🏂 ⛷ 🤼 🪂 🎪 🎭 🎨 🧶 🪃 🏹 🛝 🎠 🎡 🎢 🥁 🎻)
+
+    # First word of each commit title, with variation selectors stripped
+    # so "⛸️" and "⛸" count as the same emoji
+    used=$(git log --format='%s' -- individuals/chicks/games \
+        | cut -d' ' -f1 \
+        | sed $'s/\xef\xb8\x8f//g')
+
+    if [ "$verbose" = true ]; then
+        echo "{{GREEN}}Emojis used for individuals/chicks/games updates:{{NORMAL}}"
+        echo "$used" | sort | uniq -c | sort -rn | awk '{ printf "  %s %s\n", $2, $1 }'
+        echo ""
+    fi
+
+    unused=$(printf '%s\n' "${pool[@]}" | grep -vxF -f <(echo "$used") || true)
+    if [ -z "$unused" ]; then
+        echo "{{YELLOW}}Every emoji in the pool has been used, time to grow the pool{{NORMAL}}"
+        exit 0
+    fi
+
+    echo "{{GREEN}}$(echo "$unused" | wc -l | tr -d ' ') unused emojis in the pool, here are 3 random ones:{{NORMAL}}"
+    echo "$unused" | awk -v seed="$RANDOM" 'BEGIN { srand(seed) } { print rand() "\t" $0 }' \
+        | sort -n | cut -f2 | head -3 | sed 's/^/  /'
+
 # Check age of all database files in the repository
 [group('Utility')]
 db-status:
