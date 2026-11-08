@@ -1,0 +1,103 @@
+---
+name: PR Title Format
+on:
+  pull_request:
+    types: [opened, edited, reopened]
+
+# global permissions
+permissions: {}
+
+jobs:
+  pr-title-format:
+    # Skip format check for bot PRs (dependabot, renovate, etc.)
+    if: |
+      github.event.pull_request.user.login != 'dependabot[bot]' &&
+      github.event.pull_request.user.login != 'dependabot-preview[bot]' &&
+      github.event.pull_request.user.login != 'renovate[bot]' &&
+      github.event.pull_request.user.login != 'renovate-preview[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      # Zero-network job: the title comes from the event payload, so there
+      # is no checkout, no GITHUB_TOKEN use, and nothing to allow through
+      # the egress firewall.
+      - name: Harden the runner (Block all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: block
+
+      - name: Check PR title format
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          # grep -P needs a UTF-8 locale for \p{...} to match multibyte input
+          LC_ALL: C.UTF-8
+        run: |
+          set -euo pipefail
+
+          # Fail loudly if this runner's grep lacks PCRE2 emoji property
+          # support instead of failing every valid title with a confusing
+          # error (this also proves UTF-8 mode is on).
+          if ! printf '🧐\n' | grep -qP '\p{Extended_Pictographic}'; then
+            echo "::error title=PR title format::runner grep lacks PCRE2 Extended_Pictographic support - see .github/workflows/pr-title-format.yml"
+            exit 1
+          fi
+
+          # emoji [topic] details... - the topic is a lowercase slug;
+          # . _ - and / subpaths allowed (ref/radio, hugo/content)
+          regex='^\p{Extended_Pictographic}(?:\p{Extended_Pictographic}|[\x{200D}\x{FE0F}\x{1F3FB}-\x{1F3FF}])* \[[a-z0-9][a-z0-9/._-]*\] .+'
+
+          # Self-test: run known-good and known-bad titles through the
+          # regex on every execution, so a regex or runner regression
+          # fails loudly on the PR that caused it instead of silently
+          # accepting bad titles. NOTE: some vectors contain invisible
+          # codepoints (ZWJ, variation selector) - do not "clean" them.
+          valid_titles=(
+            '🧐 [links] use shortened StackExchange URLs'
+            '🐈‍⬛ [content] ZWJ sequence'
+            '⚡️ [ref] variation selector'
+            '🧐🏽 [brag] skin tone'
+            '📆 [post/readme] subpath topic'
+          )
+          invalid_titles=(
+            'no emoji [links] details'
+            '🧐 [Links] uppercase topic'
+            '🧐 [links]'
+            '🧐[links] missing space'
+            '#️⃣ [gha] keycap emoji'
+            'Bump foo from 1.0.0 to 1.0.1'
+          )
+          selftest_failed=0
+          for title in "${valid_titles[@]}"; do
+            if ! printf '%s\n' "$title" | grep -qP "$regex"; then
+              echo "SELF-TEST FAIL - should match: $title"
+              selftest_failed=1
+            fi
+          done
+          for title in "${invalid_titles[@]}"; do
+            if printf '%s\n' "$title" | grep -qP "$regex"; then
+              echo "SELF-TEST FAIL - should NOT match: $title"
+              selftest_failed=1
+            fi
+          done
+          if [[ "$selftest_failed" -ne 0 ]]; then
+            echo "::error title=PR title format::regex self-test failed - the check itself is broken, not this PR's title"
+            exit 1
+          fi
+          echo "Regex self-test passed (${#valid_titles[@]} valid + ${#invalid_titles[@]} invalid vectors)"
+
+          if printf '%s\n' "$PR_TITLE" | grep -qP "$regex"; then
+            echo "PR title format OK: $PR_TITLE"
+            exit 0
+          fi
+
+          {
+            echo "PR titles in this repo must match: emoji [topic] details..."
+            echo ""
+            echo "Examples:"
+            echo "  🧐 [links] use shortened StackExchange URLs"
+            echo "  🏁 [gha] let scorecard be run manually"
+            echo "  📆 [post] summarize October 2026 github contributions"
+            echo ""
+            echo "Got: $PR_TITLE"
+          }
+          echo "::error title=PR title format::PR title must match 'emoji [topic] details...' (see job log for examples)"
+          exit 1
