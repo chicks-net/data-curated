@@ -165,7 +165,8 @@ language-breakdown:
     echo "{{GREEN}}✓ Breakdown written to language-breakdown.csv{{NORMAL}}"
 
 # Sync one private Spotify playlist per lyrics-detected language
-# ('Lang: <code>' playlists, idempotent - re-runs only apply the diff)
+# ('Lang: <code> (<Language>)' playlists, idempotent - re-runs only apply
+# the diff; bare-code names from earlier runs are renamed automatically)
 # uv auto-installs spotipy from the script's inline metadata; credentials
 # come from .env (see the script docstring for the Spotify app setup).
 # Examples: just language-playlists --dry-run

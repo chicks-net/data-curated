@@ -7,7 +7,8 @@ fetch-lyrics.py and detect-languages.py) and syncs one Spotify playlist
 per language bucket, following the guidance in
 https://github.com/chicks-net/chicks-projects/issues/127:
 
-- playlists are named `Lang: <code>` (a stable prefix the script can find again) and are created private
+- playlists are named `Lang: <code> (<Language>)` (e.g. `Lang: fr (French)`), a stable `Lang: ` prefix the script can find again; bare `Lang: <code>` playlists from earlier runs are renamed automatically
+- playlists are created private
 - only languages with at least --min-tracks tracks get a playlist
 - `en` is skipped by default (it is the baseline bucket, ~560 tracks); --include-english opts in
 - low-confidence detections are skipped by default (the "New Soul" -> Catalan kind of error); --include-low-confidence opts in
@@ -35,7 +36,7 @@ import sqlite3
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
 import spotipy
 from spotipy.cache_handler import CacheFileHandler
@@ -55,6 +56,66 @@ SCOPE = (
 PLAYLIST_PREFIX = "Lang: "
 # Spotify accepts at most 100 items per playlist write request
 BATCH_SIZE = 100
+
+# English names for langdetect's language codes (langdetect is a fixed
+# set; detect-languages.py groups zh-cn/zh-tw as zh). A code outside this
+# table keeps its bare `Lang: <code>` name instead of a wrong guess.
+LANGUAGE_NAMES = {
+    "af": "Afrikaans",
+    "ar": "Arabic",
+    "bg": "Bulgarian",
+    "bn": "Bengali",
+    "ca": "Catalan",
+    "cs": "Czech",
+    "cy": "Welsh",
+    "da": "Danish",
+    "de": "German",
+    "el": "Greek",
+    "en": "English",
+    "es": "Spanish",
+    "et": "Estonian",
+    "fa": "Persian",
+    "fi": "Finnish",
+    "fr": "French",
+    "gu": "Gujarati",
+    "he": "Hebrew",
+    "hi": "Hindi",
+    "hr": "Croatian",
+    "hu": "Hungarian",
+    "id": "Indonesian",
+    "it": "Italian",
+    "ja": "Japanese",
+    "kn": "Kannada",
+    "ko": "Korean",
+    "lt": "Lithuanian",
+    "lv": "Latvian",
+    "mk": "Macedonian",
+    "ml": "Malayalam",
+    "mr": "Marathi",
+    "ne": "Nepali",
+    "nl": "Dutch",
+    "no": "Norwegian",
+    "pa": "Punjabi",
+    "pl": "Polish",
+    "pt": "Portuguese",
+    "ro": "Romanian",
+    "ru": "Russian",
+    "sk": "Slovak",
+    "sl": "Slovenian",
+    "so": "Somali",
+    "sq": "Albanian",
+    "sv": "Swedish",
+    "sw": "Swahili",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "th": "Thai",
+    "tl": "Tagalog",
+    "tr": "Turkish",
+    "uk": "Ukrainian",
+    "ur": "Urdu",
+    "vi": "Vietnamese",
+    "zh": "Chinese",
+}
 
 REQUIRED_ENV = ("SPOTIPY_CLIENT_ID", "SPOTIPY_CLIENT_SECRET", "SPOTIPY_REDIRECT_URI")
 
@@ -169,8 +230,42 @@ def build_language_groups(
     }
 
 
-def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> Dict[str, str]:
-    """Map playlist name -> id for the current user's OWN playlists.
+def playlist_name(language: str) -> str:
+    """Return the playlist name for a language code.
+
+    Args:
+        language: Language code, e.g. 'fr'.
+
+    Returns:
+        `Lang: fr (French)` for a known code, `Lang: xx` for an unknown
+        one (no parenthetical beats a wrong guess).
+    """
+    display = LANGUAGE_NAMES.get(language)
+    if display:
+        return f"{PLAYLIST_PREFIX}{language} ({display})"
+    return f"{PLAYLIST_PREFIX}{language}"
+
+
+def extract_language_code(name: str) -> Optional[str]:
+    """Extract the language code from a managed playlist name.
+
+    Args:
+        name: Playlist name, e.g. 'Lang: fr (French)' or legacy 'Lang: fr'.
+
+    Returns:
+        The code ('fr'), or None when the name is not a `Lang: ` playlist.
+    """
+    if not name.startswith(PLAYLIST_PREFIX):
+        return None
+    rest = name[len(PLAYLIST_PREFIX):].strip()
+    if not rest:
+        return None
+    code = rest.split()[0].split("(")[0]
+    return code or None
+
+
+def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> List[Tuple[str, str]]:
+    """Return (name, id) pairs for the current user's OWN playlists.
 
     Followed playlists appear in GET /me/playlists too; they are excluded
     so the script never tries to modify someone else's playlist that
@@ -181,27 +276,47 @@ def fetch_own_playlists(sp: spotipy.Spotify, user_id: str) -> Dict[str, str]:
         user_id: Current user's Spotify ID.
 
     Returns:
-        Dict of playlist name -> playlist id.
+        List of (playlist name, playlist id) pairs.
     """
-    own: Dict[str, str] = {}
+    own: List[Tuple[str, str]] = []
     page = sp.current_user_playlists(limit=50)
     while True:
         for playlist in page["items"]:
             owner = playlist.get("owner") or {}
             if owner.get("id") == user_id:
-                if playlist["name"] in own:
-                    print(
-                        f"Warning: multiple playlists named "
-                        f"{playlist['name']!r}; managing the last one listed",
-                        file=sys.stderr,
-                    )
-                # Spotify allows same-named playlists; this keeps the last
-                # one listed in GET /me/playlists, whatever it is
-                own[playlist["name"]] = playlist["id"]
+                own.append((playlist["name"], playlist["id"]))
         if not page.get("next"):
             break
         page = sp.next(page)
     return own
+
+
+def index_by_code(own: List[Tuple[str, str]]) -> Dict[str, Tuple[str, str]]:
+    """Map language code -> (playlist id, current name) for owned playlists.
+
+    Spotify allows same-named playlists, and this script has renamed its
+    own playlists before, so the language code (not the full name) is the
+    stable key. A duplicate code warns; the last listed playlist wins.
+
+    Args:
+        own: (name, id) pairs from fetch_own_playlists().
+
+    Returns:
+        Dict of language code -> (playlist id, current name).
+    """
+    by_code: Dict[str, Tuple[str, str]] = {}
+    for playlist_name_, playlist_id in own:
+        code = extract_language_code(playlist_name_)
+        if code is None:
+            continue
+        if code in by_code:
+            print(
+                f"Warning: multiple playlists for language '{code}'; "
+                f"managing the last one listed",
+                file=sys.stderr,
+            )
+        by_code[code] = (playlist_id, playlist_name_)
+    return by_code
 
 
 def fetch_playlist_uris(sp: spotipy.Spotify, playlist_id: str) -> List[str]:
@@ -241,35 +356,38 @@ def sync_playlist(
     sp: spotipy.Spotify,
     language: str,
     uris: List[str],
-    playlist_id: Optional[str],
+    existing_entry: Optional[Tuple[str, str]],
     dry_run: bool,
 ) -> str:
-    """Make playlist `Lang: <language>` match the desired URI list.
+    """Make the language's playlist match the desired name and URI list.
 
-    Existing playlists are diffed so re-runs only add missing and remove
-    stale tracks (new tracks are appended at the end). The description is
-    refreshed whenever the content changed, so the playlist says when it
-    was last generated.
+    An existing playlist is renamed when its name drifted (earlier runs
+    of this script named playlists without the English language name),
+    then diffed so re-runs only add missing and remove stale tracks (new
+    tracks are appended at the end). The description is refreshed
+    whenever the name or the content changed, so the playlist says when
+    it was last generated.
 
     Args:
         sp: Authenticated Spotify client.
         language: Language code (bucket name).
         uris: Desired `spotify:track:` URIs, ordered by added_at.
-        playlist_id: Existing playlist ID, or None to create.
+        existing_entry: (playlist id, current name) of the playlist this
+            script manages for the language, or None to create.
         dry_run: Print the plan without writing.
 
     Returns:
         One of "created", "updated", "unchanged" (or the dry-run
         counterparts "would create", "would update", "up to date").
     """
-    name = PLAYLIST_PREFIX + language
+    name = playlist_name(language)
     description = (
         f"Generated from lyrics-based language detection in data-curated "
         f"({len(uris)} tracks, updated {datetime.now(timezone.utc).date()}). "
         f"https://github.com/chicks-net/chicks-projects/issues/127"
     )
 
-    if playlist_id is None:
+    if existing_entry is None:
         verb = "would create" if dry_run else "create"
         print(f"  {name}: {verb} private playlist with {len(uris)} tracks")
         if dry_run:
@@ -282,30 +400,38 @@ def sync_playlist(
             sp.playlist_add_items(playlist_id, chunk)
         return "created"
 
+    playlist_id, current_name = existing_entry
     current = fetch_playlist_uris(sp, playlist_id)
     current_set = set(current)
     desired_set = set(uris)
     to_add = [uri for uri in uris if uri not in current_set]
     to_remove = [uri for uri in current if uri not in desired_set]
 
-    if not to_add and not to_remove:
+    actions: List[str] = []
+    if current_name != name:
+        actions.append(f"rename '{current_name}' -> '{name}'")
+    if to_add or to_remove:
+        actions.append(f"add {len(to_add)}, remove {len(to_remove)}")
+
+    if not actions:
         print(f"  {name}: up to date ({len(uris)} tracks)")
         return "unchanged"
 
     verb = "would update" if dry_run else "update"
-    print(
-        f"  {name}: {verb} - add {len(to_add)}, remove {len(to_remove)} "
-        f"({len(uris)} tracks total)"
-    )
+    print(f"  {name}: {verb} - {'; '.join(actions)} ({len(uris)} tracks total)")
     if dry_run:
         return "would update"
 
+    if current_name != name:
+        # The rename call refreshes the description too
+        sp.playlist_change_details(playlist_id, name=name, description=description)
     for chunk in batched(to_add):
         sp.playlist_add_items(playlist_id, chunk)
     # remove_all_occurrences keeps a hand-edited duplicate from surviving
     for chunk in batched(to_remove):
         sp.playlist_remove_all_occurrences_of_items(playlist_id, chunk)
-    sp.playlist_change_details(playlist_id, description=description)
+    if current_name == name:
+        sp.playlist_change_details(playlist_id, description=description)
     return "updated"
 
 
@@ -443,16 +569,16 @@ def main() -> None:
     print(f"Signed in as {me.get('display_name') or user_id}")
     print()
 
-    existing = fetch_own_playlists(sp, user_id)
+    by_code = index_by_code(fetch_own_playlists(sp, user_id))
 
     print("Plan:")
     stats: Dict[str, int] = {}
     failures = 0
     for code, group in groups.items():
-        name = PLAYLIST_PREFIX + code
+        name = playlist_name(code)
         try:
             outcome = sync_playlist(
-                sp, code, group["uris"], existing.get(name), args.dry_run
+                sp, code, group["uris"], by_code.get(code), args.dry_run
             )
         except SpotifyException as e:
             print(
@@ -463,13 +589,12 @@ def main() -> None:
             continue
         stats[outcome] = stats.get(outcome, 0) + 1
 
-    # A Lang: playlist that is not in today's plan (language fell below the
-    # threshold or out of the filters) is left untouched, never emptied
-    planned_names = {PLAYLIST_PREFIX + code for code in groups}
+    # A Lang: playlist whose language is not in today's plan (fell below
+    # the threshold or out of the filters) is left untouched, never emptied
     stale = sorted(
-        name
-        for name in existing
-        if name.startswith(PLAYLIST_PREFIX) and name not in planned_names
+        current_name
+        for lang_code, (_, current_name) in by_code.items()
+        if lang_code not in groups
     )
     if stale:
         print()

@@ -70,8 +70,9 @@ label, so check the `language_2` column for those.
 ## Language playlists
 
 `language-playlists.py` turns the detected languages into private
-Spotify playlists — one `Lang: <code>` playlist per language with at
-least 2 tracks — per the guidance in
+Spotify playlists — one `Lang: <code> (<Language>)` playlist per
+language with at least 2 tracks (e.g. `Lang: fr (French)`) — per the
+guidance in
 [chicks-net/chicks-projects#127](https://github.com/chicks-net/chicks-projects/issues/127):
 
 - `just language-playlists --dry-run` - show the plan without writing
