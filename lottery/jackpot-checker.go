@@ -155,7 +155,11 @@ func main() {
 }
 
 func initDatabase() (*sql.DB, error) {
-	db, err := sql.Open("sqlite3", "./jackpots.db")
+	return initDatabaseAt("./jackpots.db")
+}
+
+func initDatabaseAt(path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}

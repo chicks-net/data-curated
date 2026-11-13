@@ -109,6 +109,34 @@ CREATE TABLE jackpots (
 
 Amounts are stored as integers (actual dollar amounts, not millions).
 
+## Fuzzing
+
+The jackpot-checker code has native Go fuzz tests (`fuzz_test.go`) covering
+the three input paths that face the outside world:
+
+- `FuzzCustomTimeUnmarshalJSON` — the API's draw-date format
+- `FuzzLotteryResponseParsing` — whole API response payloads
+- `FuzzSaveJackpot` — arbitrary field values through the SQLite insert
+
+The seed corpora run automatically as part of the regular Go test suite
+(`just go-test` in CI and locally), and a scheduled GitHub Actions workflow
+(`fuzz.yml`) fuzzes each target weekly. These fuzz targets also satisfy the
+OpenSSF Scorecard fuzzing check, which looks for `func Fuzz...(*testing.F)`
+signatures in Go test files.
+
+Run fuzzing locally (30 seconds per target by default):
+
+```bash
+just lottery-fuzz                     # all targets, 30s each
+just lottery-fuzz 2m                  # all targets, 2 minutes each
+just lottery-fuzz 30s FuzzSaveJackpot  # one target
+```
+
+If fuzzing finds a failing input, Go writes it to
+`lottery/testdata/fuzz/<FuzzName>/` — commit those files as regression
+seeds: `go test` runs them automatically ever after. CI uploads them as an
+artifact when a scheduled run fails.
+
 ## Scheduling
 
 ### macOS (launchd)

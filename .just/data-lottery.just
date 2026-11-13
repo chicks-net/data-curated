@@ -204,6 +204,57 @@ jackpot-status: _check_lottery_deps
         echo "{{RED}}No entries found in database{{NORMAL}}"
     fi
 
+# Fuzz the jackpot-checker Go code (native Go fuzzing, 30s per target by
+# default).  The fuzz targets live in lottery/fuzz_test.go; their seed
+# corpora run in regular CI via 'just go-test', and
+# .github/workflows/fuzz.yml runs this recipe weekly.  FUZZTIME takes any
+# go duration (30s, 5m) or an iteration count (1000x); FUZZTARGET
+# optionally picks a single target by name.
+[working-directory("lottery")]
+[group('lottery')]
+lottery-fuzz FUZZTIME="30s" FUZZTARGET="":
+    #!/usr/bin/env bash
+    set -euo pipefail # strict mode
+
+    just _require_command go "Install with: brew install go"
+
+    # assign template args first: shellcheck lints raw template literals
+    # and would otherwise flag them (SC2157)
+    fuzztime='{{FUZZTIME}}'
+    fuzztarget='{{FUZZTARGET}}'
+
+    # 'go test -fuzz' must match exactly one fuzz test per invocation, so
+    # discover the targets and loop.  FUZZTARGET short-circuits the loop.
+    listing=$(go test -list '^Fuzz' .)
+    if [ -n "$fuzztarget" ]; then
+        if ! printf '%s\n' "$listing" | grep -qx "$fuzztarget"; then
+            echo "{{RED}}Error: no fuzz target named '$fuzztarget'{{NORMAL}}" >&2
+            echo "Available targets:" >&2
+            printf '%s\n' "$listing" | grep '^Fuzz' | sed 's/^/  /' >&2
+            exit 1
+        fi
+        targets="$fuzztarget"
+    else
+        targets=$(printf '%s\n' "$listing" | grep '^Fuzz' || true)
+    fi
+
+    if [ -z "$targets" ]; then
+        echo "{{RED}}Error: no fuzz targets found in lottery/{{NORMAL}}" >&2
+        exit 1
+    fi
+
+    for target in $targets; do
+        echo ""
+        echo "{{BLUE}}=== Fuzzing $target for $fuzztime{{NORMAL}}"
+        # -run '^$' skips the regular tests (the target's seeds still run in
+        # the fuzzing phase).  No -race: the race detector would multiply the
+        # wall-clock ~10x, and the seeds already get race-checked by go-test.
+        go test -run '^$' -fuzz "^${target}\$" -fuzztime "$fuzztime" .
+    done
+
+    echo ""
+    echo "{{GREEN}}✓ Fuzzing completed with no failures{{NORMAL}}"
+
 # Download New York lottery winning numbers (Powerball and Mega Millions)
 [working-directory("lottery")]
 [group('lottery')]
