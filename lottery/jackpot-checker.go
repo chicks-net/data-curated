@@ -30,9 +30,11 @@ type CustomTime struct {
 func (ct *CustomTime) UnmarshalJSON(b []byte) error {
 	s := string(b)
 
-	// Validate string length before slicing to prevent panic
-	if len(s) < 2 {
-		return fmt.Errorf("invalid date string: too short")
+	// Validate the token is a quoted JSON string before slicing.
+	// encoding/json only passes valid tokens, but direct calls (and
+	// fuzzing) should not have arbitrary first/last bytes silently stripped.
+	if len(s) < 2 || s[0] != '"' || s[len(s)-1] != '"' {
+		return fmt.Errorf("invalid date string: not a quoted JSON string")
 	}
 
 	// Remove quotes
@@ -218,17 +220,40 @@ func fetchJackpot(gameID int, gameName string) (*JackpotRecord, error) {
 		return nil, fmt.Errorf("failed to parse JSON: %w", err)
 	}
 
-	// Create record with proper rounding to avoid lossy float-to-int conversion
-	record := &JackpotRecord{
-		Game:          gameName,
-		DrawNumber:    lotteryData.NextDraw.DrawNumber,
-		DrawDate:      lotteryData.NextDraw.DrawDate.Time,
-		Jackpot:       int64(math.Round(lotteryData.NextDraw.Jackpot)),
-		EstimatedCash: int64(math.Round(lotteryData.NextDraw.EstimatedCash)),
-		CheckedAt:     time.Now().UTC(),
+	return buildJackpotRecord(gameName, &lotteryData)
+}
+
+// maxJackpotAmount bounds the dollar amounts we accept from the API. The
+// largest jackpot on record is under $3 billion; a trillion dollars is
+// generous headroom while catching garbage values that would otherwise
+// store an implementation-defined int64 (Go leaves out-of-range
+// float-to-int64 conversion unspecified, so 1e308 dollars would not panic
+// but would store nonsense).
+const maxJackpotAmount = 1e12
+
+// buildJackpotRecord converts an API response into the record we store.
+// Amounts are validated against sane bounds and rounded to whole dollars;
+// fetchJackpot and the fuzz tests both call it, so the fuzz targets guard
+// the real production path.
+func buildJackpotRecord(gameName string, resp *LotteryResponse) (*JackpotRecord, error) {
+	jackpot := resp.NextDraw.Jackpot
+	cash := resp.NextDraw.EstimatedCash
+	if jackpot < 0 || jackpot > maxJackpotAmount {
+		return nil, fmt.Errorf("jackpot amount %v out of range [0, %v]", jackpot, maxJackpotAmount)
+	}
+	if cash < 0 || cash > maxJackpotAmount {
+		return nil, fmt.Errorf("estimated cash %v out of range [0, %v]", cash, maxJackpotAmount)
 	}
 
-	return record, nil
+	// Round to avoid lossy float-to-int conversion
+	return &JackpotRecord{
+		Game:          gameName,
+		DrawNumber:    resp.NextDraw.DrawNumber,
+		DrawDate:      resp.NextDraw.DrawDate.Time,
+		Jackpot:       int64(math.Round(jackpot)),
+		EstimatedCash: int64(math.Round(cash)),
+		CheckedAt:     time.Now().UTC(),
+	}, nil
 }
 
 func saveJackpot(db *sql.DB, record *JackpotRecord) error {

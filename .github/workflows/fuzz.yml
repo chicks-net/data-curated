@@ -32,6 +32,8 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
+      # to open/update the tracking issue when fuzzing finds a failure
+      issues: write
     steps:
       - name: Harden the runner (Audit all outbound calls)
         uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
@@ -72,3 +74,28 @@ jobs:
           path: lottery/testdata/fuzz/
           retention-days: 30
           if-no-files-found: ignore
+
+      # A weekly run failing quietly in the Actions tab helps nobody:
+      # open a tracking issue on the first failure and comment on it
+      # for repeat failures.
+      - name: Open or update a tracking issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gh needs the repo named explicitly: checkout runs with
+          # persist-credentials false (#551)
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          TITLE="Weekly Go fuzzing failed"
+          EXISTING=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "Found open tracking issue #$EXISTING - commenting."
+            gh issue comment "$EXISTING" --body "Fuzzing failed again: $RUN_URL"
+          else
+            echo "No open tracking issue - creating one."
+            gh issue create --title "$TITLE" --body "The scheduled Go fuzzing run failed. Crashers (if any) are attached to the run: $RUN_URL
+
+          Triage the failure, fix the code, and commit the failing inputs under lottery/testdata/fuzz/ as regression seeds."
+          fi

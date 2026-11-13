@@ -22,14 +22,15 @@ import (
 )
 
 // FuzzCustomTimeUnmarshalJSON feeds arbitrary bytes to the API draw-date
-// parser. On success the payload must yield a canonical UTC date: the
-// formatted result must be stable under re-parsing.
+// parser. On success the payload must be a quoted string that yields a
+// canonical UTC date: the formatted result must be stable under re-parsing.
 func FuzzCustomTimeUnmarshalJSON(f *testing.F) {
 	f.Add([]byte(`"2025-12-03T08:00:00"`)) // the API's documented format
 	f.Add([]byte(`"2026-02-14T20:59:59"`))
 	f.Add([]byte(`null`))                  // JSON null: must error, not panic
-	f.Add([]byte(`""`))                    // empty string hits the length guard
-	f.Add([]byte(`a`))                     // shorter than the length guard
+	f.Add([]byte(`""`))                    // empty quoted string fails the parse
+	f.Add([]byte(`a`))                     // not a quoted JSON string
+	f.Add([]byte(`2025-12-03T08:00:00`))   // unquoted: must be rejected
 	f.Add([]byte(`"abc"`))                 // non-date text
 	f.Add([]byte(`"2025-13-45T99:99:99"`)) // well-formed garbage
 	f.Add([]byte(`12345`))                 // JSON number
@@ -40,6 +41,10 @@ func FuzzCustomTimeUnmarshalJSON(f *testing.F) {
 		var ct CustomTime
 		if err := ct.UnmarshalJSON(data); err != nil {
 			return
+		}
+		// Only quoted JSON strings may parse successfully.
+		if data[0] != '"' || data[len(data)-1] != '"' {
+			t.Errorf("accepted unquoted input %q", data)
 		}
 		// A successful parse must yield a canonical UTC date. The raw input
 		// need not round-trip (time.Parse accepts lenient values like the
@@ -62,43 +67,50 @@ func FuzzCustomTimeUnmarshalJSON(f *testing.F) {
 }
 
 // FuzzLotteryResponseParsing feeds arbitrary JSON through the same
-// unmarshal-and-convert path fetchJackpot uses to build a JackpotRecord.
+// unmarshal-and-build path fetchJackpot uses (buildJackpotRecord).
 // json.Unmarshal rejects NaN/Infinity and out-of-range numbers like 1e999,
-// so parsed amounts are always finite; out-of-range float-to-int64
-// conversion is implementation-defined in Go, so exactness is only asserted
-// for values that convert cleanly.
+// so parsed amounts are always finite; buildJackpotRecord must reject any
+// amount outside [0, maxJackpotAmount] and convert accepted amounts
+// exactly.
 func FuzzLotteryResponseParsing(f *testing.F) {
 	f.Add([]byte(`{"GameId":12,"GameName":"Powerball","TotalDrawsPlayed":1545,"NextDraw":{"DrawNumber":1545,"DrawDate":"2025-12-03T08:00:00","JackpotAmount":775000000,"EstimatedCashValue":362500000,"DrawCloseTime":"Wednesday 7:59 PM"}}`))
 	f.Add([]byte(`{"GameId":15,"GameName":"Mega Millions","TotalDrawsPlayed":2134,"NextDraw":{"DrawNumber":2134,"DrawDate":"2025-12-02T08:00:00","JackpotAmount":90000000,"EstimatedCashValue":41900000,"DrawCloseTime":"Tuesday 8:00 PM"}}`))
 	f.Add([]byte(`{}`))
 	f.Add([]byte(`null`))
-	f.Add([]byte(`{"NextDraw":{"DrawNumber":-1,"JackpotAmount":-1,"EstimatedCashValue":0}}`))
-	f.Add([]byte(`{"NextDraw":{"JackpotAmount":1e308,"EstimatedCashValue":-1e308}}`)) // beyond int64 range
-	f.Add([]byte(`{"NextDraw":{"DrawDate":null}}`))                                   // null date must error, not panic
-	f.Add([]byte(`{"NextDraw":{"JackpotAmount":NaN}}`))                               // invalid JSON
+	f.Add([]byte(`{"NextDraw":{"DrawNumber":-1,"JackpotAmount":-1,"EstimatedCashValue":0}}`))               // negative: rejected
+	f.Add([]byte(`{"NextDraw":{"DrawNumber":0,"JackpotAmount":1e12,"EstimatedCashValue":0}}`))              // boundary: accepted
+	f.Add([]byte(`{"NextDraw":{"JackpotAmount":1e308,"EstimatedCashValue":-1e308}}`))                       // absurd: rejected
+	f.Add([]byte(`{"NextDraw":{"DrawNumber":0,"JackpotAmount":0,"EstimatedCashValue":999999999999999.9}}`)) // cash just over: rejected
+	f.Add([]byte(`{"NextDraw":{"DrawDate":null}}`))                                                         // null date must error, not panic
+	f.Add([]byte(`{"NextDraw":{"JackpotAmount":NaN}}`))                                                     // invalid JSON
 
 	f.Fuzz(func(t *testing.T, data []byte) {
 		var resp LotteryResponse
 		if err := json.Unmarshal(data, &resp); err != nil {
 			return
 		}
-		// The exact float-to-int conversions fetchJackpot performs must not
-		// panic for any successfully-parsed payload.
-		jackpot := int64(math.Round(resp.NextDraw.Jackpot))
-		cash := int64(math.Round(resp.NextDraw.EstimatedCash))
+		inBounds := resp.NextDraw.Jackpot >= 0 && resp.NextDraw.Jackpot <= maxJackpotAmount &&
+			resp.NextDraw.EstimatedCash >= 0 && resp.NextDraw.EstimatedCash <= maxJackpotAmount
 
-		// For values that convert cleanly, the rounding must be exact.
-		// 2^52 is the largest float64 below which every representable value
-		// is an integer that survives int64 conversion and back.
-		const safeLimit = float64(1 << 52)
-		for _, amount := range []struct {
-			raw  float64
-			conv int64
-		}{{resp.NextDraw.Jackpot, jackpot}, {resp.NextDraw.EstimatedCash, cash}} {
-			rounded := math.Round(amount.raw)
-			if -safeLimit <= rounded && rounded <= safeLimit && float64(amount.conv) != rounded {
-				t.Errorf("int64 conversion corrupted rounded value %v to %d", rounded, amount.conv)
+		// The production conversion path; must never panic.
+		record, err := buildJackpotRecord("fuzz", &resp)
+		if err != nil {
+			if inBounds {
+				t.Errorf("buildJackpotRecord rejected an in-bounds payload: %v", err)
 			}
+			return
+		}
+		if !inBounds {
+			t.Fatalf("buildJackpotRecord accepted out-of-bounds amounts: jackpot %v, cash %v",
+				resp.NextDraw.Jackpot, resp.NextDraw.EstimatedCash)
+		}
+		// Accepted amounts are <= 1e12 (well under 2^53), so the rounded
+		// int64 conversions must be exact.
+		if math.Round(resp.NextDraw.Jackpot) != float64(record.Jackpot) {
+			t.Errorf("jackpot rounding mismatch: %v became %d", resp.NextDraw.Jackpot, record.Jackpot)
+		}
+		if math.Round(resp.NextDraw.EstimatedCash) != float64(record.EstimatedCash) {
+			t.Errorf("estimated cash rounding mismatch: %v became %d", resp.NextDraw.EstimatedCash, record.EstimatedCash)
 		}
 	})
 }
@@ -113,6 +125,17 @@ func FuzzSaveJackpot(f *testing.F) {
 	f.Add("Powerball'); DROP TABLE jackpots;--", -1, "2025-12-03T08:00:00Z", int64(-1), int64(0))
 	f.Add("🚀 jackpot", 0, "2025-12-03T08:00:00Z", int64(9223372036854775807), int64(-9223372036854775808))
 	f.Add("name with \"double\" and 'single' quotes", 999999999, "2025-12-03T08:00:00-08:00", int64(0), int64(0))
+
+	// One in-memory database per fuzz worker (this setup runs inside each
+	// worker process) rather than reopening per iteration, which would burn
+	// the fuzz budget re-running the schema DDL. ':memory:' databases are
+	// private per connection, so the pool is pinned to one connection.
+	db, err := initDatabaseAt(":memory:")
+	if err != nil {
+		f.Fatalf("failed to open in-memory database: %v", err)
+	}
+	defer db.Close()
+	db.SetMaxOpenConns(1)
 
 	f.Fuzz(func(t *testing.T, game string, drawNumber int, drawDate string, jackpot, estimatedCash int64) {
 		// DrawDate comes from parsed API JSON, so only RFC 3339 strings are
@@ -130,14 +153,12 @@ func FuzzSaveJackpot(f *testing.F) {
 			CheckedAt:     time.Now().UTC(),
 		}
 
-		db, err := initDatabaseAt(":memory:")
-		if err != nil {
-			t.Fatalf("failed to open in-memory database: %v", err)
+		// Reset instead of reopening: the schema has no UNIQUE constraint,
+		// so every insert is valid and the read-back below finds exactly
+		// this row.
+		if _, err := db.Exec(`DELETE FROM jackpots`); err != nil {
+			t.Fatalf("failed to reset in-memory database: %v", err)
 		}
-		defer db.Close()
-		// ':memory:' databases are private per connection; pin the pool to
-		// one connection so the insert and the read-back share the same one.
-		db.SetMaxOpenConns(1)
 
 		if err := saveJackpot(db, record); err != nil {
 			t.Fatalf("saveJackpot rejected a parameterized insert: %v", err)

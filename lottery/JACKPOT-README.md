@@ -89,6 +89,10 @@ The program uses the California Lottery's official API endpoints:
 
 These are the same endpoints the official website uses to display jackpot info.
 
+Amounts are sanity-checked before storing: negative or absurdly large
+values (anything above a trillion dollars) are rejected as API garbage
+rather than silently saved as corrupted integers.
+
 The database schema handles duplicate entries gracefully - if you run it multiple
 times for the same draw, it'll update the existing record with the latest check time.
 
@@ -129,7 +133,7 @@ Run fuzzing locally (30 seconds per target by default):
 ```bash
 just lottery-fuzz                     # all targets, 30s each
 just lottery-fuzz 2m                  # all targets, 2 minutes each
-just lottery-fuzz 30s FuzzSaveJackpot  # one target
+just lottery-fuzz 30s FuzzSaveJackpot # one target
 ```
 
 If fuzzing finds a failing input, Go writes it to
