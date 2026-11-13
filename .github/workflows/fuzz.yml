@@ -1,0 +1,101 @@
+---
+name: Go Fuzzing
+
+# Native Go fuzzing for the lottery jackpot-checker targets, run via
+# 'just lottery-fuzz'.  The fuzz targets' seed corpora already run in
+# go.yml on every push/PR; this job adds real fuzzing time on a weekly
+# schedule plus manual runs.  Failing inputs land in lottery/testdata/fuzz/
+# and are uploaded as an artifact for triage (commit them as regression
+# seeds once understood).
+
+on:
+  schedule:
+    # 13:37 UTC Monday - past the schedule-queue backlog that doesn't drain
+    # until ~13:00 UTC (see the cron note in github-update.yml), with odd
+    # minutes to avoid the top-of-hour crunch.
+    - cron: '37 13 * * 1'
+  workflow_dispatch:
+
+# Serialize scheduled + manual runs so parallel fuzz sessions don't
+# duplicate work (a newer pending run replaces an older queued one, but an
+# in-progress run is never killed mid-fuzz).
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+# global permissions
+permissions: {}
+
+jobs:
+  fuzz:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      # to open/update the tracking issue when fuzzing finds a failure
+      issues: write
+    steps:
+      - name: Harden the runner (Audit all outbound calls)
+        uses: step-security/harden-runner@1d88384fd173af6ecb012dfd0264a306b711241a # v2.22.4
+        with:
+          egress-policy: audit
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # go-version: stable matches go.yml: every module here pins older
+      # toolchains, and Go's automatic toolchain download covers a future
+      # module pinning a newer one.
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+          cache-dependency-path: '**/go.sum'
+
+      - name: Set up just
+        uses: extractions/setup-just@53165ef7e734c5c07cb06b3c8e7b647c5aa16db3 # v4.0.0
+        with:
+          just-version: '1'
+
+      # 30 seconds per target (three targets in lottery/): enough to make
+      # progress on the input space between runs; run longer sessions
+      # locally with 'just lottery-fuzz 5m'.
+      - name: Fuzz lottery jackpot-checker
+        run: just lottery-fuzz
+
+      # Crashers are written to lottery/testdata/fuzz/ before the failing
+      # exit status propagates; keep them for triage.
+      - name: Upload fuzz crashers
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fuzz-crashers
+          path: lottery/testdata/fuzz/
+          retention-days: 30
+          if-no-files-found: ignore
+
+      # A weekly run failing quietly in the Actions tab helps nobody:
+      # open a tracking issue on the first failure and comment on it
+      # for repeat failures.
+      - name: Open or update a tracking issue
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # gh needs the repo named explicitly: checkout runs with
+          # persist-credentials false (#551)
+          GH_REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          set -euo pipefail
+          TITLE="Weekly Go fuzzing failed"
+          EXISTING=$(gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING" ]; then
+            echo "Found open tracking issue #$EXISTING - commenting."
+            gh issue comment "$EXISTING" --body "Fuzzing failed again: $RUN_URL"
+          else
+            echo "No open tracking issue - creating one."
+            gh issue create --title "$TITLE" --body "The scheduled Go fuzzing run failed. Crashers (if any) are attached to the run: $RUN_URL
+
+          Triage the failure, fix the code, and commit the failing inputs under lottery/testdata/fuzz/ as regression seeds."
+          fi

@@ -48,6 +48,7 @@ imports modules from `.just/` directory:
 - `just install-lottery-deps` - Install prerequisites (Go, wget, sqlite3)
 - `just fetch-jackpots` - Fetch California lottery jackpots, show recent results
 - `just jackpot-status` - Show database age and when data was last updated
+- `just lottery-fuzz [FUZZTIME] [FUZZTARGET]` - Fuzz the jackpot-checker Go code (default 30s per target; seeds run in go-test)
 - `just download-lottery-numbers` - Download NY lottery winning numbers (CSV)
 - `just analyze-megamillions` - Analyze Mega Millions number frequency (requires R)
 - `just analyze-megamillions-pl` - Additional Mega Millions analysis variant (requires R)
@@ -180,6 +181,7 @@ Other automated workflows:
 - `auto-assign.yml` - Automatically assigns PRs to the repo owner
 - `codeql.yml` - CodeQL security scanning (Go, Python)
 - `go.yml` - Builds, vets, and tests all Go modules (`go test -race`), plus a gofmt check
+- `fuzz.yml` - Weekly scheduled native Go fuzzing of the lottery jackpot-checker (runs `just lottery-fuzz`; seeds run in go.yml)
 - `dependency-review.yml` - Scans dependency changes in PRs for vulnerabilities
 - `gitleaks.yml` - Secret detection
 - `renovate-validate.yml` - Validates `.github/renovate.json`
