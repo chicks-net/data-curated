@@ -29,6 +29,11 @@
   },
   "packageRules": [
     {
+      "description": "Hold scorecard-action at 2.5.x while the v2.6.0 ghcr.io image 404s (chicks-net/chicks-projects#158, ossf/scorecard-action#1752); drop this rule when upstream re-pushes the image or cuts v2.6.1",
+      "matchDepNames": ["ossf/scorecard-action"],
+      "allowedVersions": "2.5.x"
+    },
+    {
       "matchUpdateTypes": ["patch"],
       "groupName": "patches",
       "automerge": true
