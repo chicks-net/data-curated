@@ -1,0 +1,3 @@
+Track URI,ISRC,Track Name,Album Name,Artist Name(s),Release Date,Duration (ms),Popularity,Explicit,Added By,Added At,Genres,Record Label,Danceability,Energy,Key,Loudness,Mode,Speechiness,Acousticness,Instrumentalness,Liveness,Valence,Tempo,Time Signature
+spotify:track:3NUZYkBdFv2XHql84Lzpml,FR99S0500023,"Tango Cancion","Lunatico","Gotan Project",2006-04-10,263226,0,false,chicks_net,2026-11-08T00:28:54Z,"tango,nu jazz","XL Recordings",0.473,0.434,4,-10.998,0,0.115,0.539,0.138,0.738,0.199,116.591,4
+spotify:track:1Piuwcor5dO7Deg7IjBvZ1,FR99S9900003,"Vuelvo Al Sur","La Revancha Del Tango","Gotan Project",2001-10-29,419600,0,false,chicks_net,2026-11-08T00:28:54Z,"tango,nu jazz","XL",0.859,0.521,11,-9.523,1,0.0541,0.0535,0.32,0.113,0.383,99.021,4
