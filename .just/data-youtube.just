@@ -65,6 +65,7 @@ download-youtube-playlists:
     just download-youtube-playlist PL2B065C08C418EC58 fun_songs.json
     just download-youtube-playlist PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr learning_spanish_songs.json
     just download-youtube-playlist PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 music_videos_by_chicks.json
+    just download-youtube-playlist PLGy4wkCuxqNg sawyer_tonies_1.json
 
 # Extract audio from a YouTube playlist into audio files (default: mp3)
 # Accepts a full playlist URL or a bare playlist ID:
@@ -236,6 +237,34 @@ playlist-length PLAYLIST:
     else
         echo "{{GREEN}}Fits on a Creative-Tonie (90-minute capacity).{{NORMAL}}"
     fi
+
+# Create the "Sawyer Tonies 2" YouTube playlist: music videos liked on
+# YouTube that are not on "Sawyer Tonies 1" (PLGy4wkCuxqNg). Reads your
+# liked videos via yt-dlp + Chrome cookies (macOS asks for Keychain
+# access once - click "Always Allow") and creates the playlist via
+# ytmusicapi (one-time setup: `uvx ytmusicapi browser`, see README).
+# Dry-run by default - pass "" to actually create it:
+#   just create-tonies2-playlist          # report what would be created
+#   just create-tonies2-playlist ""        # create the playlist
+# The first run scans every liked video for its category (cached in
+# tonies2-cache.json, gitignored); later runs only scan new likes.
+# Extra script flags pass through, e.g. just create-tonies2-playlist "" -- --limit 200
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+create-tonies2-playlist DRY_RUN="--dry-run" *args:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check if yt-dlp is installed using helper
+    INSTALL_CMD=$(just _get-install_cmd yt-dlp python3-yt-dlp)
+    just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
+
+    # Check if uv is installed using helper
+    just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
+
+    echo "{{GREEN}}Building Sawyer Tonies 2 from liked music videos...{{NORMAL}}"
+    # shellcheck disable=SC1083
+    uv run tonies2-playlist.py {{DRY_RUN}} {{ args }}
 
 # View YouTube video database in Datasette
 [group('youtube')]

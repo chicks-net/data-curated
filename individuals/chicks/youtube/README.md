@@ -19,6 +19,10 @@ just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
 # Calculate total playlist play time (checks the 90-minute Creative-Tonie fit)
 just playlist-length PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
 
+# Create "Sawyer Tonies 2" from music videos liked on YouTube
+just create-tonies2-playlist        # Dry-run mode (shows what would be created)
+just create-tonies2-playlist ""     # Actually create the playlist
+
 # Link videos to blog posts on chicks.net
 just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
 just link-youtube-blog-posts ""     # Actually update the database
@@ -38,6 +42,8 @@ just youtube-status
 
 - Python 3.x
 - yt-dlp: `pip install yt-dlp` or `brew install yt-dlp`
+- uv (runs tonies2-playlist.py and auto-installs ytmusicapi):
+  `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - jq (pretty-prints playlist JSON, sums playlist durations): `brew install jq`
 - ffmpeg (audio extraction): `brew install ffmpeg`
 - SQLite3 (usually pre-installed)
@@ -164,6 +170,7 @@ Current playlist files:
 | `fun_songs.json` | Fun songs | PL2B065C08C418EC58 |
 | `learning_spanish_songs.json` | Learning Spanish Songs | PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr |
 | `music_videos_by_chicks.json` | Music Videos by Chicks | PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 |
+| `sawyer_tonies_1.json` | Sawyer Tonies 1 | PLGy4wkCuxqNg |
 
 To check how long a playlist runs (metadata only - nothing downloads),
 use the `playlist-length` recipe. It accepts a playlist URL, a bare
@@ -219,6 +226,71 @@ How it behaves:
 Note: extracting audio from YouTube is fine for your own uploads and
 CC-licensed content, but downloading other creators' music is a gray area
 that's between you and YouTube's terms of service.
+
+## Tonies Playlists
+
+The `tonies2-playlist.py` script builds the **"Sawyer Tonies 2"** YouTube
+playlist: every music video liked on YouTube that is not already on
+["Sawyer Tonies 1"](https://youtube.com/playlist?list=PLGy4wkCuxqNg)
+(the Creative-Tonie playlist migrated from Spotify with Soundiiz).
+
+```bash
+just create-tonies2-playlist        # Dry-run mode (shows what would be created)
+just create-tonies2-playlist ""     # Actually create the playlist
+```
+
+How it decides what goes in:
+
+- Source is the account's **Liked Videos** list (the special `LL`
+  playlist), read with yt-dlp using Chrome's cookies. It is *not* the
+  YouTube Music "Liked Music" list - those are separately-liked tracks
+  (old Spotify-era likes here) and stay disjoint from videos liked on
+  YouTube itself.
+- A video makes the cut when YouTube categorizes it as **Music**.
+  Roughly a tenth of liked music titles don't look musical at all, so
+  nothing is pre-filtered by title: every liked video gets its category
+  checked. If the filter drops something wrongly, `--include-ids ID`
+  forces it in.
+- Videos already on Sawyer Tonies 1 are excluded; everything else goes
+  in newest-liked first, uncapped (the 90-minute Creative-Tonie limit
+  only matters at extraction time - see `playlist-length`).
+
+One-time setup:
+
+1. Be logged into YouTube in Chrome. The first run makes macOS ask for
+   Keychain access so yt-dlp can read Chrome's cookies - click
+   **Always Allow**.
+2. Create the ytmusicapi auth file for playlist creation:
+
+   ```bash
+   cd individuals/chicks/youtube
+   uvx ytmusicapi browser
+   ```
+
+   (writes `browser.json`, gitignored; re-run if it ever expires)
+
+How it behaves:
+
+- The first run scans every liked video for its category - the `LL`
+  playlist caps at 5000, and a full scan with the default 4 workers
+  takes roughly half an hour. Results are cached in
+  `tonies2-cache.json` (gitignored), so later runs only scan newly
+  liked videos.
+- One-shot by design: if a "Sawyer Tonies 2" playlist already exists,
+  the script refuses to touch it. `--force` switches to add-only mode -
+  it adds missing tracks but never removes or reorders anything, so
+  manual curation on YouTube survives.
+- The playlist is created as **private** (`--privacy public` or
+  `unlisted` to change).
+- Useful flags: `--limit 200` for a quick subset test, `--workers 1`
+  if YouTube starts throttling, `--exclude-ids` to leave something out,
+  `--refresh` to discard the cache.
+
+After creation, the next Creative-Tonie is one recipe away:
+
+```bash
+just extract-youtube-audio <new playlist ID>
+```
 
 ## Blog Post Linking
 
@@ -318,11 +390,16 @@ current data.
 ## Files
 
 - `fetch-videos.py` - Main script to fetch and store video metadata
+- `tonies2-playlist.py` - Creates the "Sawyer Tonies 2" playlist from liked music videos
 - `link-blog-posts.go` - Go program to link videos to blog posts
 - `generate-blog-posts.go` - Go program to generate blog posts from template
 - `template.md` - Blog post template with variable placeholders
 - `videos.db` - SQLite database (created after first run)
 - `*.json` - Downloaded playlist metadata files (see Playlist Metadata)
+- `browser.json` - ytmusicapi auth for tonies2-playlist.py (created by
+  `uvx ytmusicapi browser`, excluded from git)
+- `tonies2-cache.json` - Liked-video category cache for tonies2-playlist.py
+  (excluded from git)
 - `generated/` - Directory for generated blog posts (excluded from git)
 - `audio/` - Extracted playlist audio files (created by extract-youtube-audio, excluded from git)
 - `go.mod`, `go.sum` - Go module dependencies

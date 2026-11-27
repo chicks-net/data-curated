@@ -105,9 +105,10 @@ imports modules from `.just/` directory:
 ### YouTube commands
 
 - `just download-youtube-playlist <PLAYLIST> <OUTPUT>` - Download YouTube playlist metadata as JSON (accepts a full playlist URL or bare playlist ID)
-- `just download-youtube-playlists` - Recreate all playlist metadata JSON files (cover, fun, learning Spanish, music videos)
-- `just extract-youtube-audio <PLAYLIST> [OUTPUT_DIR] [FORMAT]` - Extract audio from a YouTube playlist (default mp3 into individuals/chicks/youtube/audio/, gitignored; accepts full playlist URL or bare ID; warns if playlist exceeds the 90-minute Creative-Tonie capacity)
+- `just download-youtube-playlists` - Recreate all playlist metadata JSON files (cover, fun, learning Spanish, music videos, Sawyer Tonies 1)
+- `just extract-youtube-audio <PLAYLIST> [OUTPUT_DIR] [FORMAT]` - Extract audio from a YouTube playlist (default mp3 into individuals/chicks/youtube/audio/, gitignored; accepts full playlist URL or bare playlist ID; warns if playlist exceeds the 90-minute Creative-Tonie capacity)
 - `just playlist-length <PLAYLIST>` - Calculate total play time of a YouTube playlist (accepts full playlist URL, bare playlist ID, or a saved playlist metadata JSON file; notes whether it fits a 90-minute Creative-Tonie)
+- `just create-tonies2-playlist [DRY_RUN]` - Create the "Sawyer Tonies 2" YouTube playlist from music videos liked on YouTube that aren't on "Sawyer Tonies 1" (defaults to --dry-run, pass "" to create; reads liked videos via Chrome cookies; needs one-time `uvx ytmusicapi browser` setup; first run scans every liked video, cached in tonies2-cache.json afterward)
 - `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
 - `just link-youtube-blog-posts [DRY_RUN]` - Link videos to blog posts (defaults to --dry-run, pass "" to update)
 - `just generate-blog-posts [DRY_RUN]` - Generate blog posts for videos without posts (6+ months old, defaults to --dry-run, pass "" to generate)
@@ -278,6 +279,13 @@ The repository contains several Go programs:
 
 The repository contains Python programs for data fetching and processing:
 
+- `individuals/chicks/youtube/tonies2-playlist.py` - Creates the "Sawyer Tonies 2" YouTube playlist from music videos liked on YouTube
+  - Run with: `just create-tonies2-playlist` (preferred) or `cd individuals/chicks/youtube && uv run tonies2-playlist.py --dry-run`
+  - Source is the Liked Videos list (LL) read via yt-dlp with Chrome cookies; keeps videos YouTube categorizes as Music, minus what's already on "Sawyer Tonies 1" (PLGy4wkCuxqNg)
+  - Creates the playlist via ytmusicapi (one-time `uvx ytmusicapi browser` auth; browser.json is gitignored); one-shot by default, `--force` switches to add-only
+  - The first run scans every liked video for its category (LL caps at 5000); results cached in tonies2-cache.json (gitignored) so later runs only scan new likes
+  - ytmusicapi dependency declared via PEP 723 inline metadata (uv auto-installs)
+  - See individuals/chicks/youtube/README.md for full documentation
 - `individuals/chicks/youtube/fetch-videos.py` - Fetches YouTube video metadata using yt-dlp
   - Run with: `just fetch-youtube-videos` (preferred) or `cd individuals/chicks/youtube && python3 fetch-videos.py`
   - Stores video metadata in `individuals/chicks/youtube/videos.db` SQLite database
