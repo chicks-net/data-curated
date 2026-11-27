@@ -90,6 +90,7 @@ imports modules from `.just/` directory:
 - `just analyze-review-timing` - Analyze bot review timing (requires R)
 - `just reviews-db` - Open reviews.db in Datasette browser
 - `just github-update-all` - Complete GitHub update cycle: fetch all data, run analyses, stage changes, show db status (requires being on a branch)
+- `just trigger-github-update [FORCE]` - Manually trigger the nightly GitHub Update workflow via workflow_dispatch (FORCE=true bypasses the workflow's same-day duplicate guard)
 
 ### R package management
 

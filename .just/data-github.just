@@ -177,6 +177,33 @@ _github-update-ci:
     git add individuals/chicks/github
     git status --porcelain
 
+# Manually trigger the nightly GitHub Update workflow (FORCE=true bypasses its same-day duplicate guard)
+[group('github')]
+trigger-github-update FORCE="false":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    just _require_command gh "Install gh CLI: https://cli.github.com/"
+
+    # assign the template arg to a shell var first (shellcheck SC2157 guard)
+    # accepts only true/false: "true" maps to the workflow's force input,
+    # which makes the guard job run even when today's update PR is already
+    # open or merged (for regenerating after a bad merge); "false" leaves
+    # the guard active so a same-day rerun gets skipped.
+    force="{{FORCE}}"
+    if [ "$force" != "true" ] && [ "$force" != "false" ]; then
+        echo "{{RED}}Error: FORCE must be true or false (got: '$force'){{NORMAL}}"
+        echo "Usage: just trigger-github-update [true|false]"
+        exit 1
+    fi
+
+    echo "{{GREEN}}Triggering GitHub Update workflow on main (force=$force){{NORMAL}}"
+    if [ "$force" != "true" ]; then
+        echo "{{BLUE}}The guard job skips the update when today's PR is open or merged; pass true to bypass.{{NORMAL}}"
+    fi
+
+    gh workflow run github-update.yml --ref main -f force="$force"
+
 # View commits in Datasette
 [group('github')]
 commits-db:
