@@ -11,7 +11,7 @@ lottery/jackpot-checker.log
 # Generated YouTube blog posts
 individuals/chicks/youtube/generated/
 
-# Extracted YouTube audio (mp3/m4a output of extract-youtube-audio)
+# Extracted YouTube audio (output of extract-youtube-audio)
 individuals/chicks/youtube/audio/
 
 # Compiled binaries

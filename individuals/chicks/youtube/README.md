@@ -205,9 +205,14 @@ How it behaves:
 - Metadata (title, artist) is embedded so the mytonies app shows real
   track names instead of filenames.
 - mp3 re-encodes for maximum compatibility; m4a avoids re-encoding when
-  the source is AAC. Both formats upload fine to a Creative-Tonie.
-- One dead or private video doesn't stop the batch, and re-runs skip
-  tracks that were already extracted.
+  the source is AAC. opus, flac, and wav also work. mp3 and m4a upload
+  fine to a Creative-Tonie.
+- One dead or private video doesn't stop the batch; the run finishes and
+  reports any failures after the summary.
+- Re-runs skip tracks that are already extracted. Filenames key off the
+  playlist position, so if you reorder or trim the playlist, delete the
+  output directory first to avoid stale files from the old order (the
+  two-digit index also assumes fewer than 100 tracks).
 - Output paths are relative to `individuals/chicks/youtube` unless you
   pass an absolute path.
 
