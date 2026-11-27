@@ -11,6 +11,9 @@ lottery/jackpot-checker.log
 # Generated YouTube blog posts
 individuals/chicks/youtube/generated/
 
+# Extracted YouTube audio (mp3/m4a output of extract-youtube-audio)
+individuals/chicks/youtube/audio/
+
 # Compiled binaries
 individuals/github-contrib/daily-ranking/daily-ranking
 individuals/github-contrib/daily-ranking-viewer/daily-ranking-viewer

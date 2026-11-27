@@ -66,6 +66,145 @@ download-youtube-playlists:
     just download-youtube-playlist PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr learning_spanish_songs.json
     just download-youtube-playlist PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 music_videos_by_chicks.json
 
+# Extract audio from a YouTube playlist into audio files (default: mp3)
+# Accepts a full playlist URL or a bare playlist ID:
+#   just extract-youtube-audio 'https://youtube.com/playlist?list=PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV'
+#   just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV ~/Downloads/tonie-mix
+# OUTPUT_DIR is relative to individuals/chicks/youtube (absolute paths work
+# too; defaults to audio/, which is gitignored). FORMAT: mp3 re-encodes for
+# maximum compatibility; m4a skips re-encoding when the source is AAC. Both
+# upload fine to a Creative-Tonie at my.tonies.com.
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+extract-youtube-audio PLAYLIST OUTPUT_DIR="audio" FORMAT="mp3":
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check if yt-dlp is installed using helper
+    INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
+    just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
+
+    # Check if ffmpeg is installed (required for audio extraction/conversion)
+    INSTALL_CMD=$(just _get_install_cmd ffmpeg ffmpeg)
+    just _require_command ffmpeg "Install with:\n  $INSTALL_CMD"
+
+    # Check if jq is installed (sums playlist durations for the info pass)
+    INSTALL_CMD=$(just _get_install_cmd jq jq)
+    just _require_command jq "Install with:\n  $INSTALL_CMD"
+
+    URL="{{PLAYLIST}}"
+    OUTPUT_DIR="{{OUTPUT_DIR}}"
+    FORMAT="{{FORMAT}}"
+
+    # Accept either a full playlist URL or a bare playlist ID
+    if [[ "$URL" != http* ]]; then
+        URL="https://youtube.com/playlist?list=$URL"
+    fi
+
+    # Info pass: report total playlist duration before downloading. A
+    # Creative-Tonie holds 90 minutes, so warn when the playlist runs
+    # longer than that (informational only - the download proceeds).
+    TOTAL_SECONDS=$(yt-dlp --flat-playlist --dump-single-json "$URL" \
+        | jq '[.entries[].duration // 0] | add // 0' \
+        | cut -d. -f1) || TOTAL_SECONDS=""
+
+    if [[ "$TOTAL_SECONDS" =~ ^[0-9]+$ ]]; then
+        echo "{{BLUE}}Playlist duration:{{NORMAL}} $(( TOTAL_SECONDS / 60 )) minutes"
+        if (( TOTAL_SECONDS > 5400 )); then
+            echo "{{YELLOW}}Warning: over 90 minutes - a Creative-Tonie only holds 90.{{NORMAL}}"
+        fi
+    fi
+
+    mkdir -p "$OUTPUT_DIR"
+    echo "{{GREEN}}Extracting audio to $OUTPUT_DIR (format: $FORMAT)...{{NORMAL}}"
+
+    # The %(playlist_index)02d prefix keeps playlist order in Finder (and
+    # therefore track order on a Creative-Tonie). --embed-metadata gives
+    # clean titles in the mytonies app. --ignore-errors so one dead video
+    # doesn't kill the batch, --no-overwrites so re-runs skip finished
+    # tracks instead of re-downloading the whole playlist.
+    yt-dlp -x \
+        --audio-format "$FORMAT" \
+        --audio-quality 0 \
+        --embed-metadata \
+        --embed-thumbnail \
+        --ignore-errors \
+        --no-overwrites \
+        -o "$OUTPUT_DIR/%(playlist_index)02d - %(title)s.%(ext)s" \
+        "$URL"
+
+    FILE_COUNT=$(find "$OUTPUT_DIR" -type f | wc -l | tr -d ' ')
+    echo "{{GREEN}}✓ $FILE_COUNT audio files in $OUTPUT_DIR{{NORMAL}}"
+
+# Calculate the total play time of a YouTube playlist (metadata only -
+# nothing is downloaded). Accepts a full playlist URL, a bare playlist ID,
+# or a saved playlist metadata JSON file (paths relative to
+# individuals/chicks/youtube):
+#   just playlist-length 'https://youtube.com/playlist?list=PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV'
+#   just playlist-length PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
+#   just playlist-length cover_songs.json
+# Also notes whether the total fits a 90-minute Creative-Tonie.
+[working-directory("individuals/chicks/youtube")]
+[group('youtube')]
+playlist-length PLAYLIST:
+    #!/usr/bin/env bash
+    set -euo pipefail
+
+    # Check if yt-dlp is installed using helper
+    INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
+    just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
+
+    # Check if jq is installed using helper
+    INSTALL_CMD=$(just _get_install_cmd jq jq)
+    just _require_command jq "Install with:\n  $INSTALL_CMD"
+
+    SOURCE="{{PLAYLIST}}"
+
+    # Read metadata into a temp file, either from a saved JSON file or
+    # live from YouTube (accepting a full URL or a bare playlist ID)
+    TMP_JSON=$(mktemp)
+    trap 'rm -f "$TMP_JSON"' EXIT
+    if [[ -f "$SOURCE" ]]; then
+        echo "{{GREEN}}Reading saved playlist metadata from $SOURCE...{{NORMAL}}"
+        cp "$SOURCE" "$TMP_JSON"
+    else
+        URL="$SOURCE"
+        if [[ "$URL" != http* ]]; then
+            URL="https://youtube.com/playlist?list=$URL"
+        fi
+        echo "{{GREEN}}Fetching playlist metadata from $URL...{{NORMAL}}"
+        yt-dlp --flat-playlist --dump-single-json "$URL" > "$TMP_JSON"
+    fi
+
+    TITLE=$(jq -r '.title // "Unknown"' "$TMP_JSON")
+    COUNT=$(jq '(.entries // []) | length' "$TMP_JSON")
+    MISSING=$(jq '[.entries[]? | select(.duration == null)] | length' "$TMP_JSON")
+    SECS=$(jq '[.entries[]?.duration // 0] | add // 0' "$TMP_JSON" | cut -d. -f1)
+
+    if (( SECS >= 3600 )); then
+        DURATION="$(( SECS / 3600 ))h $(( (SECS % 3600) / 60 ))m"
+    elif (( SECS >= 60 )); then
+        DURATION="$(( SECS / 60 ))m $(( SECS % 60 ))s"
+    else
+        DURATION="${SECS}s"
+    fi
+
+    echo ""
+    echo "{{BLUE}}Playlist:{{NORMAL}} $TITLE"
+    echo "{{BLUE}}Videos:{{NORMAL}}   $COUNT"
+    echo "{{BLUE}}Duration:{{NORMAL}} $DURATION ($SECS seconds)"
+
+    if (( MISSING > 0 )); then
+        echo "{{YELLOW}}Note:{{NORMAL}} $MISSING video(s) have no duration data and count as 0"
+    fi
+
+    # A Creative-Tonie holds 90 minutes - the point of the exercise
+    if (( SECS > 5400 )); then
+        echo "{{YELLOW}}Warning: over 90 minutes - a Creative-Tonie only holds 90.{{NORMAL}}"
+    else
+        echo "{{GREEN}}Fits on a Creative-Tonie (90-minute capacity).{{NORMAL}}"
+    fi
+
 # View YouTube video database in Datasette
 [group('youtube')]
 youtube-db:

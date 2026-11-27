@@ -106,6 +106,8 @@ imports modules from `.just/` directory:
 
 - `just download-youtube-playlist <PLAYLIST> <OUTPUT>` - Download YouTube playlist metadata as JSON (accepts a full playlist URL or bare playlist ID)
 - `just download-youtube-playlists` - Recreate all playlist metadata JSON files (cover, fun, learning Spanish, music videos)
+- `just extract-youtube-audio <PLAYLIST> [OUTPUT_DIR] [FORMAT]` - Extract audio from a YouTube playlist (default mp3 into individuals/chicks/youtube/audio/, gitignored; accepts full playlist URL or bare ID; warns if playlist exceeds the 90-minute Creative-Tonie capacity)
+- `just playlist-length <PLAYLIST>` - Calculate total play time of a YouTube playlist (accepts full playlist URL, bare playlist ID, or a saved playlist metadata JSON file; notes whether it fits a 90-minute Creative-Tonie)
 - `just fetch-youtube-videos` - Fetch video metadata from ChristopherHicksFINI YouTube channel
 - `just link-youtube-blog-posts [DRY_RUN]` - Link videos to blog posts (defaults to --dry-run, pass "" to update)
 - `just generate-blog-posts [DRY_RUN]` - Generate blog posts for videos without posts (6+ months old, defaults to --dry-run, pass "" to generate)

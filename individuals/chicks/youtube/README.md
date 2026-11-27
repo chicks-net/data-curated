@@ -13,6 +13,12 @@ just fetch-youtube-videos
 just download-youtube-playlist PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV cover_songs.json
 just download-youtube-playlists   # Recreate all playlist JSON files
 
+# Extract audio from a playlist as mp3 files (e.g. for a Creative-Tonie)
+just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
+
+# Calculate total playlist play time (checks the 90-minute Creative-Tonie fit)
+just playlist-length PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
+
 # Link videos to blog posts on chicks.net
 just link-youtube-blog-posts        # Dry-run mode (shows what would be updated)
 just link-youtube-blog-posts ""     # Actually update the database
@@ -32,7 +38,8 @@ just youtube-status
 
 - Python 3.x
 - yt-dlp: `pip install yt-dlp` or `brew install yt-dlp`
-- jq (pretty-prints playlist JSON): `brew install jq`
+- jq (pretty-prints playlist JSON, sums playlist durations): `brew install jq`
+- ffmpeg (audio extraction): `brew install ffmpeg`
 - SQLite3 (usually pre-installed)
 - Go (for blog post linking): `brew install go` or see <https://go.dev/doc/install>
 - Git (for blog post linking, usually pre-installed)
@@ -158,6 +165,56 @@ Current playlist files:
 | `learning_spanish_songs.json` | Learning Spanish Songs | PLj1L6ffGFWPt054TO8HQsOrPo1Lbc6KFr |
 | `music_videos_by_chicks.json` | Music Videos by Chicks | PLj1L6ffGFWPvX5qs5s_U8EnxdZPsp_9A5 |
 
+To check how long a playlist runs (metadata only - nothing downloads),
+use the `playlist-length` recipe. It accepts a playlist URL, a bare
+playlist ID, or one of the saved JSON files listed above:
+
+```bash
+just playlist-length PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
+just playlist-length cover_songs.json
+```
+
+It reports the track count and total duration, flags videos that have no
+duration data, and notes whether the total fits within a 90-minute
+Creative-Tonie.
+
+## Audio Extraction
+
+The `extract-youtube-audio` recipe turns a playlist into audio files - handy
+for loading a [Creative-Tonie](https://us.tonies.com/pages/creative-tonies)
+via my.tonies.com, or just for offline listening:
+
+```bash
+# Bare playlist IDs and full playlist URLs both work. This saves mp3s to
+# individuals/chicks/youtube/audio/ (the default, excluded from git).
+just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
+
+# Custom output directory (absolute paths work too)
+just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV ~/Downloads/tonie-mix
+
+# m4a instead of mp3 (skips re-encoding when the source is AAC)
+just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV audio m4a
+```
+
+How it behaves:
+
+- Reports the playlist's total duration first and warns when it exceeds
+  90 minutes, the capacity of a Creative-Tonie. Informational only.
+- Files are named `NN - Title.mp3`; the zero-padded number preserves
+  playlist order, which becomes track order on the Tonie.
+- Metadata (title, artist) is embedded so the mytonies app shows real
+  track names instead of filenames.
+- mp3 re-encodes for maximum compatibility; m4a avoids re-encoding when
+  the source is AAC. Both formats upload fine to a Creative-Tonie.
+- One dead or private video doesn't stop the batch, and re-runs skip
+  tracks that were already extracted.
+- Output paths are relative to `individuals/chicks/youtube` unless you
+  pass an absolute path.
+
+Note: extracting audio from YouTube is fine for your own uploads and
+CC-licensed content, but downloading other creators' music is a gray area
+that's between you and YouTube's terms of service.
+
 ## Blog Post Linking
 
 The `link-blog-posts.go` program automatically finds and links YouTube videos to their
@@ -262,6 +319,7 @@ current data.
 - `videos.db` - SQLite database (created after first run)
 - `*.json` - Downloaded playlist metadata files (see Playlist Metadata)
 - `generated/` - Directory for generated blog posts (excluded from git)
+- `audio/` - Extracted playlist audio files (created by extract-youtube-audio, excluded from git)
 - `go.mod`, `go.sum` - Go module dependencies
 - `README.md` - This file
 
