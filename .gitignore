@@ -14,6 +14,12 @@ individuals/chicks/youtube/generated/
 # Extracted YouTube audio (output of extract-youtube-audio)
 individuals/chicks/youtube/audio/
 
+# YouTube credentials and scan cache for tonies2-playlist.py
+# (browser.json is created by `uvx ytmusicapi browser`;
+# tonies2-cache.json caches per-video category lookups)
+individuals/chicks/youtube/browser.json
+individuals/chicks/youtube/tonies2-cache.json
+
 # Compiled binaries
 individuals/github-contrib/daily-ranking/daily-ranking
 individuals/github-contrib/daily-ranking-viewer/daily-ranking-viewer
