@@ -152,8 +152,12 @@ class ScanState:
         self.procs = []
         self.stop = threading.Event()
 
-    def note_success(self, cache):
+    def note_success(self, cache, vid, entry):
         with self.lock:
+            # The cache mutation belongs under the lock too: json.dump in
+            # save_cache iterates the dict, which raises RuntimeError if
+            # another thread inserts a new key mid-iteration.
+            cache[vid] = entry
             self.done += 1
             if self.done % 25 == 0 or self.done == self.total:
                 print(
@@ -263,9 +267,8 @@ def scan_chunk(chunk, cache, browser, state, sleep, skip_next):
             vid = info.get("id")
             if not vid:
                 continue
-            cache[vid] = cache_entry_from_info(info)
             scanned += 1
-            state.note_success(cache)
+            state.note_success(cache, vid, cache_entry_from_info(info))
     finally:
         if proc is not None:
             try:
@@ -332,7 +335,11 @@ def scan_missing(ids, cache, browser, workers, sleep, skip_next):
     except KeyboardInterrupt:
         state.abort("Interrupted - progress is cached.")
     finally:
-        save_cache(cache)
+        # Workers mutate the cache under the lock; take it for the final
+        # save as well (a KeyboardInterrupt can leave daemon threads
+        # running for a moment).
+        with state.lock:
+            save_cache(cache)
         print()
 
     if state.stop.is_set():
