@@ -273,9 +273,11 @@ One-time setup:
 How it behaves:
 
 - The first run scans every liked video for its category - the `LL`
-  playlist caps at 5000, and a full scan takes a couple of hours at the
-  polite default pace. Results are cached in `tonies2-cache.json`
-  (gitignored), so later runs only scan newly liked videos.
+  playlist caps at 5000. YouTube rate-limits the account after 15-20
+  minutes of scanning, so a big list takes several passes spread over
+  a few hours. Results are cached in `tonies2-cache.json` (gitignored),
+  so later runs only scan newly liked videos; responses that arrive
+  without category data are not cached, so they are retried next run.
 - YouTube rate-limits the account if the scan runs too hot (the block
   lasts about an hour). The script paces itself with a small delay
   between requests and stops early rather than fighting the block -

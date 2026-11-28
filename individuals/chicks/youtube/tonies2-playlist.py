@@ -20,9 +20,10 @@ Usage:
     just create-tonies2-playlist ""          # actually create it
 
 The first run scans every liked video to read its category (the LL
-playlist caps at 5000, so with 4 workers this takes roughly half an
-hour). Results are cached in tonies2-cache.json (gitignored), so later
-runs only scan newly liked videos.
+playlist caps at 5000). YouTube rate-limits the account after 15-20
+minutes of scanning, so a big list takes several passes spread over a
+few hours. Results are cached in tonies2-cache.json (gitignored), so
+later runs only scan newly liked videos.
 
 One-shot by design: if an "All Liked Music Videos" playlist already
 exists, the script refuses to touch it unless --force is given (--force
@@ -123,10 +124,11 @@ def cache_entry_from_info(info):
 
 def fetch_video_info(video_id, browser):
     """Full metadata for one video, or None if the fetch failed."""
+    # Single URL: a failed fetch exits non-zero (no --ignore-errors
+    # here), which the except clauses below turn into None.
     cmd = ytdlp_base(browser) + [
         "--dump-json",
         "--skip-download",
-        "--ignore-errors",
         f"https://www.youtube.com/watch?v={video_id}",
     ]
     try:
@@ -149,8 +151,18 @@ class ScanState:
         self.lock = threading.Lock()
         self.total = total
         self.done = 0
+        self.degraded = 0
         self.procs = []
         self.stop = threading.Event()
+
+    def _note(self):
+        self.done += 1
+        if self.done % 25 == 0 or self.done == self.total:
+            print(
+                f"\r  scanned {self.done}/{self.total}",
+                end="",
+                flush=True,
+            )
 
     def note_success(self, cache, vid, entry):
         with self.lock:
@@ -158,15 +170,17 @@ class ScanState:
             # save_cache iterates the dict, which raises RuntimeError if
             # another thread inserts a new key mid-iteration.
             cache[vid] = entry
-            self.done += 1
-            if self.done % 25 == 0 or self.done == self.total:
-                print(
-                    f"\r  scanned {self.done}/{self.total}",
-                    end="",
-                    flush=True,
-                )
+            self._note()
             if self.done % SAVE_EVERY == 0:
                 save_cache(cache)
+
+    def note_degraded(self):
+        # A parsed response without category data must not be cached:
+        # is_music() would filter the video out forever, and the cache
+        # never rescans. Leave it uncached so the next run retries it.
+        with self.lock:
+            self.degraded += 1
+            self._note()
 
     def abort(self, message):
         with self.lock:
@@ -268,7 +282,11 @@ def scan_chunk(chunk, cache, browser, state, sleep, skip_next):
             if not vid:
                 continue
             scanned += 1
-            state.note_success(cache, vid, cache_entry_from_info(info))
+            entry = cache_entry_from_info(info)
+            if entry["categories"]:
+                state.note_success(cache, vid, entry)
+            else:
+                state.note_degraded()
     finally:
         if proc is not None:
             try:
@@ -342,6 +360,11 @@ def scan_missing(ids, cache, browser, workers, sleep, skip_next):
             save_cache(cache)
         print()
 
+    if state.degraded:
+        print(
+            f"\n  note: {state.degraded} response(s) lacked category data "
+            "- not cached, so the next run retries them"
+        )
     if state.stop.is_set():
         print(
             "Scan aborted early: YouTube was rate-limiting. Continuing "
@@ -381,8 +404,12 @@ def ensure_browser_auth():
     header set (or a DevTools paste that missed it) can lack it.
     ytmusicapi recomputes the hash from the SAPISID cookie on every
     request, so any synthesized placeholder works; patch it in place.
+    Only real runs reach this - dry-runs never touch the auth file.
     """
     data = json.loads(AUTH_FILE.read_text())
+    # Session cookies are credentials - keep the file owner-only even
+    # if the setup wizard wrote it with looser permissions.
+    os.chmod(AUTH_FILE, 0o600)
     if "SAPISIDHASH" in (data.get("authorization") or ""):
         return
     match = re.search(r"SAPISID=([^;]+)", data.get("cookie", ""))
@@ -564,12 +591,18 @@ def main():
     tonies1_ids = {entry["id"] for entry in tonies1 if entry.get("id")}
     print(f"Sawyer Tonies 1: {len(tonies1_ids)} videos")
 
-    # Videos already on Tonies 1 don't need a category scan.
-    scan_ids = [
-        entry["id"]
-        for entry in liked
-        if entry["id"] not in tonies1_ids
-    ] + [vid for vid in include_ids if vid not in tonies1_ids]
+    # Videos already on Tonies 1 don't need a category scan. De-dupe so
+    # --include-ids entries that are also in the liked list scan once.
+    seen_ids = set(tonies1_ids)
+    scan_ids = []
+    for entry in liked:
+        if entry["id"] not in seen_ids:
+            seen_ids.add(entry["id"])
+            scan_ids.append(entry["id"])
+    for vid in include_ids:
+        if vid not in seen_ids:
+            seen_ids.add(vid)
+            scan_ids.append(vid)
     scan_missing(
         scan_ids,
         cache,

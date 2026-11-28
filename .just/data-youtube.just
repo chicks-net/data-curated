@@ -248,7 +248,7 @@ playlist-length PLAYLIST:
 #   just create-tonies2-playlist ""        # create the playlist
 # The first run scans every liked video for its category (cached in
 # tonies2-cache.json, gitignored); later runs only scan new likes.
-# Extra script flags pass through, e.g. just create-tonies2-playlist "" -- --limit 200
+# Extra script flags pass through, e.g. just create-tonies2-playlist "" --limit 200
 [working-directory("individuals/chicks/youtube")]
 [group('youtube')]
 create-tonies2-playlist DRY_RUN="--dry-run" *args:
@@ -263,6 +263,8 @@ create-tonies2-playlist DRY_RUN="--dry-run" *args:
     just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
 
     echo "{{GREEN}}Building \"All Liked Music Videos\" from liked music videos...{{NORMAL}}"
+    # {{DRY_RUN}} and {{ args }} are just's interpolation, which the
+    # linter misreads as shell brace expansion (hence SC1083)
     # shellcheck disable=SC1083
     uv run tonies2-playlist.py {{DRY_RUN}} {{ args }}
 
