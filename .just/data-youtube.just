@@ -256,7 +256,7 @@ create-tonies2-playlist DRY_RUN="--dry-run" *args:
     set -euo pipefail
 
     # Check if yt-dlp is installed using helper
-    INSTALL_CMD=$(just _get-install_cmd yt-dlp python3-yt-dlp)
+    INSTALL_CMD=$(just _get_install_cmd yt-dlp python3-yt-dlp)
     just _require_command yt-dlp "Install with:\n  $INSTALL_CMD"
 
     # Check if uv is installed using helper
