@@ -487,6 +487,17 @@ def create_playlist(kept_ids, privacy, force):
         if already_on_it:
             print(f"  {already_on_it} of the tracks are already on it")
     else:
+        if force:
+            # --force is add-only by contract: a playlist that is not
+            # visible is an error, not a create trigger. (A rate-limited
+            # session hides existing playlists from the library listing.)
+            sys.exit(
+                f'"{PLAYLIST_NAME}" is not visible in your library, but '
+                "--force means add-only to the existing playlist. If "
+                "YouTube is rate-limiting the account, existing "
+                "playlists can drop out of the library listing - wait "
+                "and re-run later."
+            )
         playlist_id = yt.create_playlist(
             title=PLAYLIST_NAME,
             description=PLAYLIST_DESCRIPTION,
