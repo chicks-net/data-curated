@@ -48,6 +48,9 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+from ytmusicapi import YTMusic
+from ytmusicapi.exceptions import YTMusicServerError
+
 SCRIPT_DIR = Path(__file__).parent
 AUTH_FILE = SCRIPT_DIR / "browser.json"
 CACHE_FILE = SCRIPT_DIR / "tonies2-cache.json"
@@ -424,9 +427,32 @@ def ensure_browser_auth():
     print("Patched authorization header into browser.json")
 
 
-def create_playlist(kept_ids, privacy, force):
-    from ytmusicapi import YTMusic
+def add_videos(yt, playlist_id, video_ids, failed_ids):
+    """Add videos to the playlist, returning how many succeeded.
 
+    A single bad video (deleted, blocked) makes the whole batch request
+    fail, so on failure the batch is bisected until each video is added
+    (or identified as unaddable) individually.
+    """
+    try:
+        response = yt.add_playlist_items(playlist_id, videoIds=video_ids)
+        if (
+            isinstance(response, dict)
+            and response.get("status") == "STATUS_FAILED"
+        ):
+            raise YTMusicServerError("batch add reported failure")
+        return len(video_ids)
+    except YTMusicServerError:
+        if len(video_ids) == 1:
+            failed_ids.append(video_ids[0])
+            return 0
+        mid = len(video_ids) // 2
+        return add_videos(
+            yt, playlist_id, video_ids[:mid], failed_ids
+        ) + add_videos(yt, playlist_id, video_ids[mid:], failed_ids)
+
+
+def create_playlist(kept_ids, privacy, force):
     if not AUTH_FILE.exists():
         sys.exit(
             f"{AUTH_FILE.name} not found. Authenticate once with:\n"
@@ -475,11 +501,18 @@ def create_playlist(kept_ids, privacy, force):
 
     if not to_add:
         print("Nothing to add.")
+    added = 0
+    failed_ids = []
     for i in range(0, len(to_add), ADD_CHUNK):
         chunk = to_add[i : i + ADD_CHUNK]
-        yt.add_playlist_items(playlist_id, videoIds=chunk)
-        print(f"  added {min(i + ADD_CHUNK, len(to_add))}/{len(to_add)}")
+        added += add_videos(yt, playlist_id, chunk, failed_ids)
+        print(f"  added {added}/{len(to_add)}")
         time.sleep(0.5)
+    if failed_ids:
+        print(
+            f"  note: {len(failed_ids)} video(s) were not added "
+            "(already on the playlist, or deleted/blocked)"
+        )
 
     print(f"\nDone: https://www.youtube.com/playlist?list={playlist_id}")
     print(
