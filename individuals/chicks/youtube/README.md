@@ -259,16 +259,16 @@ How it decides what goes in:
 One-time setup:
 
 1. Be logged into YouTube in Chrome. The first run makes macOS ask for
-   Keychain access so yt-dlp can read Chrome's cookies - click
-   **Always Allow**.
+    Keychain access so yt-dlp can read Chrome's cookies - click
+    **Always Allow**.
 2. Create the ytmusicapi auth file for playlist creation:
 
-   ```bash
-   cd individuals/chicks/youtube
-   uvx ytmusicapi browser
-   ```
+    ```bash
+    cd individuals/chicks/youtube
+    uvx ytmusicapi browser
+    ```
 
-   (writes `browser.json`, gitignored; re-run if it ever expires)
+    (writes `browser.json`, gitignored; re-run if it ever expires)
 
 How it behaves:
 

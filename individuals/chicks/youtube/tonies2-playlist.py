@@ -423,11 +423,10 @@ def create_playlist(kept_ids, privacy, force):
                 "(nothing is ever removed)."
             )
         print(f'"{PLAYLIST_NAME}" exists ({url}) - adding missing tracks.')
-        existing_ids = {
-            track.get("videoId")
-            for track in (yt.get_playlist(playlist_id, limit=None)
-                          .get("tracks") or [])
-        }
+        existing_tracks = (
+            yt.get_playlist(playlist_id, limit=None).get("tracks") or []
+        )
+        existing_ids = {track.get("videoId") for track in existing_tracks}
         to_add = [
             vid for vid in kept_ids if vid not in existing_ids
         ]
@@ -622,17 +621,17 @@ def main():
         )
 
     print()
-    print(f"Music videos among the likes: {len(kept)}"
-          + (f" ({forced_count} forced via --include-ids)" if forced_count else ""))
+    summary = f"Music videos among the likes: {len(kept)}"
+    if forced_count:
+        summary += f" ({forced_count} forced via --include-ids)"
+    print(summary)
     print(f"Excluded (already on Sawyer Tonies 1): {on_tonies1}")
-    print(f'Tracks for "{PLAYLIST_NAME}": {len(kept)}, '
-          f"{fmt_hm(total_seconds)} total")
+    print(f'Tracks for "{PLAYLIST_NAME}": {len(kept)}, {fmt_hm(total_seconds)} total')
     print()
     for i, record in enumerate(kept, 1):
         title = (record.get("title") or "?")[:70]
         channel = (record.get("channel") or "?")[:30]
-        print(f"  {i:4d}. [{fmt_mmss(record.get('duration'))}] "
-              f"{title} - {channel}")
+        print(f"  {i:4d}. [{fmt_mmss(record.get('duration'))}] {title} - {channel}")
 
     if total_seconds > TONIE_SECONDS:
         print()
