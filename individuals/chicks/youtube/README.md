@@ -272,19 +272,22 @@ One-time setup:
 How it behaves:
 
 - The first run scans every liked video for its category - the `LL`
-  playlist caps at 5000, and a full scan with the default 4 workers
-  takes roughly half an hour. Results are cached in
-  `tonies2-cache.json` (gitignored), so later runs only scan newly
-  liked videos.
+  playlist caps at 5000, and a full scan takes a couple of hours at the
+  polite default pace. Results are cached in `tonies2-cache.json`
+  (gitignored), so later runs only scan newly liked videos.
+- YouTube rate-limits the account if the scan runs too hot (the block
+  lasts about an hour). The script paces itself with a small delay
+  between requests and stops early rather than fighting the block -
+  progress stays cached, and re-running resumes where it left off.
 - One-shot by design: if a "Sawyer Tonies 2" playlist already exists,
   the script refuses to touch it. `--force` switches to add-only mode -
   it adds missing tracks but never removes or reorders anything, so
   manual curation on YouTube survives.
 - The playlist is created as **private** (`--privacy public` or
   `unlisted` to change).
-- Useful flags: `--limit 200` for a quick subset test, `--workers 1`
-  if YouTube starts throttling, `--exclude-ids` to leave something out,
-  `--refresh` to discard the cache.
+- Useful flags: `--limit 200` for a quick subset test, `--workers 2` +
+  `--sleep 1` if the scan keeps getting rate-limited, `--exclude-ids`
+  to leave something out, `--refresh` to discard the cache.
 
 After creation, the next Creative-Tonie is one recipe away:
 

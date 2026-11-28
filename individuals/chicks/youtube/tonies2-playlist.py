@@ -57,6 +57,7 @@ LIKED_URL = "https://www.youtube.com/playlist?list=LL"
 TONIE_SECONDS = 90 * 60  # Creative-Tonie capacity, informational only
 ADD_CHUNK = 100  # videos added per ytmusicapi call
 SAVE_EVERY = 100  # cache writes during a scan
+ERROR_STREAK_STOP = 50  # consecutive failed videos that abort a scan
 
 
 def now_iso():
@@ -191,7 +192,7 @@ def save_cache(cache):
     os.replace(tmp, CACHE_FILE)
 
 
-def scan_chunk(chunk, cache, browser, state):
+def scan_chunk(chunk, cache, browser, state, sleep, skip_next):
     """Scan a chunk of video IDs in one long-running yt-dlp process."""
     if not chunk or state.stop.is_set():
         return
@@ -210,16 +211,31 @@ def scan_chunk(chunk, cache, browser, state):
         "--dump-json",
         "--skip-download",
         "--ignore-errors",
-        "--batch-file",
-        batch_path,
     ]
+    # Pacing keeps YouTube's per-account rate limit at bay - a full
+    # speed scan of a big liked list gets blocked within minutes, and
+    # the block lasts about an hour.
+    if sleep > 0:
+        cmd += ["--sleep-requests", str(sleep)]
+    if skip_next:
+        # The "next" request (initial data) is not needed for categories
+        # or durations - skipping it roughly halves the requests per
+        # video. --full-requests turns this off if it ever misbehaves.
+        cmd += ["--extractor-args", "youtube:player_skip=initial_data"]
+    cmd += ["--batch-file", batch_path]
+
     scanned = 0
+    errors = 0
     proc = None
     try:
+        # stderr merges into the same pipe: ERROR lines are counted so a
+        # rate-limited or blocked run aborts quickly instead of grinding
+        # through hundreds of doomed requests. JSON lines never start
+        # with ERROR, so the two streams stay distinguishable.
         proc = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
-            stderr=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
             text=True,
         )
         with state.lock:
@@ -230,7 +246,18 @@ def scan_chunk(chunk, cache, browser, state):
             try:
                 info = json.loads(line)
             except json.JSONDecodeError:
+                if line.startswith("ERROR"):
+                    errors += 1
+                    if errors >= ERROR_STREAK_STOP:
+                        state.abort(
+                            "Too many videos failing in a row - YouTube "
+                            "is likely rate-limiting (blocks last about "
+                            "an hour). Progress is cached; re-run later "
+                            "to resume where this left off."
+                        )
+                        break
                 continue
+            errors = 0
             vid = info.get("id")
             if not vid:
                 continue
@@ -265,7 +292,7 @@ def scan_chunk(chunk, cache, browser, state):
         )
 
 
-def scan_missing(ids, cache, browser, workers):
+def scan_missing(ids, cache, browser, workers, sleep, skip_next):
     """Fetch full metadata (categories) for every ID not in the cache."""
     todo = [vid for vid in ids if vid not in cache]
     if not todo:
@@ -280,7 +307,8 @@ def scan_missing(ids, cache, browser, workers):
     state = ScanState(len(todo))
     print(
         f"Scanning {len(todo)} liked videos for their categories "
-        f"({workers} workers, cached in {CACHE_FILE.name})..."
+        f"({workers} workers, {sleep}s between requests, cached in "
+        f"{CACHE_FILE.name})..."
     )
     print(
         "  first scan of a big liked list takes a while "
@@ -291,7 +319,8 @@ def scan_missing(ids, cache, browser, workers):
         threads = []
         for chunk in chunks:
             thread = threading.Thread(
-                target=scan_chunk, args=(chunk, cache, browser, state)
+                target=scan_chunk,
+                args=(chunk, cache, browser, state, sleep, skip_next),
             )
             thread.daemon = True
             thread.start()
@@ -306,6 +335,14 @@ def scan_missing(ids, cache, browser, workers):
 
     if state.stop.is_set():
         sys.exit(1)
+
+    missing = len(todo) - state.done
+    if missing > 0:
+        print(
+            f"Scan incomplete: {missing} of {len(todo)} videos could not "
+            "be fetched (rate-limited, deleted, or blocked). They were "
+            "skipped - re-run the recipe later to retry them."
+        )
 
 
 def is_music(entry):
@@ -422,6 +459,21 @@ def main():
         help="concurrent yt-dlp scan processes (default: 4)",
     )
     parser.add_argument(
+        "--sleep",
+        type=float,
+        default=0.5,
+        metavar="SECONDS",
+        help="pause between yt-dlp requests during the scan "
+        "(default: 0.5; 0 disables)",
+    )
+    parser.add_argument(
+        "--full-requests",
+        action="store_true",
+        help="do not skip YouTube's 'next' metadata request during the "
+        "scan (slower, more rate-limit-prone, but a fallback if "
+        "category data ever looks wrong)",
+    )
+    parser.add_argument(
         "--include-ids",
         default="",
         help="comma-separated video IDs to include even if not "
@@ -479,7 +531,14 @@ def main():
         for entry in liked
         if entry["id"] not in tonies1_ids
     ] + [vid for vid in include_ids if vid not in tonies1_ids]
-    scan_missing(scan_ids, cache, args.browser, args.workers)
+    scan_missing(
+        scan_ids,
+        cache,
+        args.browser,
+        args.workers,
+        args.sleep,
+        not args.full_requests,
+    )
 
     # Music videos among the likes, in liked order (newest first).
     kept = []
@@ -513,6 +572,14 @@ def main():
     total_seconds = sum(record.get("duration") or 0 for record in kept)
     forced_count = sum(1 for record in kept if record.get("forced"))
     on_tonies1 = sum(1 for entry in liked if entry["id"] in tonies1_ids)
+
+    if not kept and len(cache) > 100:
+        print()
+        print(
+            "No music videos found although many videos were scanned - "
+            "category data may not be arriving. Re-run with "
+            "--full-requests to rule that out."
+        )
 
     print()
     print(f"Music videos among the likes: {len(kept)}"
