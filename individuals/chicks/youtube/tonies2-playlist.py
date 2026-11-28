@@ -35,8 +35,10 @@ curation on YouTube survives).
 # ///
 
 import argparse
+import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -358,6 +360,31 @@ def find_tonies2(yt):
     return None
 
 
+def ensure_browser_auth():
+    """Make sure browser.json is recognized as browser auth.
+
+    YTMusic only treats the file as browser auth when its headers
+    contain a "SAPISIDHASH ..." authorization entry - the setup wizard
+    writes one when headers are pasted from DevTools, but a hand-built
+    header set (or a DevTools paste that missed it) can lack it.
+    ytmusicapi recomputes the hash from the SAPISID cookie on every
+    request, so any synthesized placeholder works; patch it in place.
+    """
+    data = json.loads(AUTH_FILE.read_text())
+    if "SAPISIDHASH" in (data.get("authorization") or ""):
+        return
+    match = re.search(r"SAPISID=([^;]+)", data.get("cookie", ""))
+    if not match:
+        return  # no SAPISID to hash - let YTMusic raise its own error
+    timestamp = str(int(time.time()))
+    digest = hashlib.sha1(
+        f"{timestamp} {match.group(1)} https://music.youtube.com".encode()
+    ).hexdigest()
+    data["authorization"] = f"SAPISIDHASH {timestamp}_{digest}"
+    AUTH_FILE.write_text(json.dumps(data))
+    print("Patched authorization header into browser.json")
+
+
 def create_playlist(kept_ids, privacy, force):
     from ytmusicapi import YTMusic
 
@@ -369,6 +396,7 @@ def create_playlist(kept_ids, privacy, force):
             "(see README for details)"
         )
 
+    ensure_browser_auth()
     yt = YTMusic(str(AUTH_FILE))
 
     existing = find_tonies2(yt)
