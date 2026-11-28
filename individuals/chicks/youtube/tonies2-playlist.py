@@ -343,7 +343,12 @@ def scan_missing(ids, cache, browser, workers, sleep, skip_next):
         print()
 
     if state.stop.is_set():
-        sys.exit(1)
+        print(
+            "Scan aborted early: YouTube was rate-limiting. Continuing "
+            f"with cached results ({len(todo) - state.done} of {len(todo)} "
+            "videos were not fetched) - re-run later to retry them."
+        )
+        return
 
     missing = len(todo) - state.done
     if missing > 0:
@@ -639,7 +644,10 @@ def main():
 
     if args.dry_run:
         print()
-        print("Dry-run only - re-run without --dry-run to create it.")
+        print(
+            "Dry-run only. To create the playlist:\n"
+            '  just create-tonies2-playlist ""'
+        )
         return
 
     print()
