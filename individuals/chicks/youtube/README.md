@@ -19,7 +19,7 @@ just extract-youtube-audio PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
 # Calculate total playlist play time (checks the 90-minute Creative-Tonie fit)
 just playlist-length PLj1L6ffGFWPsNl__2w5oIW8NBAPWGV6tV
 
-# Create "Sawyer Tonies 2" from music videos liked on YouTube
+# Create the "All Liked Music Videos" playlist from liked YouTube music videos
 just create-tonies2-playlist        # Dry-run mode (shows what would be created)
 just create-tonies2-playlist ""     # Actually create the playlist
 
@@ -229,10 +229,11 @@ that's between you and YouTube's terms of service.
 
 ## Tonies Playlists
 
-The `tonies2-playlist.py` script builds the **"Sawyer Tonies 2"** YouTube
-playlist: every music video liked on YouTube that is not already on
-["Sawyer Tonies 1"](https://youtube.com/playlist?list=PLGy4wkCuxqNg)
-(the Creative-Tonie playlist migrated from Spotify with Soundiiz).
+The `tonies2-playlist.py` script builds the **"All Liked Music Videos"**
+YouTube playlist: every music video liked on YouTube that is not already
+on ["Sawyer Tonies 1"](https://youtube.com/playlist?list=PLGy4wkCuxqNg)
+(the current Creative-Tonie playlist, migrated from Spotify with
+Soundiiz).
 
 ```bash
 just create-tonies2-playlist        # Dry-run mode (shows what would be created)
@@ -279,10 +280,10 @@ How it behaves:
   lasts about an hour). The script paces itself with a small delay
   between requests and stops early rather than fighting the block -
   progress stays cached, and re-running resumes where it left off.
-- One-shot by design: if a "Sawyer Tonies 2" playlist already exists,
-  the script refuses to touch it. `--force` switches to add-only mode -
-  it adds missing tracks but never removes or reorders anything, so
-  manual curation on YouTube survives.
+- One-shot by design: if an "All Liked Music Videos" playlist already
+  exists, the script refuses to touch it. `--force` switches to add-only
+  mode - it adds missing tracks but never removes or reorders anything,
+  so manual curation on YouTube survives.
 - The playlist is created as **private** (`--privacy public` or
   `unlisted` to change).
 - Useful flags: `--limit 200` for a quick subset test, `--workers 2` +
@@ -393,7 +394,7 @@ current data.
 ## Files
 
 - `fetch-videos.py` - Main script to fetch and store video metadata
-- `tonies2-playlist.py` - Creates the "Sawyer Tonies 2" playlist from liked music videos
+- `tonies2-playlist.py` - Creates the "All Liked Music Videos" playlist from liked music videos
 - `link-blog-posts.go` - Go program to link videos to blog posts
 - `generate-blog-posts.go` - Go program to generate blog posts from template
 - `template.md` - Blog post template with variable placeholders

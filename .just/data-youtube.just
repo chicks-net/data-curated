@@ -238,8 +238,8 @@ playlist-length PLAYLIST:
         echo "{{GREEN}}Fits on a Creative-Tonie (90-minute capacity).{{NORMAL}}"
     fi
 
-# Create the "Sawyer Tonies 2" YouTube playlist: music videos liked on
-# YouTube that are not on "Sawyer Tonies 1" (PLGy4wkCuxqNg). Reads your
+# Create the "All Liked Music Videos" YouTube playlist: music videos
+# liked on YouTube that are not on "Sawyer Tonies 1" (PLGy4wkCuxqNg). Reads your
 # liked videos via yt-dlp + Chrome cookies (macOS asks for Keychain
 # access once - click "Always Allow") and creates the playlist via
 # ytmusicapi (one-time setup: `uvx ytmusicapi browser`, see README).
@@ -262,7 +262,7 @@ create-tonies2-playlist DRY_RUN="--dry-run" *args:
     # Check if uv is installed using helper
     just _require_command uv "Install with:\n  curl -LsSf https://astral.sh/uv/install.sh | sh"
 
-    echo "{{GREEN}}Building Sawyer Tonies 2 from liked music videos...{{NORMAL}}"
+    echo "{{GREEN}}Building \"All Liked Music Videos\" from liked music videos...{{NORMAL}}"
     # shellcheck disable=SC1083
     uv run tonies2-playlist.py {{DRY_RUN}} {{ args }}
 

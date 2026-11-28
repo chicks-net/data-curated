@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-Create the "Sawyer Tonies 2" YouTube playlist: every music video liked
-on YouTube that is not already on "Sawyer Tonies 1".
+Create the "All Liked Music Videos" YouTube playlist: every music video
+liked on YouTube that is not already on "Sawyer Tonies 1".
 
 The source is the account's Liked Videos list (the special "LL" playlist,
 read via yt-dlp with the browser's cookies), filtered to videos YouTube
@@ -24,10 +24,10 @@ playlist caps at 5000, so with 4 workers this takes roughly half an
 hour). Results are cached in tonies2-cache.json (gitignored), so later
 runs only scan newly liked videos.
 
-One-shot by design: if a "Sawyer Tonies 2" playlist already exists, the
-script refuses to touch it unless --force is given (--force only adds
-missing tracks - it never removes or reorders anything, so manual
-curation on YouTube survives).
+One-shot by design: if an "All Liked Music Videos" playlist already
+exists, the script refuses to touch it unless --force is given (--force
+only adds missing tracks - it never removes or reorders anything, so
+manual curation on YouTube survives).
 """
 
 # /// script
@@ -52,8 +52,8 @@ AUTH_FILE = SCRIPT_DIR / "browser.json"
 CACHE_FILE = SCRIPT_DIR / "tonies2-cache.json"
 
 TONIES1_ID = "PLGy4wkCuxqNg"
-TONIES2_NAME = "Sawyer Tonies 2"
-TONIES2_DESCRIPTION = "Music videos liked on YouTube, not on Sawyer Tonies 1"
+PLAYLIST_NAME = "All Liked Music Videos"
+PLAYLIST_DESCRIPTION = "Music videos liked on YouTube, not on Sawyer Tonies 1"
 LIKED_URL = "https://www.youtube.com/playlist?list=LL"
 
 TONIE_SECONDS = 90 * 60  # Creative-Tonie capacity, informational only
@@ -360,9 +360,9 @@ def is_music(entry):
     ]
 
 
-def find_tonies2(yt):
+def find_playlist(yt):
     for playlist in yt.get_library_playlists(limit=None):
-        if playlist.get("title") == TONIES2_NAME:
+        if playlist.get("title") == PLAYLIST_NAME:
             return playlist
     return None
 
@@ -406,18 +406,18 @@ def create_playlist(kept_ids, privacy, force):
     ensure_browser_auth()
     yt = YTMusic(str(AUTH_FILE))
 
-    existing = find_tonies2(yt)
+    existing = find_playlist(yt)
     if existing:
         playlist_id = existing.get("playlistId")
         url = f"https://www.youtube.com/playlist?list={playlist_id}"
         if not force:
             sys.exit(
-                f'"{TONIES2_NAME}" already exists ({url}).\n'
+                f'"{PLAYLIST_NAME}" already exists ({url}).\n'
                 "One-shot by design: rename or delete it first, or "
                 "re-run with --force to only add missing tracks "
                 "(nothing is ever removed)."
             )
-        print(f'"{TONIES2_NAME}" exists ({url}) - adding missing tracks.')
+        print(f'"{PLAYLIST_NAME}" exists ({url}) - adding missing tracks.')
         existing_ids = {
             track.get("videoId")
             for track in (yt.get_playlist(playlist_id, limit=None)
@@ -431,8 +431,8 @@ def create_playlist(kept_ids, privacy, force):
             print(f"  {already_on_it} of the tracks are already on it")
     else:
         playlist_id = yt.create_playlist(
-            title=TONIES2_NAME,
-            description=TONIES2_DESCRIPTION,
+            title=PLAYLIST_NAME,
+            description=PLAYLIST_DESCRIPTION,
             privacy_status=privacy.upper(),
         )
         if isinstance(playlist_id, dict):
@@ -440,7 +440,7 @@ def create_playlist(kept_ids, privacy, force):
         if not playlist_id:
             sys.exit("Playlist creation failed.")
         to_add = kept_ids
-        print(f'Created "{TONIES2_NAME}" ({privacy}).')
+        print(f'Created "{PLAYLIST_NAME}" ({privacy}).')
 
     if not to_add:
         print("Nothing to add.")
@@ -465,8 +465,8 @@ def main():
 
     parser = argparse.ArgumentParser(
         description=(
-            'Create the "Sawyer Tonies 2" playlist: music videos liked '
-            'on YouTube that are not on "Sawyer Tonies 1".'
+            'Create the "All Liked Music Videos" playlist: music videos '
+            'liked on YouTube that are not on "Sawyer Tonies 1".'
         )
     )
     parser.add_argument(
@@ -620,7 +620,7 @@ def main():
     print(f"Music videos among the likes: {len(kept)}"
           + (f" ({forced_count} forced via --include-ids)" if forced_count else ""))
     print(f"Excluded (already on Sawyer Tonies 1): {on_tonies1}")
-    print(f'Tracks for "{TONIES2_NAME}": {len(kept)}, '
+    print(f'Tracks for "{PLAYLIST_NAME}": {len(kept)}, '
           f"{fmt_hm(total_seconds)} total")
     print()
     for i, record in enumerate(kept, 1):
